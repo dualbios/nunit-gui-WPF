@@ -60,6 +60,13 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Instanses\FileLoader\AssemblyLoader.cs" />
+    <Compile Include="Instanses\FileLoader\FileItem.cs" />
+    <Compile Include="Instanses\FileLoader\FileLoaderManager.cs" />
+    <Compile Include="Instanses\FileLoader\SolutionLoader.cs" />
+    <Compile Include="Interfaces\IFileItem.cs" />
+    <Compile Include="Interfaces\IFileLoader.cs" />
+    <Compile Include="Interfaces\IFileLoaderManager.cs" />
     <Compile Include="Tools\BaseViewModel.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>

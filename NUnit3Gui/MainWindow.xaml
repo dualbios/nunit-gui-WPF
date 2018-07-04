@@ -7,9 +7,22 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <DockPanel LastChildFill="True">
-        <DockPanel LastChildFill="True">
+        <DockPanel LastChildFill="True" DockPanel.Dock="Left">
             <Button Content="Open" DockPanel.Dock="Top" Command="{Binding BrowseAssembliesCommand}" />
-            <ListBox ItemsSource="{Binding LoadedAssemblies}" />
+            <ListBox ItemsSource="{Binding LoadedAssemblies}" >
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{Binding FilePath}"/>
+                            <TextBlock>
+                                <Run Text=" ("/>
+                                <Run Text="{Binding TestCount, Mode=OneWay}"/>
+                                <Run Text=") "/>
+                            </TextBlock>
+                        </StackPanel>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
         </DockPanel>
     </DockPanel>
 </Window>

@@ -13,14 +13,15 @@ namespace NUnit3Gui
         }
 
         public static AppRoot Current { get; } = new AppRoot();
-        public Window MainWindow { get; private set; }
 
         public ICompositionManager CompositionManager { get; private set; }
+
+        public Window MainWindow { get; private set; }
 
         public async Task OnStartup(StartupEventArgs e)
         {
             await CompositionManager.Compose(this);
-            MainWindow = new MainWindow {DataContext = new MainWindowViewModel()};
+            MainWindow = new MainWindow { DataContext = new MainWindowViewModel() };
         }
     }
 }

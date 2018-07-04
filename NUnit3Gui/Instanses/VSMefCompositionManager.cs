@@ -10,8 +10,12 @@ namespace NUnit3Gui.Instanses
 {
     public class VSMefCompositionManager : ICompositionManager
     {
+        public ExportProvider ExportProvider { get; private set; }
+
         public async Task<bool> Compose(object parentInstance)
         {
+            ExportProvider = null;
+            
             var discovery = PartDiscovery.Combine(
                 new AttributedPartDiscovery(Resolver.DefaultInstance),
                 new AttributedPartDiscoveryV1(Resolver.DefaultInstance)); // ".NET MEF" attributes (System.ComponentModel.Composition)
@@ -38,12 +42,12 @@ namespace NUnit3Gui.Instanses
                     .WithCompositionService(); // Makes an ICompositionService export available to MEF parts to import
 
                 var config = CompositionConfiguration.Create(catalog);
-                config.ThrowOnErrors();
+                //config.ThrowOnErrors();
 
                 var epf = config.CreateExportProviderFactory();
-                var exportProvider = epf.CreateExportProvider();
+                ExportProvider = epf.CreateExportProvider();
 
-                var service = exportProvider.GetExportedValue<System.ComponentModel.Composition.ICompositionService>();
+                var service = ExportProvider.GetExportedValue<System.ComponentModel.Composition.ICompositionService>();
                 service.SatisfyImportsOnce(parentInstance);
             }
             catch (Exception e)
