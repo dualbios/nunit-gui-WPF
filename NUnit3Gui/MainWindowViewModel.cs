@@ -1,5 +1,6 @@
 ﻿using System.Reactive;
 using System.Reactive.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using NUnit3Gui.Interfaces;
@@ -9,30 +10,34 @@ namespace NUnit3Gui
 {
     public class MainWindowViewModel : ReactiveObject
     {
-        private readonly ObservableAsPropertyHelper<bool> canDoIt;
         private int _loadingProgress;
         private IFileItem _selectedAssembly;
 
         public MainWindowViewModel()
         {
-            BrowseAssembliesCommand = ReactiveCommand.CreateFromTask(() => OpenAssemblies());
-            canDoIt = this.WhenAnyObservable(x => x.BrowseAssembliesCommand.IsExecuting)
-                .ToProperty(this, x => x.CanDoIt);
+            BrowseAssembliesCommand = ReactiveCommand
+                .CreateFromObservable(() => Observable
+                    .StartAsync(ct => this.OpenAssemblies(ct))
+                    .TakeUntil(this.CancelBrowseCommand));
+
             RemoveAssembliesCommand = ReactiveCommand.CreateFromTask(
                 () => RemoveSelecteddAssemblies(),
-                Observable.Merge(
-                    this.WhenAny(vm => vm.CanDoIt, p => p.Value == false),
-                    this.WhenAny(vm => vm.SelectedAssembly, p => p.Value != null)));
+                     Observable.Merge(
+                        BrowseAssembliesCommand.IsExecuting.Select(_ => !_)
+                        , (this).WhenAny(vm => vm.SelectedAssembly, p => p.Value != null)
+                      )
+                    );
+
+            CancelBrowseCommand = ReactiveCommand.Create(() => { }, BrowseAssembliesCommand.IsExecuting);
+
             LoadedAssemblies = new ReactiveList<IFileItem>();
+
             FileLoaderManager = AppRoot.Current.CompositionManager.ExportProvider.GetExportedValue<IFileLoaderManager>();
         }
 
         public ReactiveCommand<Unit, Unit> BrowseAssembliesCommand { get; }
 
-        public bool CanDoIt
-        {
-            get { return canDoIt.Value; }
-        }
+        public ReactiveCommand<Unit, Unit> CancelBrowseCommand { get; }
 
         public IFileLoaderManager FileLoaderManager { get; private set; }
 
@@ -56,7 +61,7 @@ namespace NUnit3Gui
             set => this.RaiseAndSetIfChanged(ref _selectedAssembly, value);
         }
 
-        private async Task<Unit> OpenAssemblies()
+        private async Task<Unit> OpenAssemblies(CancellationToken ct)
         {
             OpenFileDialog ofd = new OpenFileDialog() { Filter = "Dll files|*.dll", Multiselect = true };
             if (ofd.ShowDialog() == DialogResult.OK)
@@ -69,6 +74,12 @@ namespace NUnit3Gui
                         LoadedAssemblies.Add(fileItem);
                     }
 
+                    if (ct.IsCancellationRequested)
+                    {
+                        LoadedAssemblies.Clear();
+                        return default(Unit);
+                    }
+
                     int index = 0;
                     foreach (IFileItem item in LoadedAssemblies)
                     {
@@ -76,6 +87,12 @@ namespace NUnit3Gui
                         LoadingProgress = (int)(((double)index) / ((double)ofd.FileNames.Length) * 100D);
                         await Task.Delay(25);
                         index++;
+
+                        if (ct.IsCancellationRequested)
+                        {
+                            LoadedAssemblies.Clear();
+                            return default(Unit);
+                        }
                     }
                     LoadingProgress = 100;
                 }

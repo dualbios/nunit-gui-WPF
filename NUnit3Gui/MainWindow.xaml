@@ -24,6 +24,8 @@
                         Command="{Binding BrowseAssembliesCommand}" />
                 <Button Content="Remove" 
                         Command="{Binding RemoveAssembliesCommand}" />
+                <Button Content="Cancel" 
+                        Command="{Binding CancelBrowseCommand}" />
             </StackPanel>
             <ProgressBar DockPanel.Dock="Bottom"
                          Value="{Binding LoadingProgress, Mode=OneWay}" />
