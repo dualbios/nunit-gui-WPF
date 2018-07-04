@@ -1,4 +1,5 @@
 ﻿using System.Reactive;
+using System.Reactive.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using NUnit3Gui.Interfaces;
@@ -8,16 +9,30 @@ namespace NUnit3Gui
 {
     public class MainWindowViewModel : ReactiveObject
     {
+        private readonly ObservableAsPropertyHelper<bool> canDoIt;
         private int _loadingProgress;
+        private IFileItem _selectedAssembly;
 
         public MainWindowViewModel()
         {
             BrowseAssembliesCommand = ReactiveCommand.CreateFromTask(() => OpenAssemblies());
+            canDoIt = this.WhenAnyObservable(x => x.BrowseAssembliesCommand.IsExecuting)
+                .ToProperty(this, x => x.CanDoIt);
+            RemoveAssembliesCommand = ReactiveCommand.CreateFromTask(
+                () => RemoveSelecteddAssemblies(),
+                Observable.Merge(
+                    this.WhenAny(vm => vm.CanDoIt, p => p.Value == false),
+                    this.WhenAny(vm => vm.SelectedAssembly, p => p.Value != null)));
             LoadedAssemblies = new ReactiveList<IFileItem>();
             FileLoaderManager = AppRoot.Current.CompositionManager.ExportProvider.GetExportedValue<IFileLoaderManager>();
         }
 
         public ReactiveCommand<Unit, Unit> BrowseAssembliesCommand { get; }
+
+        public bool CanDoIt
+        {
+            get { return canDoIt.Value; }
+        }
 
         public IFileLoaderManager FileLoaderManager { get; private set; }
 
@@ -31,6 +46,14 @@ namespace NUnit3Gui
                 _loadingProgress = value;
                 this.RaisePropertyChanged();
             }
+        }
+
+        public ReactiveCommand<Unit, Unit> RemoveAssembliesCommand { get; }
+
+        public IFileItem SelectedAssembly
+        {
+            get => _selectedAssembly;
+            set => this.RaiseAndSetIfChanged(ref _selectedAssembly, value);
         }
 
         private async Task<Unit> OpenAssemblies()
@@ -59,6 +82,14 @@ namespace NUnit3Gui
             }
 
             return default(Unit);
+        }
+
+        private Task<Unit> RemoveSelecteddAssemblies()
+        {
+            if (SelectedAssembly != null)
+                LoadedAssemblies.Remove(SelectedAssembly);
+
+            return Task.FromResult(default(Unit));
         }
     }
 }

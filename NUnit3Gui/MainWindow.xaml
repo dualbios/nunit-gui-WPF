@@ -13,15 +13,22 @@
             <ColumnDefinition />
         </Grid.ColumnDefinitions>
 
-        <GridSplitter Grid.Column="1" 
+        <GridSplitter Grid.Column="1"
                       HorizontalAlignment="Stretch" />
 
-        <DockPanel LastChildFill="True" 
-                   DockPanel.Dock="Left" 
+        <DockPanel LastChildFill="True"
+                   DockPanel.Dock="Left"
                    Grid.Column="0">
-            <Button Content="Open" DockPanel.Dock="Top" Command="{Binding BrowseAssembliesCommand}" />
-            <ProgressBar DockPanel.Dock="Bottom" Value="{Binding LoadingProgress, Mode=OneWay}" />
-            <ListBox ItemsSource="{Binding LoadedAssemblies}">
+            <StackPanel Orientation="Horizontal" DockPanel.Dock="Top">
+                <Button Content="Open" 
+                        Command="{Binding BrowseAssembliesCommand}" />
+                <Button Content="Remove" 
+                        Command="{Binding RemoveAssembliesCommand}" />
+            </StackPanel>
+            <ProgressBar DockPanel.Dock="Bottom"
+                         Value="{Binding LoadingProgress, Mode=OneWay}" />
+            <ListBox ItemsSource="{Binding LoadedAssemblies}"
+                     SelectedItem="{Binding SelectedAssembly}">
                 <ListBox.ItemTemplate>
                     <DataTemplate>
                         <StackPanel Orientation="Horizontal">
@@ -36,6 +43,6 @@
                 </ListBox.ItemTemplate>
             </ListBox>
         </DockPanel>
-        <UserControl />
+        <ListBox Grid.Column="2" ItemsSource="{Binding Path=SelectedAssembly.Tests}" />
     </Grid>
 </Window>
