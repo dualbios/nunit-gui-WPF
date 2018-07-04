@@ -22,7 +22,7 @@ namespace NUnit3Gui.Instanses.FileLoader
             {
                 return new[] { new FileItem(file) };
             }
-            else if (".dll".Equals(fileExtention, StringComparison.InvariantCultureIgnoreCase))
+            else if (".sln".Equals(fileExtention, StringComparison.InvariantCultureIgnoreCase))
             {
                 return new[] { new FileItem("111"), new FileItem("222") };
             }

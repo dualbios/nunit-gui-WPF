@@ -64,7 +64,6 @@
     <Compile Include="Instanses\FileLoader\FileLoaderManager.cs" />
     <Compile Include="Interfaces\IFileItem.cs" />
     <Compile Include="Interfaces\IFileLoaderManager.cs" />
-    <Compile Include="Interfaces\IFileLoaderNotSupported.cs" />
     <Compile Include="Tools\NotifyPropertyChanged.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
