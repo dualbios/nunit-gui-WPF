@@ -16,7 +16,7 @@
                             <TextBlock Text="{Binding FilePath}"/>
                             <TextBlock>
                                 <Run Text=" ("/>
-                                <Run Text="{Binding TestCount, Mode=OneWay}"/>
+                                <Run Text="{Binding StringState, Mode=OneWay}"/>
                                 <Run Text=") "/>
                             </TextBlock>
                         </StackPanel>

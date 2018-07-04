@@ -4,7 +4,7 @@ using System.Runtime.CompilerServices;
 
 namespace NUnit3Gui.Tools
 {
-    public class BaseViewModel : INotifyPropertyChanged
+    public class NotifyPropertyChanged : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;
 

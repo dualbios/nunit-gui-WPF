@@ -13,10 +13,16 @@ namespace NUnit3Gui.Instanses.FileLoader
         [ImportMany(typeof(IFileLoader))]
         public IEnumerable<IFileLoader> FileLoaders { get; private set; }
 
-        public Task<IFileItem> LoadFile(string filePath)
+        public IFileLoader NotSupportedFileLoader => FileLoaders.FirstOrDefault(_ => _ is IFileLoaderNotSupported);
+
+        public Task<IEnumerable<IFileItem>> LoadFile(string filePath)
         {
             IFileLoader fileLoader = FileLoaders.FirstOrDefault(_ => _.Extension == Path.GetExtension(filePath));
-            return fileLoader?.LoadAsync(filePath) ?? Task.FromResult(null as IFileItem);
+            if (fileLoader == null)
+            {
+                fileLoader = NotSupportedFileLoader;
+            }
+            return fileLoader?.LoadAsync(filePath) ?? Task.FromResult(Enumerable.Empty<IFileItem>());
         }
     }
 }

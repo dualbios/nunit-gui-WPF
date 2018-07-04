@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.ComponentModel.Composition;
 using System.Threading.Tasks;
 
 namespace NUnit3Gui.Interfaces
@@ -7,9 +6,8 @@ namespace NUnit3Gui.Interfaces
     public interface IFileLoaderManager
     {
         IEnumerable<IFileLoader> FileLoaders { get; }
+        IFileLoader NotSupportedFileLoader { get; }
 
-        Task<IFileItem> LoadFile(string filePath);
+        Task<IEnumerable<IFileItem>> LoadFile(string filePath);
     }
-
-    
 }

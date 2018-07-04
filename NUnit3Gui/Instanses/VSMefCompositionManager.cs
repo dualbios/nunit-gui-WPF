@@ -27,7 +27,7 @@ namespace NUnit3Gui.Instanses
             var assemblyPath = parentLocation;
             assemblyPath = assemblyPath.Substring(0, assemblyPath.LastIndexOf('\\'));
 
-            foreach (var f in Directory.EnumerateFiles(assemblyPath, "*.dll", SearchOption.TopDirectoryOnly))
+            foreach (var f in Directory.EnumerateFiles(assemblyPath, "NUnit3Gui*.dll", SearchOption.TopDirectoryOnly))
             {
                 assemblies.Add(f);
             }
@@ -42,7 +42,7 @@ namespace NUnit3Gui.Instanses
                     .WithCompositionService(); // Makes an ICompositionService export available to MEF parts to import
 
                 var config = CompositionConfiguration.Create(catalog);
-                //config.ThrowOnErrors();
+                config.ThrowOnErrors();
 
                 var epf = config.CreateExportProviderFactory();
                 ExportProvider = epf.CreateExportProvider();

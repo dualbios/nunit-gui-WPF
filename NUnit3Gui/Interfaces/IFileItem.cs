@@ -6,6 +6,8 @@ namespace NUnit3Gui.Interfaces
     {
         string FilePath { get; }
 
+        string StringState { get; }
+
         int TestCount { get; }
 
         IEnumerable<string> Tests { get; set; }

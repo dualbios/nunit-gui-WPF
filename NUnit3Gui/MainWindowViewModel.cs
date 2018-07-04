@@ -1,9 +1,6 @@
-﻿using System.ComponentModel.Composition;
-using System.Reactive;
-using System.Runtime.Serialization.Formatters;
+﻿using System.Reactive;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using NUnit3Gui.Instanses.FileLoader;
 using NUnit3Gui.Interfaces;
 using ReactiveUI;
 
@@ -30,10 +27,15 @@ namespace NUnit3Gui
             ofd.ShowDialog();
 
             if (ofd.FileNames.Length > 0)
+            {
                 foreach (string fileName in ofd.FileNames)
                 {
-                    LoadedAssemblies.Add(await FileLoaderManager.LoadFile(fileName));
+                    foreach (IFileItem fileItem in await FileLoaderManager.LoadFile(fileName))
+                    {
+                        LoadedAssemblies.Add(fileItem);
+                    }
                 }
+            }
 
             return default(Unit);
         }

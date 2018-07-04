@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace NUnit3Gui.Interfaces
 {
@@ -6,6 +7,6 @@ namespace NUnit3Gui.Interfaces
     {
         string Extension { get; }
 
-        Task<IFileItem> LoadAsync(string filePath);
+        Task<IEnumerable<IFileItem>> LoadAsync(string filePath);
     }
 }
