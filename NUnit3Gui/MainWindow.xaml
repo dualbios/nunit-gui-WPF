@@ -5,10 +5,11 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:NUnit3Gui"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="MainWindow" >
     <DockPanel LastChildFill="True">
-        <DockPanel LastChildFill="True" DockPanel.Dock="Left">
+        <DockPanel LastChildFill="True" DockPanel.Dock="Left" MaxWidth="350">
             <Button Content="Open" DockPanel.Dock="Top" Command="{Binding BrowseAssembliesCommand}" />
+            <ProgressBar DockPanel.Dock="Bottom" Value="{Binding LoadingProgress, Mode=OneWay}"/>
             <ListBox ItemsSource="{Binding LoadedAssemblies}" >
                 <ListBox.ItemTemplate>
                     <DataTemplate>
@@ -24,5 +25,6 @@
                 </ListBox.ItemTemplate>
             </ListBox>
         </DockPanel>
+        <UserControl/>
     </DockPanel>
 </Window>

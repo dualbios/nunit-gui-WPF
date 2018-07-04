@@ -8,6 +8,8 @@ namespace NUnit3Gui
 {
     public class MainWindowViewModel : ReactiveObject
     {
+        private int _loadingProgress;
+
         public MainWindowViewModel()
         {
             BrowseAssembliesCommand = ReactiveCommand.CreateFromTask(() => OpenAssemblies());
@@ -21,18 +23,35 @@ namespace NUnit3Gui
 
         public ReactiveList<IFileItem> LoadedAssemblies { get; }
 
+        public int LoadingProgress
+        {
+            get => _loadingProgress;
+            private set
+            {
+                _loadingProgress = value; 
+               this.RaisePropertyChanged();
+            }
+        }
+
         private async Task<Unit> OpenAssemblies()
         {
             OpenFileDialog ofd = new OpenFileDialog() { Filter = "Dll files|*.dll", Multiselect = true };
-            ofd.ShowDialog();
-
-            if (ofd.FileNames.Length > 0)
+            if (ofd.ShowDialog() == DialogResult.OK)
             {
-                foreach (string fileName in ofd.FileNames)
+                LoadingProgress = 0;
+                if (ofd.FileNames.Length > 0)
                 {
-                    foreach (IFileItem fileItem in await FileLoaderManager.LoadFile(fileName))
+                    int index = 0;
+                    foreach (string fileName in ofd.FileNames)
                     {
-                        LoadedAssemblies.Add(fileItem);
+                        foreach (IFileItem fileItem in await FileLoaderManager.LoadFile(fileName))
+                        {
+                            LoadedAssemblies.Add(fileItem);
+                        }
+
+                        LoadingProgress = (int)(((double)index) / ((double)ofd.FileNames.Length) * 100D);
+                        await Task.Delay(25);
+                        index++;
                     }
                 }
             }
