@@ -1,8 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 using NUnit3Gui.Interfaces;
 
 namespace NUnit3Gui.Instanses.FileLoader
@@ -10,19 +10,23 @@ namespace NUnit3Gui.Instanses.FileLoader
     [Export(typeof(IFileLoaderManager))]
     public class FileLoaderManager : IFileLoaderManager
     {
-        [ImportMany(typeof(IFileLoader))]
-        public IEnumerable<IFileLoader> FileLoaders { get; private set; }
-
-        public IFileLoader NotSupportedFileLoader => FileLoaders.FirstOrDefault(_ => _ is IFileLoaderNotSupported);
-
-        public Task<IEnumerable<IFileItem>> LoadFile(string filePath)
+        public IEnumerable<IFileItem> LoadFiles(IEnumerable<string> fileNames)
         {
-            IFileLoader fileLoader = FileLoaders.FirstOrDefault(_ => _.Extension == Path.GetExtension(filePath));
-            if (fileLoader == null)
+            return fileNames.SelectMany(ParseFile);
+        }
+
+        private IEnumerable<IFileItem> ParseFile(string file)
+        {
+            string fileExtention = Path.GetExtension(file);
+            if (".dll".Equals(fileExtention, StringComparison.InvariantCultureIgnoreCase))
             {
-                fileLoader = NotSupportedFileLoader;
+                return new[] { new FileItem(file) };
             }
-            return fileLoader?.LoadAsync(filePath) ?? Task.FromResult(Enumerable.Empty<IFileItem>());
+            else if (".dll".Equals(fileExtention, StringComparison.InvariantCultureIgnoreCase))
+            {
+                return new[] { new FileItem("111"), new FileItem("222") };
+            }
+            return Enumerable.Empty<IFileItem>();
         }
     }
 }

@@ -60,13 +60,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Instanses\FileLoader\AssemblyLoader.cs" />
     <Compile Include="Instanses\FileLoader\FileItem.cs" />
     <Compile Include="Instanses\FileLoader\FileLoaderManager.cs" />
-    <Compile Include="Instanses\FileLoader\NotSupportedFileLoader.cs" />
-    <Compile Include="Instanses\FileLoader\SolutionLoader.cs" />
     <Compile Include="Interfaces\IFileItem.cs" />
-    <Compile Include="Interfaces\IFileLoader.cs" />
     <Compile Include="Interfaces\IFileLoaderManager.cs" />
     <Compile Include="Interfaces\IFileLoaderNotSupported.cs" />
     <Compile Include="Tools\NotifyPropertyChanged.cs" />

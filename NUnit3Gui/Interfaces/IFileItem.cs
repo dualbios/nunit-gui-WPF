@@ -1,9 +1,12 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace NUnit3Gui.Interfaces
 {
     public interface IFileItem
     {
+        string FileName { get; }
+
         string FilePath { get; }
 
         string StringState { get; }
@@ -11,5 +14,7 @@ namespace NUnit3Gui.Interfaces
         int TestCount { get; }
 
         IEnumerable<string> Tests { get; set; }
+
+        Task LoadAsync();
     }
 }

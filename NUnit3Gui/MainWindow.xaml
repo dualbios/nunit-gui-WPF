@@ -5,26 +5,37 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:NUnit3Gui"
         mc:Ignorable="d"
-        Title="MainWindow" >
-    <DockPanel LastChildFill="True">
-        <DockPanel LastChildFill="True" DockPanel.Dock="Left" MaxWidth="350">
+        Title="MainWindow">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="350" />
+            <ColumnDefinition Width="4" />
+            <ColumnDefinition />
+        </Grid.ColumnDefinitions>
+
+        <GridSplitter Grid.Column="1" 
+                      HorizontalAlignment="Stretch" />
+
+        <DockPanel LastChildFill="True" 
+                   DockPanel.Dock="Left" 
+                   Grid.Column="0">
             <Button Content="Open" DockPanel.Dock="Top" Command="{Binding BrowseAssembliesCommand}" />
-            <ProgressBar DockPanel.Dock="Bottom" Value="{Binding LoadingProgress, Mode=OneWay}"/>
-            <ListBox ItemsSource="{Binding LoadedAssemblies}" >
+            <ProgressBar DockPanel.Dock="Bottom" Value="{Binding LoadingProgress, Mode=OneWay}" />
+            <ListBox ItemsSource="{Binding LoadedAssemblies}">
                 <ListBox.ItemTemplate>
                     <DataTemplate>
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="{Binding FilePath}"/>
+                            <TextBlock Text="{Binding FileName}" />
                             <TextBlock>
-                                <Run Text=" ("/>
-                                <Run Text="{Binding StringState, Mode=OneWay}"/>
-                                <Run Text=") "/>
+                                <Run Text=" (" />
+                                <Run Text="{Binding StringState, Mode=OneWay}" />
+                                <Run Text=") " />
                             </TextBlock>
                         </StackPanel>
                     </DataTemplate>
                 </ListBox.ItemTemplate>
             </ListBox>
         </DockPanel>
-        <UserControl/>
-    </DockPanel>
+        <UserControl />
+    </Grid>
 </Window>

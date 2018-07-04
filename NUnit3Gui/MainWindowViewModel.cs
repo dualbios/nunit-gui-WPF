@@ -28,8 +28,8 @@ namespace NUnit3Gui
             get => _loadingProgress;
             private set
             {
-                _loadingProgress = value; 
-               this.RaisePropertyChanged();
+                _loadingProgress = value;
+                this.RaisePropertyChanged();
             }
         }
 
@@ -41,18 +41,20 @@ namespace NUnit3Gui
                 LoadingProgress = 0;
                 if (ofd.FileNames.Length > 0)
                 {
-                    int index = 0;
-                    foreach (string fileName in ofd.FileNames)
+                    foreach (IFileItem fileItem in FileLoaderManager.LoadFiles(ofd.FileNames))
                     {
-                        foreach (IFileItem fileItem in await FileLoaderManager.LoadFile(fileName))
-                        {
-                            LoadedAssemblies.Add(fileItem);
-                        }
+                        LoadedAssemblies.Add(fileItem);
+                    }
 
+                    int index = 0;
+                    foreach (IFileItem item in LoadedAssemblies)
+                    {
+                        await item.LoadAsync();
                         LoadingProgress = (int)(((double)index) / ((double)ofd.FileNames.Length) * 100D);
                         await Task.Delay(25);
                         index++;
                     }
+                    LoadingProgress = 100;
                 }
             }
 
