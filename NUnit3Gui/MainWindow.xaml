@@ -45,6 +45,6 @@
                 </ListBox.ItemTemplate>
             </ListBox>
         </DockPanel>
-        <ListBox Grid.Column="2" ItemsSource="{Binding Path=SelectedAssembly.Tests}" />
+        <ListBox Grid.Column="2" ItemsSource="{Binding Path=Tests}" />
     </Grid>
 </Window>

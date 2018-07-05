@@ -40,7 +40,7 @@ namespace NUnit3Gui.Instanses.FileLoader
         public IEnumerable<string> Tests
         {
             get => _tests;
-            set
+            private set
             {
                 SetProperty(ref _tests, value);
                 OnPropertyChanged(nameof(TestCount));

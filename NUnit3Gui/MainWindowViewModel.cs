@@ -1,10 +1,13 @@
-﻿using System.Reactive;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Reactive;
 using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using NUnit3Gui.Interfaces;
 using ReactiveUI;
+using System;
 
 namespace NUnit3Gui
 {
@@ -15,9 +18,11 @@ namespace NUnit3Gui
 
         public MainWindowViewModel()
         {
+            LoadedAssemblies = new ReactiveList<IFileItem>() { ChangeTrackingEnabled = true };
+
             BrowseAssembliesCommand = ReactiveCommand
                 .CreateFromObservable(() => Observable
-                    .StartAsync(ct => this.OpenAssemblies(ct))
+                    .StartAsync(ct => OpenAssemblies(ct))
                     .TakeUntil(this.CancelBrowseCommand));
 
             RemoveAssembliesCommand = ReactiveCommand.CreateFromTask(
@@ -28,9 +33,10 @@ namespace NUnit3Gui
                       )
                     );
 
-            CancelBrowseCommand = ReactiveCommand.Create(() => { }, BrowseAssembliesCommand.IsExecuting);
+            LoadedAssemblies.ItemChanged
+                .Subscribe(x => this.RaisePropertyChanged(nameof(Tests)));
 
-            LoadedAssemblies = new ReactiveList<IFileItem>();
+            CancelBrowseCommand = ReactiveCommand.Create(() => { }, BrowseAssembliesCommand.IsExecuting);
 
             FileLoaderManager = AppRoot.Current.CompositionManager.ExportProvider.GetExportedValue<IFileLoaderManager>();
         }
@@ -59,6 +65,11 @@ namespace NUnit3Gui
         {
             get => _selectedAssembly;
             set => this.RaiseAndSetIfChanged(ref _selectedAssembly, value);
+        }
+
+        public IEnumerable<string> Tests
+        {
+            get => LoadedAssemblies.Where(_ => _.Tests != null).SelectMany(a => a.Tests);
         }
 
         private async Task<Unit> OpenAssemblies(CancellationToken ct)
@@ -104,7 +115,10 @@ namespace NUnit3Gui
         private Task<Unit> RemoveSelecteddAssemblies()
         {
             if (SelectedAssembly != null)
+            {
                 LoadedAssemblies.Remove(SelectedAssembly);
+                this.RaisePropertyChanged(nameof(Tests));
+            }
 
             return Task.FromResult(default(Unit));
         }
