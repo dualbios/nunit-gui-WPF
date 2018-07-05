@@ -4,8 +4,12 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:NUnit3Gui"
+        xmlns:converters="clr-namespace:NUnit3Gui.Convertres"
         mc:Ignorable="d"
         Title="MainWindow">
+    <Window.Resources>
+        <converters:NegateBooleanConverter x:Key="NegateBooleanConverter" />
+    </Window.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="350" />
@@ -48,18 +52,31 @@
         <DockPanel LastChildFill="True" Grid.Column="2">
             <StackPanel Orientation="Horizontal" DockPanel.Dock="Top">
                 <Button Content="Run" Command="{Binding RunSelectedTestCommand}" />
+                <Button Content="Run all" Command="{Binding RunAllTestCommand}" />
             </StackPanel>
-            <ListBox ItemsSource="{Binding Path=Tests}" SelectedItem="{Binding SelectedTest}" >
+            <ScrollViewer DockPanel.Dock="Bottom" MaxHeight="300">
+                <TextBlock Text="{Binding SelectedTest.StringStatus}"/>
+            </ScrollViewer>
+            <ListBox 
+                    ItemsSource="{Binding Path=Tests}"
+                    SelectedItem="{Binding SelectedTest}">
+                <ListBox.ItemContainerStyle>
+                    <Style TargetType="ListBoxItem">
+                        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                    </Style>
+                </ListBox.ItemContainerStyle>
                 <ListBox.ItemTemplate>
                     <DataTemplate>
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock>
-                                <Run Text="{Binding TestName, Mode=OneWay}"/>
-                                <Run Text=" | "/>
-                                <Run Text="{Binding IsRunning, Mode=OneWay}"/>
-                                <Run Text=" | "/>
-                                <Run Text="{Binding Status, Mode=OneWay}"/>
-                            </TextBlock>
+                        <StackPanel Orientation="Vertical">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock>
+                                    <Run Text="{Binding TestName, Mode=OneWay}" />
+                                    <Run Text=" | " />
+                                    <Run Text="{Binding IsRunning, Mode=OneWay}" />
+                                    <Run Text=" | " />
+                                    <Run Text="{Binding Status, Mode=OneWay}" />
+                                </TextBlock>
+                            </StackPanel>
                         </StackPanel>
                     </DataTemplate>
                 </ListBox.ItemTemplate>

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
+using System.Text;
 using System.Threading.Tasks;
 using NUnit3Gui.Interfaces;
 
@@ -8,9 +10,9 @@ namespace NUnit3Gui.Instanses
 {
     public class RunProcess : IRunProcess
     {
-        public RunProcess(string workingDirectory, string assemblyPath, string args)
+        private const string nu3cPath = "nunit3-console\\nunit3-console.exe";
+        public RunProcess(string assemblyPath, string args)
         {
-            WorkingDirectory = workingDirectory;
             AssemblyPath = assemblyPath;
             Args = $"\"{AssemblyPath}\" --test={args}";
         }
@@ -21,10 +23,8 @@ namespace NUnit3Gui.Instanses
 
         public int ExitCode { get; private set; }
 
-        public string WorkingDirectory { get; }
-
-        public IList<string> StandardOutput { get; private set; } = new List<string>();
-        public IList<string> StandardError { get; private set; } = new List<string>();
+        public StringBuilder StandardOutput { get; private set; } = new StringBuilder();
+        public StringBuilder StandardError { get; private set; } = new StringBuilder();
 
         public Task<bool> Run()
         {
@@ -34,28 +34,30 @@ namespace NUnit3Gui.Instanses
             {
                 try
                 {
-                    Process localProcess = new Process();
-                    localProcess.StartInfo.FileName = "nunit3-console\\nunit3-console.exe";
-                    localProcess.StartInfo.Arguments = Args;
+                    using (Process localProcess = new Process())
+                    {
+                        localProcess.StartInfo.FileName = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, nu3cPath);
+                        localProcess.StartInfo.Arguments = Args;
 
-                    localProcess.StartInfo.CreateNoWindow = true;
-                    localProcess.StartInfo.RedirectStandardError = true;
-                    localProcess.StartInfo.RedirectStandardOutput = true;
-                    localProcess.StartInfo.RedirectStandardInput = true;
-                    localProcess.StartInfo.UseShellExecute = false;
+                        localProcess.StartInfo.CreateNoWindow = true;
+                        localProcess.StartInfo.RedirectStandardError = true;
+                        localProcess.StartInfo.RedirectStandardOutput = true;
+                        localProcess.StartInfo.RedirectStandardInput = true;
+                        localProcess.StartInfo.UseShellExecute = false;
 
-                    //localProcess.StartInfo.WorkingDirectory = WorkingDirectory;
+                        localProcess.StartInfo.WorkingDirectory = Path.GetDirectoryName(AssemblyPath);
 
-                    localProcess.OutputDataReceived += InternalProcessOnOutputDataReceived;
-                    localProcess.ErrorDataReceived += InternalProcessOnErrorDataReceived;
+                        localProcess.OutputDataReceived += InternalProcessOnOutputDataReceived;
+                        localProcess.ErrorDataReceived += InternalProcessOnErrorDataReceived;
 
-                    localProcess.Start();
-                    localProcess.WaitForExit();
+                        localProcess.Start();
+                        localProcess.WaitForExit();
 
-                    localProcess.BeginOutputReadLine();
-                    localProcess.BeginErrorReadLine();
+                        localProcess.BeginOutputReadLine();
+                        localProcess.BeginErrorReadLine();
 
-                    tcs.SetResult(localProcess.ExitCode == 0);
+                        tcs.SetResult(localProcess.ExitCode == 0);
+                    }
                 }
                 catch (Exception e)
                 {
@@ -69,13 +71,13 @@ namespace NUnit3Gui.Instanses
         private void InternalProcessOnErrorDataReceived(object sender, DataReceivedEventArgs e)
         {
             if(e.Data!=null)
-                StandardError.Add(e.Data);
+                StandardError.AppendLine(e.Data);
         }
 
         private void InternalProcessOnOutputDataReceived(object sender, DataReceivedEventArgs e)
         {
             if (e.Data != null)
-                StandardOutput.Add(e.Data);
+                StandardOutput.AppendLine(e.Data);
         }
     }
 }

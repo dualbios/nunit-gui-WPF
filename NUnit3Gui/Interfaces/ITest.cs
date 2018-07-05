@@ -6,10 +6,12 @@ namespace NUnit3Gui.Interfaces
     {
         string AssemblyPath { get; }
 
-        string TestName { get; }
-
         bool IsRunning { get; set; }
 
         TestStatus Status { get; set; }
+
+        string StringStatus { get; set; }
+
+        string TestName { get; }
     }
 }

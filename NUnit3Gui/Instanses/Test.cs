@@ -7,6 +7,7 @@ namespace NUnit3Gui.Instanses
     {
         private bool _isRunning;
         private TestStatus _status = TestStatus.Inconclusive;
+        private string _stringStatus;
 
         public Test(string filePath, string testName)
         {
@@ -26,6 +27,12 @@ namespace NUnit3Gui.Instanses
         {
             get => _status;
             set => this.RaiseAndSetIfChanged(ref _status, value);
+        }
+
+        public string StringStatus
+        {
+            get => _stringStatus;
+            set => this.RaiseAndSetIfChanged(ref _stringStatus, value);
         }
 
         public string TestName { get; private set; }

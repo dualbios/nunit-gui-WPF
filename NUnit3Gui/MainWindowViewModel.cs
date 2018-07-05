@@ -20,6 +20,8 @@ namespace NUnit3Gui
         private IFileItem _selectedAssembly;
         private ITest _selectedTest;
 
+        private ObservableAsPropertyHelper<bool> isTestRunning;
+
         public MainWindowViewModel()
         {
             LoadedAssemblies = new ReactiveList<IFileItem>() { ChangeTrackingEnabled = true };
@@ -41,9 +43,24 @@ namespace NUnit3Gui
                 .Subscribe(x => this.RaisePropertyChanged(nameof(Tests)));
 
             CancelBrowseCommand = ReactiveCommand.Create(() => { }, BrowseAssembliesCommand.IsExecuting);
+            IObservable<bool> hasTests = this.WhenAny(vm => vm.Tests, p => p.Value != null && p.Value.Any());
+
             RunSelectedTestCommand = ReactiveCommand.CreateFromTask(
                 () => RunSelectedTestCommandExecute(),
-                this.WhenAny(vm => vm.SelectedTest, p => p.Value != null));
+                Observable.Merge(
+                    this.WhenAny(vm => vm.SelectedTest, p => p.Value != null)
+                    , hasTests)
+                );
+
+            RunAllTestCommand = ReactiveCommand.CreateFromTask(
+                () => RunAllTestCommandExecute(),
+                Observable.Merge(
+                    this.WhenAny(vm => vm.SelectedTest, p => p.Value != null)
+                    , RunSelectedTestCommand.IsExecuting.Select(_ => !_)
+                    , hasTests)
+                );
+
+            isTestRunning = RunSelectedTestCommand.IsExecuting.ToProperty(this, x => x.IsTestRunning);
 
             FileLoaderManager = AppRoot.Current.CompositionManager.ExportProvider.GetExportedValue<IFileLoaderManager>();
         }
@@ -53,6 +70,8 @@ namespace NUnit3Gui
         public ReactiveCommand<Unit, Unit> CancelBrowseCommand { get; }
 
         public IFileLoaderManager FileLoaderManager { get; private set; }
+
+        public bool IsTestRunning => isTestRunning.Value;
 
         public ReactiveList<IFileItem> LoadedAssemblies { get; }
 
@@ -67,6 +86,8 @@ namespace NUnit3Gui
         }
 
         public ReactiveCommand<Unit, Unit> RemoveAssembliesCommand { get; }
+
+        public ReactiveCommand<Unit, Unit> RunAllTestCommand { get; }
 
         public ReactiveCommand<Unit, Unit> RunSelectedTestCommand { get; }
 
@@ -138,25 +159,43 @@ namespace NUnit3Gui
             return Task.FromResult(default(Unit));
         }
 
-        private async Task<Unit> RunSelectedTestCommandExecute()
+        private async Task<Unit> RunAllTestCommandExecute()
+        {
+            foreach (ITest test in Tests)
+            {
+                await RunTest(test);
+            }
+            return Unit.Default;
+        }
+
+        private Task<Unit> RunSelectedTestCommandExecute()
+        {
+            return RunTest(SelectedTest);
+        }
+
+        private async Task<Unit> RunTest(ITest test)
         {
             try
             {
-                SelectedTest.IsRunning = true;
+                test.IsRunning = true;
+                test.StringStatus = null;
                 await Task.Delay(25);
 
-                var rrr = new RunProcess("", SelectedTest.AssemblyPath, SelectedTest.TestName);
+                var rrr = new RunProcess(test.AssemblyPath, test.TestName);
                 var result = await rrr.Run();
+                await Task.Delay(25);
 
-                SelectedTest.Status = result ? TestStatus.Passed : TestStatus.Failed;
+                test.StringStatus = rrr.StandardOutput.ToString();
+                test.Status = result ? TestStatus.Passed : TestStatus.Failed;
             }
             catch (Exception e)
             {
-                SelectedTest.Status = TestStatus.Failed;
+                test.Status = TestStatus.Failed;
+                test.StringStatus = e.Message;
             }
             finally
             {
-                SelectedTest.IsRunning = false;
+                test.IsRunning = false;
             }
 
             await Task.Delay(25);

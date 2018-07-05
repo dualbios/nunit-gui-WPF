@@ -1,6 +1,8 @@
-﻿namespace NUnit3Gui.Interfaces
+﻿using System;
+
+namespace NUnit3Gui.Interfaces
 {
-    public interface IRunProcess
+    public interface IRunProcess 
     {
         
     }
