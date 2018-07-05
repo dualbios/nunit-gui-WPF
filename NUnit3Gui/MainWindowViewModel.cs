@@ -1,16 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using NUnit.Framework.Interfaces;
+using NUnit3Gui.Instanses;
 using NUnit3Gui.Interfaces;
-using NUnitLite;
 using ReactiveUI;
 using ITest = NUnit3Gui.Interfaces.ITest;
 
@@ -146,14 +144,11 @@ namespace NUnit3Gui
             {
                 SelectedTest.IsRunning = true;
                 await Task.Delay(25);
-                var aaa = Assembly.LoadFrom(SelectedTest.AssemblyPath);
-                var tr = new TextRunner(aaa);
-                var jjj = tr.Execute(
-                    new[] {
-                        $"--test={SelectedTest.TestName}"
-                        //, $"--WorkingDirectory={Path.GetDirectoryName(SelectedTest.AssemblyPath)}"
-                    });
-                SelectedTest.Status = tr.Summary.ResultState.Status;
+
+                var rrr = new RunProcess("", SelectedTest.AssemblyPath, SelectedTest.TestName);
+                var result = await rrr.Run();
+
+                SelectedTest.Status = result ? TestStatus.Passed : TestStatus.Failed;
             }
             catch (Exception e)
             {
