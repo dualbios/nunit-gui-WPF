@@ -59,6 +59,7 @@
             <StackPanel Orientation="Horizontal" DockPanel.Dock="Top">
                 <!--<Button Content="Run" Command="{Binding RunSelectedTestCommand}" />-->
                 <Button Content="Run all" Command="{Binding RunAllTestCommand}" />
+                <Button Content="Cancel" Command="{Binding CancelRunTestCommand}" />
             </StackPanel>
 
             <ScrollViewer DockPanel.Dock="Bottom" MaxHeight="300">
