@@ -33,6 +33,12 @@
             </StackPanel>
             <ProgressBar DockPanel.Dock="Bottom"
                          Value="{Binding LoadingProgress, Mode=OneWay}" />
+            <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Assemblies:"/>
+                    <TextBlock Text="{Binding AssembliesCount}"/>
+                </StackPanel>
+            </StackPanel>
             <ListBox ItemsSource="{Binding LoadedAssemblies}"
                      SelectedItem="{Binding SelectedAssembly}">
                 <ListBox.ItemTemplate>
@@ -51,12 +57,31 @@
         </DockPanel>
         <DockPanel LastChildFill="True" Grid.Column="2">
             <StackPanel Orientation="Horizontal" DockPanel.Dock="Top">
-                <Button Content="Run" Command="{Binding RunSelectedTestCommand}" />
+                <!--<Button Content="Run" Command="{Binding RunSelectedTestCommand}" />-->
                 <Button Content="Run all" Command="{Binding RunAllTestCommand}" />
             </StackPanel>
+
             <ScrollViewer DockPanel.Dock="Bottom" MaxHeight="300">
                 <TextBlock Text="{Binding SelectedTest.StringStatus}"/>
             </ScrollViewer>
+
+            <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal">
+                <TextBlock Text="Tests:"/>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Total:"/>
+                    <TextBlock Text="{Binding TestCount}"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Passed:"/>
+                    <TextBlock Text="{Binding TestPassedCount}"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Failed:"/>
+                    <TextBlock Text="{Binding TestFailedCount}"/>
+                </StackPanel>
+            </StackPanel>
+            <ProgressBar DockPanel.Dock="Bottom" Value="{Binding RanTestsCount, Mode=OneWay}"/>
+
             <ListBox 
                     ItemsSource="{Binding Path=Tests}"
                     SelectedItem="{Binding SelectedTest}">

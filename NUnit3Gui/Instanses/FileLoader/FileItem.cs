@@ -51,7 +51,7 @@ namespace NUnit3Gui.Instanses.FileLoader
         public async Task LoadAsync()
         {
             StringState = "loading ...";
-            await Task.Delay(500);
+            //await Task.Delay(500);
 
             try
             {

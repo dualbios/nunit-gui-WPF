@@ -17,6 +17,7 @@ namespace NUnit3Gui
     public class MainWindowViewModel : ReactiveObject
     {
         private int _loadingProgress;
+        private int _ranTestsCount;
         private IFileItem _selectedAssembly;
         private ITest _selectedTest;
 
@@ -40,7 +41,12 @@ namespace NUnit3Gui
                     );
 
             LoadedAssemblies.ItemChanged
-                .Subscribe(x => this.RaisePropertyChanged(nameof(Tests)));
+                .Subscribe(x =>
+                {
+                    this.RaisePropertyChanged(nameof(Tests));
+                    this.RaisePropertyChanged(nameof(AssembliesCount));
+                    this.RaisePropertyChanged(nameof(TestCount));
+                });
 
             CancelBrowseCommand = ReactiveCommand.Create(() => { }, BrowseAssembliesCommand.IsExecuting);
             IObservable<bool> hasTests = this.WhenAny(vm => vm.Tests, p => p.Value != null && p.Value.Any());
@@ -52,22 +58,28 @@ namespace NUnit3Gui
                     , hasTests)
                 );
 
-            RunAllTestCommand = ReactiveCommand.CreateFromTask(
-                () => RunAllTestCommandExecute(),
-                Observable.Merge(
-                    this.WhenAny(vm => vm.SelectedTest, p => p.Value != null)
-                    , RunSelectedTestCommand.IsExecuting.Select(_ => !_)
-                    , hasTests)
-                );
+            RunAllTestCommand = ReactiveCommand
+                .CreateFromObservable(() => Observable.StartAsync(ct => RunAllTestCommandExecute(ct))
+                    //, Observable.Merge(
+                    //    this.WhenAny(vm => vm.SelectedTest, p => p.Value != null)
+                    //    , RunSelectedTestCommand.IsExecuting.Select(_ => !_)
+                    //  , hasTests
+                    //)
+                        .TakeUntil(this.CancelRunTestCommand));
 
             isTestRunning = RunSelectedTestCommand.IsExecuting.ToProperty(this, x => x.IsTestRunning);
 
             FileLoaderManager = AppRoot.Current.CompositionManager.ExportProvider.GetExportedValue<IFileLoaderManager>();
+            CancelRunTestCommand = ReactiveCommand.Create(() => { }, RunAllTestCommand.IsExecuting);
         }
+
+        public int AssembliesCount => LoadedAssemblies.Count();
 
         public ReactiveCommand<Unit, Unit> BrowseAssembliesCommand { get; }
 
         public ReactiveCommand<Unit, Unit> CancelBrowseCommand { get; }
+
+        public ReactiveCommand<Unit, Unit> CancelRunTestCommand { get; }
 
         public IFileLoaderManager FileLoaderManager { get; private set; }
 
@@ -83,6 +95,12 @@ namespace NUnit3Gui
                 _loadingProgress = value;
                 this.RaisePropertyChanged();
             }
+        }
+
+        public int RanTestsCount
+        {
+            get => _ranTestsCount;
+            private set => this.RaiseAndSetIfChanged(ref _ranTestsCount, value);
         }
 
         public ReactiveCommand<Unit, Unit> RemoveAssembliesCommand { get; }
@@ -102,6 +120,16 @@ namespace NUnit3Gui
             get => _selectedTest;
             set => this.RaiseAndSetIfChanged(ref _selectedTest, value);
         }
+
+        public int TestCount => LoadedAssemblies.Sum(_ => _.Tests?.Count() ?? 0);
+
+        public int TestFailedCount => LoadedAssemblies.SelectMany(_ => _.Tests ?? Enumerable.Empty<ITest>())
+            .Where(_ => _.Status == TestStatus.Failed)
+            .Count();
+
+        public int TestPassedCount => LoadedAssemblies.SelectMany(_ => _.Tests ?? Enumerable.Empty<ITest>())
+            .Where(_ => _.Status == TestStatus.Passed)
+            .Count();
 
         public IEnumerable<ITest> Tests
         {
@@ -131,6 +159,8 @@ namespace NUnit3Gui
                     foreach (IFileItem item in LoadedAssemblies)
                     {
                         await item.LoadAsync();
+                        this.RaisePropertyChanged(nameof(TestCount));
+
                         LoadingProgress = (int)(((double)index) / ((double)ofd.FileNames.Length) * 100D);
                         await Task.Delay(25);
                         index++;
@@ -154,26 +184,35 @@ namespace NUnit3Gui
             {
                 LoadedAssemblies.Remove(SelectedAssembly);
                 this.RaisePropertyChanged(nameof(Tests));
+                this.RaisePropertyChanged(nameof(TestCount));
             }
 
             return Task.FromResult(default(Unit));
         }
 
-        private async Task<Unit> RunAllTestCommandExecute()
+        private async Task<Unit> RunAllTestCommandExecute(CancellationToken ct)
         {
+            RanTestsCount = 0;
+            int index = 1;
+            int testCount = Tests.Count();
             foreach (ITest test in Tests)
             {
-                await RunTest(test);
+                await RunTest(test, ct);
+                RanTestsCount = (int)(((double)index) / ((double)testCount) * 100D);
+                if (ct.IsCancellationRequested)
+                    break;
+                index++;
             }
+            RanTestsCount = 100;
             return Unit.Default;
         }
 
         private Task<Unit> RunSelectedTestCommandExecute()
         {
-            return RunTest(SelectedTest);
+            return RunTest(SelectedTest, CancellationToken.None);
         }
 
-        private async Task<Unit> RunTest(ITest test)
+        private async Task<Unit> RunTest(ITest test, CancellationToken ct)
         {
             try
             {
@@ -182,7 +221,7 @@ namespace NUnit3Gui
                 await Task.Delay(25);
 
                 var rrr = new RunProcess(test.AssemblyPath, test.TestName);
-                var result = await rrr.Run();
+                var result = await rrr.Run(ct);
                 await Task.Delay(25);
 
                 test.StringStatus = rrr.StandardOutput.ToString();
@@ -197,6 +236,9 @@ namespace NUnit3Gui
             {
                 test.IsRunning = false;
             }
+
+            this.RaisePropertyChanged(nameof(TestFailedCount));
+            this.RaisePropertyChanged(nameof(TestPassedCount));
 
             await Task.Delay(25);
             return Unit.Default;
