@@ -13,7 +13,7 @@ namespace NUnit3Gui.Interfaces
 
         int TestCount { get; }
 
-        IEnumerable<string> Tests { get; }
+        IEnumerable<ITest> Tests { get; }
 
         Task LoadAsync();
     }

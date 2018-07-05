@@ -14,9 +14,10 @@ namespace NUnit3Gui.Instanses.FileLoader
     [Export(typeof(IFileItem))]
     public class FileItem : NotifyPropertyChanged, IFileItem
     {
-        private readonly string TestFixtureName = typeof(TestFixtureAttribute).Name;
+        private readonly string TestFixtureAttributeName = typeof(TestFixtureAttribute).Name;
+        private readonly string TestAttributeName = typeof(TestAttribute).Name;
         private string _stringState;
-        private IEnumerable<string> _tests;
+        private IEnumerable<ITest> _tests;
 
         public FileItem(string filePath)
         {
@@ -37,7 +38,7 @@ namespace NUnit3Gui.Instanses.FileLoader
 
         public int TestCount => Tests?.Count() ?? 0;
 
-        public IEnumerable<string> Tests
+        public IEnumerable<ITest> Tests
         {
             get => _tests;
             private set
@@ -57,13 +58,16 @@ namespace NUnit3Gui.Instanses.FileLoader
                 Assembly assembly = Assembly.LoadFrom(FilePath);
 
                 Tests = assembly.GetTypes()
-                    .Where(type => type.GetCustomAttributes(typeof(Attribute), true).Any(_ => _.GetType().Name == TestFixtureName))
-                    .Select(type => type.FullName)
+                    .Where(type => type.GetCustomAttributes(typeof(Attribute), true).Any(_ => _.GetType().Name == TestFixtureAttributeName))
+                    .SelectMany(_=>_.GetMethods())
+                    .Where(m=>m.GetCustomAttributes(typeof(Attribute), true).Any(_ => _.GetType().Name == TestAttributeName))
+                    .Select(methodInfo => methodInfo.DeclaringType.FullName + "." + methodInfo.Name)
+                    .Select(test => new Test(FilePath, test))
                     .ToList();
 
                 StringState = $"{this.TestCount} classes(s)";
             }
-            catch (Exception)
+            catch (Exception e)
             {
                 StringState = "error loading.";
             }

@@ -20,11 +20,11 @@
                    DockPanel.Dock="Left"
                    Grid.Column="0">
             <StackPanel Orientation="Horizontal" DockPanel.Dock="Top">
-                <Button Content="Open" 
+                <Button Content="Open"
                         Command="{Binding BrowseAssembliesCommand}" />
-                <Button Content="Remove" 
+                <Button Content="Remove"
                         Command="{Binding RemoveAssembliesCommand}" />
-                <Button Content="Cancel" 
+                <Button Content="Cancel"
                         Command="{Binding CancelBrowseCommand}" />
             </StackPanel>
             <ProgressBar DockPanel.Dock="Bottom"
@@ -45,6 +45,25 @@
                 </ListBox.ItemTemplate>
             </ListBox>
         </DockPanel>
-        <ListBox Grid.Column="2" ItemsSource="{Binding Path=Tests}" />
+        <DockPanel LastChildFill="True" Grid.Column="2">
+            <StackPanel Orientation="Horizontal" DockPanel.Dock="Top">
+                <Button Content="Run" Command="{Binding RunSelectedTestCommand}" />
+            </StackPanel>
+            <ListBox ItemsSource="{Binding Path=Tests}" SelectedItem="{Binding SelectedTest}" >
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock>
+                                <Run Text="{Binding TestName, Mode=OneWay}"/>
+                                <Run Text=" | "/>
+                                <Run Text="{Binding IsRunning, Mode=OneWay}"/>
+                                <Run Text=" | "/>
+                                <Run Text="{Binding Status, Mode=OneWay}"/>
+                            </TextBlock>
+                        </StackPanel>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </DockPanel>
     </Grid>
 </Window>

@@ -1,13 +1,18 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using NUnit.Framework.Interfaces;
 using NUnit3Gui.Interfaces;
+using NUnitLite;
 using ReactiveUI;
-using System;
+using ITest = NUnit3Gui.Interfaces.ITest;
 
 namespace NUnit3Gui
 {
@@ -15,6 +20,7 @@ namespace NUnit3Gui
     {
         private int _loadingProgress;
         private IFileItem _selectedAssembly;
+        private ITest _selectedTest;
 
         public MainWindowViewModel()
         {
@@ -37,6 +43,9 @@ namespace NUnit3Gui
                 .Subscribe(x => this.RaisePropertyChanged(nameof(Tests)));
 
             CancelBrowseCommand = ReactiveCommand.Create(() => { }, BrowseAssembliesCommand.IsExecuting);
+            RunSelectedTestCommand = ReactiveCommand.CreateFromTask(
+                () => RunSelectedTestCommandExecute(),
+                this.WhenAny(vm => vm.SelectedTest, p => p.Value != null));
 
             FileLoaderManager = AppRoot.Current.CompositionManager.ExportProvider.GetExportedValue<IFileLoaderManager>();
         }
@@ -61,20 +70,28 @@ namespace NUnit3Gui
 
         public ReactiveCommand<Unit, Unit> RemoveAssembliesCommand { get; }
 
+        public ReactiveCommand<Unit, Unit> RunSelectedTestCommand { get; }
+
         public IFileItem SelectedAssembly
         {
             get => _selectedAssembly;
             set => this.RaiseAndSetIfChanged(ref _selectedAssembly, value);
         }
 
-        public IEnumerable<string> Tests
+        public ITest SelectedTest
+        {
+            get => _selectedTest;
+            set => this.RaiseAndSetIfChanged(ref _selectedTest, value);
+        }
+
+        public IEnumerable<ITest> Tests
         {
             get => LoadedAssemblies.Where(_ => _.Tests != null).SelectMany(a => a.Tests);
         }
 
         private async Task<Unit> OpenAssemblies(CancellationToken ct)
         {
-            OpenFileDialog ofd = new OpenFileDialog() { Filter = "Dll files|*.dll", Multiselect = true };
+            OpenFileDialog ofd = new OpenFileDialog() { Filter = "Dll files|*.dll", Multiselect = true, FileName = @"C:\Repositories\nunit-gui-WPF\NUnit3Gui\bin\Debug\NUnit3Gui.UnitTest.dll" };
             if (ofd.ShowDialog() == DialogResult.OK)
             {
                 LoadingProgress = 0;
@@ -121,6 +138,34 @@ namespace NUnit3Gui
             }
 
             return Task.FromResult(default(Unit));
+        }
+
+        private async Task<Unit> RunSelectedTestCommandExecute()
+        {
+            try
+            {
+                SelectedTest.IsRunning = true;
+                await Task.Delay(25);
+                var aaa = Assembly.LoadFrom(SelectedTest.AssemblyPath);
+                var tr = new TextRunner(aaa);
+                var jjj = tr.Execute(
+                    new[] {
+                        $"--test={SelectedTest.TestName}"
+                        //, $"--WorkingDirectory={Path.GetDirectoryName(SelectedTest.AssemblyPath)}"
+                    });
+                SelectedTest.Status = tr.Summary.ResultState.Status;
+            }
+            catch (Exception e)
+            {
+                SelectedTest.Status = TestStatus.Failed;
+            }
+            finally
+            {
+                SelectedTest.IsRunning = false;
+            }
+
+            await Task.Delay(25);
+            return Unit.Default;
         }
     }
 }

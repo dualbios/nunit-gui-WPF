@@ -8,6 +8,13 @@ namespace NUnit3Gui.UnitTest
         [Test]
         public void TestMethod1()
         {
+            Assert.True(false);
+        }
+
+        [Test]
+        public void TestMethod2()
+        {
+            Assert.True(true);
         }
     }
 }

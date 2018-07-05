@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NUnit3Gui", "NUnit3Gui\NUni
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NUnit3Gui.UnitTest", "NUnit3Gui.UnitTest\NUnit3Gui.UnitTest.csproj", "{79962B62-9248-448B-AD39-2D6C5C13539B}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{72F74EF7-4904-40E7-891E-F77226B0FEA6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
