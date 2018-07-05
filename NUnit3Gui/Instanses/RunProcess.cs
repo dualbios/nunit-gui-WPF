@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using NUnit3Gui.Interfaces;
@@ -22,6 +23,9 @@ namespace NUnit3Gui.Instanses
 
         public string WorkingDirectory { get; }
 
+        public IList<string> StandardOutput { get; private set; } = new List<string>();
+        public IList<string> StandardError { get; private set; } = new List<string>();
+
         public Task<bool> Run()
         {
             var tcs = new TaskCompletionSource<bool>();
@@ -39,9 +43,17 @@ namespace NUnit3Gui.Instanses
                     localProcess.StartInfo.RedirectStandardOutput = true;
                     localProcess.StartInfo.RedirectStandardInput = true;
                     localProcess.StartInfo.UseShellExecute = false;
+
                     //localProcess.StartInfo.WorkingDirectory = WorkingDirectory;
+
+                    localProcess.OutputDataReceived += InternalProcessOnOutputDataReceived;
+                    localProcess.ErrorDataReceived += InternalProcessOnErrorDataReceived;
+
                     localProcess.Start();
                     localProcess.WaitForExit();
+
+                    localProcess.BeginOutputReadLine();
+                    localProcess.BeginErrorReadLine();
 
                     tcs.SetResult(localProcess.ExitCode == 0);
                 }
@@ -52,6 +64,18 @@ namespace NUnit3Gui.Instanses
             });
 
             return tcs.Task;
+        }
+
+        private void InternalProcessOnErrorDataReceived(object sender, DataReceivedEventArgs e)
+        {
+            if(e.Data!=null)
+                StandardError.Add(e.Data);
+        }
+
+        private void InternalProcessOnOutputDataReceived(object sender, DataReceivedEventArgs e)
+        {
+            if (e.Data != null)
+                StandardOutput.Add(e.Data);
         }
     }
 }
