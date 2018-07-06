@@ -33,6 +33,7 @@
             </StackPanel>
             <ProgressBar DockPanel.Dock="Bottom"
                          Value="{Binding LoadingProgress, Mode=OneWay}" />
+            
             <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal">
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="Assemblies:"/>
@@ -57,7 +58,6 @@
         </DockPanel>
         <DockPanel LastChildFill="True" Grid.Column="2">
             <StackPanel Orientation="Horizontal" DockPanel.Dock="Top">
-                <!--<Button Content="Run" Command="{Binding RunSelectedTestCommand}" />-->
                 <Button Content="Run all" Command="{Binding RunAllTestCommand}" />
                 <Button Content="Cancel" Command="{Binding CancelRunTestCommand}" />
             </StackPanel>
@@ -82,6 +82,10 @@
                 </StackPanel>
             </StackPanel>
             <ProgressBar DockPanel.Dock="Bottom" Value="{Binding RanTestsCount, Mode=OneWay}"/>
+            <TextBlock DockPanel.Dock="Bottom">
+                <Run Text="Is All test running:"/>
+                <Run Text="{Binding IsAllTestRunning, Mode=OneWay}"/>
+            </TextBlock>
 
             <ListBox 
                     ItemsSource="{Binding Path=Tests}"

@@ -64,10 +64,12 @@
     <Compile Include="Instanses\FileLoader\FileItem.cs" />
     <Compile Include="Instanses\FileLoader\FileLoaderManager.cs" />
     <Compile Include="Instanses\RunProcess.cs" />
+    <Compile Include="Instanses\RunTestManager.cs" />
     <Compile Include="Instanses\Test.cs" />
     <Compile Include="Interfaces\IFileItem.cs" />
     <Compile Include="Interfaces\IFileLoaderManager.cs" />
     <Compile Include="Interfaces\IRunProcess.cs" />
+    <Compile Include="Interfaces\IRunTestManager.cs" />
     <Compile Include="Interfaces\ITest.cs" />
     <Compile Include="Tools\NotifyPropertyChanged.cs" />
     <Page Include="MainWindow.xaml">

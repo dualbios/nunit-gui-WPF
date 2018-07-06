@@ -7,7 +7,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using NUnit.Framework.Interfaces;
-using NUnit3Gui.Instanses;
 using NUnit3Gui.Interfaces;
 using ReactiveUI;
 using ITest = NUnit3Gui.Interfaces.ITest;
@@ -20,25 +19,23 @@ namespace NUnit3Gui
         private int _ranTestsCount;
         private IFileItem _selectedAssembly;
         private ITest _selectedTest;
-
-        private ObservableAsPropertyHelper<bool> isTestRunning;
+        private IObservable<bool> hasTests;
+        private ObservableAsPropertyHelper<bool> isAllTestRunning;
+        private IObservable<bool> selectedAssembly;
+        private IObservable<bool> sss;
 
         public MainWindowViewModel()
         {
+            hasTests = this.WhenAny(vm => vm.Tests, p => p.Value != null && p.Value.Any());
+            selectedAssembly = this.WhenAny(vm => vm.SelectedAssembly, p => p.Value != null);
+
             LoadedAssemblies = new ReactiveList<IFileItem>() { ChangeTrackingEnabled = true };
 
             BrowseAssembliesCommand = ReactiveCommand
                 .CreateFromObservable(() => Observable
                     .StartAsync(ct => OpenAssemblies(ct))
-                    .TakeUntil(this.CancelBrowseCommand));
-
-            RemoveAssembliesCommand = ReactiveCommand.CreateFromTask(
-                () => RemoveSelecteddAssemblies(),
-                     Observable.Merge(
-                        BrowseAssembliesCommand.IsExecuting.Select(_ => !_)
-                        , (this).WhenAny(vm => vm.SelectedAssembly, p => p.Value != null)
-                      )
-                    );
+                    .TakeUntil(CancelBrowseCommand)
+                , this.WhenAny(vm => vm.IsAllTestRunning, p => p.Value == false));
 
             LoadedAssemblies.ItemChanged
                 .Subscribe(x =>
@@ -49,28 +46,28 @@ namespace NUnit3Gui
                 });
 
             CancelBrowseCommand = ReactiveCommand.Create(() => { }, BrowseAssembliesCommand.IsExecuting);
-            IObservable<bool> hasTests = this.WhenAny(vm => vm.Tests, p => p.Value != null && p.Value.Any());
-
-            RunSelectedTestCommand = ReactiveCommand.CreateFromTask(
-                () => RunSelectedTestCommandExecute(),
-                Observable.Merge(
-                    this.WhenAny(vm => vm.SelectedTest, p => p.Value != null)
-                    , hasTests)
-                );
 
             RunAllTestCommand = ReactiveCommand
-                .CreateFromObservable(() => Observable.StartAsync(ct => RunAllTestCommandExecute(ct))
-                    //, Observable.Merge(
-                    //    this.WhenAny(vm => vm.SelectedTest, p => p.Value != null)
-                    //    , RunSelectedTestCommand.IsExecuting.Select(_ => !_)
-                    //  , hasTests
-                    //)
-                        .TakeUntil(this.CancelRunTestCommand));
+                    .CreateFromObservable(() => Observable.StartAsync(ct => RunAllTestCommandExecute(ct))
+                    .TakeUntil(this.CancelRunTestCommand)
+                , Observable.CombineLatest(
+                        BrowseAssembliesCommand.IsExecuting
+                        , this.WhenAny(vm => vm.IsAllTestRunning, p => p.Value)
+                        , hasTests
+                        , (a, b, c) => !a && !b && c));
 
-            isTestRunning = RunSelectedTestCommand.IsExecuting.ToProperty(this, x => x.IsTestRunning);
+            RemoveAssembliesCommand = ReactiveCommand.CreateFromTask(() => RemoveSelecteddAssemblies()
+                , Observable.CombineLatest(
+                    BrowseAssembliesCommand.IsExecuting.Select(_ => !_)
+                    , selectedAssembly
+                    , RunAllTestCommand.IsExecuting
+                    , (a, b, c) => a && b && !c));
 
             FileLoaderManager = AppRoot.Current.CompositionManager.ExportProvider.GetExportedValue<IFileLoaderManager>();
+            RunTestManager = AppRoot.Current.CompositionManager.ExportProvider.GetExportedValue<IRunTestManager>();
             CancelRunTestCommand = ReactiveCommand.Create(() => { }, RunAllTestCommand.IsExecuting);
+
+            isAllTestRunning = RunAllTestCommand.IsExecuting.ToProperty(this, x => x.IsAllTestRunning);
         }
 
         public int AssembliesCount => LoadedAssemblies.Count();
@@ -83,7 +80,7 @@ namespace NUnit3Gui
 
         public IFileLoaderManager FileLoaderManager { get; private set; }
 
-        public bool IsTestRunning => isTestRunning.Value;
+        public bool IsAllTestRunning => isAllTestRunning?.Value ?? false;
 
         public ReactiveList<IFileItem> LoadedAssemblies { get; }
 
@@ -107,7 +104,7 @@ namespace NUnit3Gui
 
         public ReactiveCommand<Unit, Unit> RunAllTestCommand { get; }
 
-        public ReactiveCommand<Unit, Unit> RunSelectedTestCommand { get; }
+        public IRunTestManager RunTestManager { get; }
 
         public IFileItem SelectedAssembly
         {
@@ -192,55 +189,23 @@ namespace NUnit3Gui
 
         private async Task<Unit> RunAllTestCommandExecute(CancellationToken ct)
         {
+            this.RaisePropertyChanged(nameof(BrowseAssembliesCommand));
             RanTestsCount = 0;
             int index = 1;
             int testCount = Tests.Count();
             foreach (ITest test in Tests)
             {
-                await RunTest(test, ct);
+                await RunTestManager.RunTestAsync(test, ct);
                 RanTestsCount = (int)(((double)index) / ((double)testCount) * 100D);
+
+                this.RaisePropertyChanged(nameof(TestFailedCount));
+                this.RaisePropertyChanged(nameof(TestPassedCount));
+
                 if (ct.IsCancellationRequested)
                     break;
                 index++;
             }
             RanTestsCount = 100;
-            return Unit.Default;
-        }
-
-        private Task<Unit> RunSelectedTestCommandExecute()
-        {
-            return RunTest(SelectedTest, CancellationToken.None);
-        }
-
-        private async Task<Unit> RunTest(ITest test, CancellationToken ct)
-        {
-            try
-            {
-                test.IsRunning = true;
-                test.StringStatus = null;
-                await Task.Delay(25);
-
-                var rrr = new RunProcess(test.AssemblyPath, test.TestName);
-                var result = await rrr.Run(ct);
-                await Task.Delay(25);
-
-                test.StringStatus = rrr.StandardOutput.ToString();
-                test.Status = result ? TestStatus.Passed : TestStatus.Failed;
-            }
-            catch (Exception e)
-            {
-                test.Status = TestStatus.Failed;
-                test.StringStatus = e.Message;
-            }
-            finally
-            {
-                test.IsRunning = false;
-            }
-
-            this.RaisePropertyChanged(nameof(TestFailedCount));
-            this.RaisePropertyChanged(nameof(TestPassedCount));
-
-            await Task.Delay(25);
             return Unit.Default;
         }
     }
