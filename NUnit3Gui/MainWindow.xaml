@@ -103,11 +103,13 @@
                         <StackPanel Orientation="Vertical">
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock>
+                                    <Run Text="{Binding ClassName, Mode=OneWay}" />
+                                    <Run Text="." />
                                     <Run Text="{Binding TestName, Mode=OneWay}" />
                                     <Run Text=" | " />
-                                    <Run Text="{Binding IsRunning, Mode=OneWay}" />
-                                    <Run Text=" | " />
                                     <Run Text="{Binding Status, Mode=OneWay}" />
+                                    <Run Text=" | " />
+                                    <Run Text="{Binding RunningTime, Mode=OneWay}" />
                                 </TextBlock>
                             </StackPanel>
                         </StackPanel>

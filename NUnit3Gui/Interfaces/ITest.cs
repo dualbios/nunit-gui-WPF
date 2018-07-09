@@ -1,4 +1,5 @@
-﻿using NUnit3Gui.Enums;
+﻿using System;
+using NUnit3Gui.Enums;
 
 namespace NUnit3Gui.Interfaces
 {
@@ -6,7 +7,11 @@ namespace NUnit3Gui.Interfaces
     {
         string AssemblyPath { get; }
 
+        string ClassName { get; }
+
         bool IsRunning { get; set; }
+
+        TimeSpan RunningTime { get; set; }
 
         TestState Status { get; set; }
 

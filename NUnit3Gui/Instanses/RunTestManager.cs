@@ -4,9 +4,9 @@ using System.ComponentModel.Composition.Primitives;
 using System.Reactive;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Threading;
 using NUnit3Gui.Enums;
 using NUnit3Gui.Interfaces;
-using ReactiveUI;
 
 namespace NUnit3Gui.Instanses
 {
@@ -23,11 +23,19 @@ namespace NUnit3Gui.Instanses
                 await Task.Delay(25);
 
                 var process = new RunProcess(test.AssemblyPath, test.TestName);
-                var result = await process.Run(ct);
+                var timer = new DispatcherTimer() { Interval = TimeSpan.FromMilliseconds(250)  };
+                var startTime = DateTime.Now;
+                timer.Tick += (sender, args) => { test.RunningTime = DateTime.Now - startTime; };
+                timer.Start();
+                await Task.Run(async () =>
+                {
+                    var result = await process.Run(ct);
+                    test.Status = result ? TestState.Passed : TestState.Failed;
+                });
+                timer.Stop();
                 await Task.Delay(25);
 
                 test.StringStatus = process.StandardOutput.ToString();
-                test.Status = result ? TestState.Passed : TestState.Failed;
             }
             catch (Exception e)
             {
