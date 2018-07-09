@@ -28,6 +28,8 @@
                         Command="{Binding BrowseAssembliesCommand}" />
                 <Button Content="Remove"
                         Command="{Binding RemoveAssembliesCommand}" />
+                <Button Content="Remove All"
+                        Command="{Binding RemoveAllAssembliesCommand}" />
                 <Button Content="Cancel"
                         Command="{Binding CancelBrowseCommand}" />
             </StackPanel>

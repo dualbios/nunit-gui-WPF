@@ -68,6 +68,14 @@ namespace NUnit3Gui
                     , RunAllTestCommand.IsExecuting
                     , (a, b, c) => a && b && !c));
 
+            RemoveAllAssembliesCommand = ReactiveCommand.CreateFromTask(() => RemoveAllAssembliesCommandExecute()
+                , Observable.CombineLatest(
+                    this.WhenAny(vm => vm.Tests, p => p.Value != null && p.Value.Any())
+                    , RunAllTestCommand.IsExecuting
+                    , BrowseAssembliesCommand.IsExecuting
+                    , (a, b, c) => a && !b && !c)
+                );
+
             FileLoaderManager = AppRoot.Current.CompositionManager.ExportProvider.GetExportedValue<IFileLoaderManager>();
             RunTestManager = AppRoot.Current.CompositionManager.ExportProvider.GetExportedValue<IRunTestManager>();
             CancelRunTestCommand = ReactiveCommand.Create(() => { }, RunAllTestCommand.IsExecuting);
@@ -104,6 +112,8 @@ namespace NUnit3Gui
             get => _ranTestsCount;
             private set => this.RaiseAndSetIfChanged(ref _ranTestsCount, value);
         }
+
+        public ReactiveCommand<Unit, Unit> RemoveAllAssembliesCommand { get; }
 
         public ReactiveCommand<Unit, Unit> RemoveAssembliesCommand { get; }
 
@@ -203,6 +213,12 @@ namespace NUnit3Gui
             {
                 this.RaisePropertyChanged(property);
             }
+        }
+
+        private Task<Unit> RemoveAllAssembliesCommandExecute()
+        {
+            LoadedAssemblies.Clear();
+            return Task.FromResult(default(Unit));
         }
 
         private Task<Unit> RemoveSelecteddAssemblies()
