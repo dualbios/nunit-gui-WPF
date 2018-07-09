@@ -1,4 +1,5 @@
 ﻿using NUnit.Framework.Interfaces;
+using NUnit3Gui.Enums;
 using ReactiveUI;
 
 namespace NUnit3Gui.Instanses
@@ -6,7 +7,7 @@ namespace NUnit3Gui.Instanses
     public class Test : ReactiveObject, Interfaces.ITest
     {
         private bool _isRunning;
-        private TestStatus _status = TestStatus.Inconclusive;
+        private TestState _status = TestState.Unrunned;
         private string _stringStatus;
 
         public Test(string filePath, string testName)
@@ -23,7 +24,7 @@ namespace NUnit3Gui.Instanses
             set => this.RaiseAndSetIfChanged(ref _isRunning, value);
         }
 
-        public TestStatus Status
+        public TestState Status
         {
             get => _status;
             set => this.RaiseAndSetIfChanged(ref _status, value);

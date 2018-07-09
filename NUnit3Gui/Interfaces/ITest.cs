@@ -1,4 +1,4 @@
-﻿using NUnit.Framework.Interfaces;
+﻿using NUnit3Gui.Enums;
 
 namespace NUnit3Gui.Interfaces
 {
@@ -8,7 +8,7 @@ namespace NUnit3Gui.Interfaces
 
         bool IsRunning { get; set; }
 
-        TestStatus Status { get; set; }
+        TestState Status { get; set; }
 
         string StringStatus { get; set; }
 

@@ -4,10 +4,9 @@ using System.ComponentModel.Composition.Primitives;
 using System.Reactive;
 using System.Threading;
 using System.Threading.Tasks;
-using NUnit.Framework.Interfaces;
+using NUnit3Gui.Enums;
 using NUnit3Gui.Interfaces;
 using ReactiveUI;
-using ITest = NUnit3Gui.Interfaces.ITest;
 
 namespace NUnit3Gui.Instanses
 {
@@ -19,6 +18,7 @@ namespace NUnit3Gui.Instanses
             try
             {
                 test.IsRunning = true;
+                test.Status = TestState.Running;
                 test.StringStatus = null;
                 await Task.Delay(25);
 
@@ -27,11 +27,11 @@ namespace NUnit3Gui.Instanses
                 await Task.Delay(25);
 
                 test.StringStatus = process.StandardOutput.ToString();
-                test.Status = result ? TestStatus.Passed : TestStatus.Failed;
+                test.Status = result ? TestState.Passed : TestState.Failed;
             }
             catch (Exception e)
             {
-                test.Status = TestStatus.Failed;
+                test.Status = TestState.Failed;
                 test.StringStatus = e.Message;
             }
             finally

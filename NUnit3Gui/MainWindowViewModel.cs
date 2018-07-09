@@ -7,7 +7,7 @@ using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using NUnit.Framework.Interfaces;
+using NUnit3Gui.Enums;
 using NUnit3Gui.Interfaces;
 using ReactiveUI;
 using ITest = NUnit3Gui.Interfaces.ITest;
@@ -136,11 +136,11 @@ namespace NUnit3Gui
         public int TestCount => LoadedAssemblies.Sum(_ => _.Tests?.Count() ?? 0);
 
         public int TestFailedCount => LoadedAssemblies.SelectMany(_ => _.Tests ?? Enumerable.Empty<ITest>())
-            .Where(_ => _.Status == TestStatus.Failed)
+            .Where(_ => _.Status == TestState.Failed)
             .Count();
 
         public int TestPassedCount => LoadedAssemblies.SelectMany(_ => _.Tests ?? Enumerable.Empty<ITest>())
-            .Where(_ => _.Status == TestStatus.Passed)
+            .Where(_ => _.Status == TestState.Passed)
             .Count();
 
         public IEnumerable<ITest> Tests
