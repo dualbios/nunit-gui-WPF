@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
@@ -15,13 +16,13 @@ namespace NUnit3Gui
 {
     public class MainWindowViewModel : ReactiveObject
     {
+        private readonly ObservableAsPropertyHelper<bool> isAllTestRunning;
+        private readonly IObservable<bool> selectedAssembly;
         private int _loadingProgress;
         private int _ranTestsCount;
         private IFileItem _selectedAssembly;
         private ITest _selectedTest;
         private IObservable<bool> hasTests;
-        private readonly ObservableAsPropertyHelper<bool> isAllTestRunning;
-        private readonly IObservable<bool> selectedAssembly;
 
         public MainWindowViewModel()
         {
@@ -35,13 +36,18 @@ namespace NUnit3Gui
                     .StartAsync(ct => OpenAssemblies(ct))
                     .TakeUntil(CancelBrowseCommand)
                 , this.WhenAny(vm => vm.IsAllTestRunning, p => p.Value == false));
-
+            LoadedAssemblies.Changed
+                .Subscribe(x =>
+                {
+                    if (x.Action == NotifyCollectionChangedAction.Reset)
+                    {
+                        PropertiesChanged(nameof(Tests), nameof(AssembliesCount), nameof(TestCount));
+                    }
+                });
             LoadedAssemblies.ItemChanged
                 .Subscribe(x =>
                 {
-                    this.RaisePropertyChanged(nameof(Tests));
-                    this.RaisePropertyChanged(nameof(AssembliesCount));
-                    this.RaisePropertyChanged(nameof(TestCount));
+                    PropertiesChanged(nameof(Tests), nameof(AssembliesCount), nameof(TestCount));
                 });
 
             CancelBrowseCommand = ReactiveCommand.Create(() => { }, BrowseAssembliesCommand.IsExecuting);
@@ -89,7 +95,7 @@ namespace NUnit3Gui
             private set
             {
                 _loadingProgress = value;
-                this.RaisePropertyChanged();
+                IReactiveObjectExtensions.RaisePropertyChanged(this);
             }
         }
 
@@ -140,19 +146,28 @@ namespace NUnit3Gui
                 LoadingProgress = 0;
                 if (ofd.FileNames.Length > 0)
                 {
-                    foreach (IFileItem fileItem in FileLoaderManager.LoadFiles(ofd.FileNames))
+                    IEnumerable<IFileItem> addedFiles = FileLoaderManager.LoadFiles(ofd.FileNames).ToList();
+                    foreach (IFileItem fileItem in addedFiles)
                     {
                         LoadedAssemblies.Add(fileItem);
                     }
 
                     if (ct.IsCancellationRequested)
                     {
-                        LoadedAssemblies.Clear();
+                        using (LoadedAssemblies.SuppressChangeNotifications())
+                        {
+                            foreach (IFileItem file in addedFiles)
+                            {
+                                LoadedAssemblies.Remove(file);
+                            }
+                        }
+
+                        LoadingProgress = 100;
                         return default(Unit);
                     }
 
-                    int index = 0;
-                    foreach (IFileItem item in LoadedAssemblies)
+                    int index = 1;
+                    foreach (IFileItem item in addedFiles)
                     {
                         await item.LoadAsync();
                         this.RaisePropertyChanged(nameof(TestCount));
@@ -163,7 +178,15 @@ namespace NUnit3Gui
 
                         if (ct.IsCancellationRequested)
                         {
-                            LoadedAssemblies.Clear();
+                            using (LoadedAssemblies.SuppressChangeNotifications())
+                            {
+                                foreach (IFileItem file in addedFiles)
+                                {
+                                    LoadedAssemblies.Remove(file);
+                                }
+                            }
+
+                            LoadingProgress = 100;
                             return default(Unit);
                         }
                     }
@@ -172,6 +195,14 @@ namespace NUnit3Gui
             }
 
             return default(Unit);
+        }
+
+        private void PropertiesChanged(params string[] properties)
+        {
+            foreach (string property in properties)
+            {
+                this.RaisePropertyChanged(property);
+            }
         }
 
         private Task<Unit> RemoveSelecteddAssemblies()
