@@ -17,6 +17,7 @@ namespace NUnit3Gui.Instanses.FileLoader
         private readonly string TestFixtureAttributeName = typeof(TestFixtureAttribute).Name;
         private readonly string TestAttributeName = typeof(TestAttribute).Name;
         private string _stringState;
+        private string _message;
         private IEnumerable<ITest> _tests;
 
         public FileItem(string filePath)
@@ -48,29 +49,50 @@ namespace NUnit3Gui.Instanses.FileLoader
             }
         }
 
-        public async Task LoadAsync()
+        public string Message
         {
-            StringState = "loading ...";
-            //await Task.Delay(500);
+            get => _message;
+            private set => SetProperty(ref _message, value);
+        }
 
-            try
+        public Task LoadAsync()
+        {
+            var tcs = new TaskCompletionSource<bool>();
+
+            Task.Run(async () =>
             {
-                Assembly assembly = Assembly.LoadFrom(FilePath);
+                StringState = "loading ...";
+                await Task.Delay(25);
+                Message = null;
 
-                Tests = assembly.GetTypes()
-                    .Where(type => type.GetCustomAttributes(typeof(Attribute), true).Any(_ => _.GetType().Name == TestFixtureAttributeName))
-                    .SelectMany(_=>_.GetMethods())
-                    .Where(m=>m.GetCustomAttributes(typeof(Attribute), true).Any(_ => _.GetType().Name == TestAttributeName))
-                    .Select(methodInfo => methodInfo.DeclaringType.FullName + "." + methodInfo.Name)
-                    .Select(test => new Test(FilePath, test))
-                    .ToList();
+                try
+                {
+                    Assembly assembly = Assembly.LoadFrom(FilePath);
 
-                StringState = $"{this.TestCount} classes(s)";
-            }
-            catch (Exception e)
-            {
-                StringState = "error loading.";
-            }
+                    Tests = assembly.GetTypes()
+                        .Where(type =>
+                            type.GetCustomAttributes(typeof(Attribute), true).Any(_ =>
+                                _.GetType().Name == TestFixtureAttributeName))
+                        .SelectMany(_ => _.GetMethods())
+                        .Where(m => m.GetCustomAttributes(typeof(Attribute), true)
+                            .Any(_ => _.GetType().Name == TestAttributeName))
+                        .Select(methodInfo => methodInfo.DeclaringType.FullName + "." + methodInfo.Name)
+                        .Select(test => new Test(FilePath, test))
+                        .ToList();
+
+                    StringState = $"{this.TestCount} classes(s)";
+                    tcs.SetResult(true);
+                }
+                catch (Exception e)
+                {
+                    StringState = "error loading.";
+                    Message = e.Message;
+                    tcs.SetResult(false);
+                }
+
+            });
+
+            return tcs.Task;
         }
     }
 }

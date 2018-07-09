@@ -60,7 +60,7 @@ namespace NUnit3Gui.Instanses
                         tcs.SetResult(localProcess.ExitCode == 0);
                     }
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     tcs.SetResult(false);
                 }
@@ -102,7 +102,7 @@ namespace NUnit3Gui.Instanses
                         tcs.SetResult(localProcess.ExitCode == 0);
                     }
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     tcs.SetResult(false);
                 }

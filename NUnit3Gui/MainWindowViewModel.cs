@@ -20,9 +20,8 @@ namespace NUnit3Gui
         private IFileItem _selectedAssembly;
         private ITest _selectedTest;
         private IObservable<bool> hasTests;
-        private ObservableAsPropertyHelper<bool> isAllTestRunning;
-        private IObservable<bool> selectedAssembly;
-        private IObservable<bool> sss;
+        private readonly ObservableAsPropertyHelper<bool> isAllTestRunning;
+        private readonly IObservable<bool> selectedAssembly;
 
         public MainWindowViewModel()
         {
@@ -135,7 +134,7 @@ namespace NUnit3Gui
 
         private async Task<Unit> OpenAssemblies(CancellationToken ct)
         {
-            OpenFileDialog ofd = new OpenFileDialog() { Filter = "Dll files|*.dll", Multiselect = true, FileName = @"C:\Repositories\nunit-gui-WPF\NUnit3Gui\bin\Debug\NUnit3Gui.UnitTest.dll" };
+            OpenFileDialog ofd = new OpenFileDialog() { Filter = "Dll files|*.dll", Multiselect = true, FileName = @"*.test*.dll" };
             if (ofd.ShowDialog() == DialogResult.OK)
             {
                 LoadingProgress = 0;

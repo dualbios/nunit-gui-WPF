@@ -11,6 +11,8 @@ namespace NUnit3Gui.Interfaces
 
         string StringState { get; }
 
+        string Message { get; }
+
         int TestCount { get; }
 
         IEnumerable<ITest> Tests { get; }
