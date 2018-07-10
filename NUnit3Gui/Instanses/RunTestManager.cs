@@ -23,16 +23,11 @@ namespace NUnit3Gui.Instanses
                 await Task.Delay(25);
 
                 var process = new RunProcess(test.AssemblyPath, test.TestName);
-                var timer = new DispatcherTimer() { Interval = TimeSpan.FromMilliseconds(250)  };
+                var timer = new DispatcherTimer() { Interval = TimeSpan.FromMilliseconds(250) };
                 var startTime = DateTime.Now;
                 timer.Tick += (sender, args) => { test.RunningTime = DateTime.Now - startTime; };
                 timer.Start();
-                await Task.Run(async () =>
-                    {
-                        var result = await process.Run(ct);
-                        test.Status = result ? TestState.Passed : TestState.Failed;
-                    }
-                    , ct);
+                test.Status = await process.Run(ct);
                 timer.Stop();
                 await Task.Delay(25);
 

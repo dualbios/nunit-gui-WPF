@@ -1,10 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using NUnit3Gui.Enums;
 using NUnit3Gui.Interfaces;
 
 namespace NUnit3Gui.Instanses
@@ -12,6 +12,7 @@ namespace NUnit3Gui.Instanses
     public class RunProcess : IRunProcess
     {
         private const string nu3cPath = "nunit3-console\\nunit3-console.exe";
+
         public RunProcess(string assemblyPath, string args)
         {
             AssemblyPath = assemblyPath;
@@ -24,12 +25,13 @@ namespace NUnit3Gui.Instanses
 
         public int ExitCode { get; private set; }
 
-        public StringBuilder StandardOutput { get; private set; } = new StringBuilder();
         public StringBuilder StandardError { get; private set; } = new StringBuilder();
 
-        public Task<bool> Run()
+        public StringBuilder StandardOutput { get; private set; } = new StringBuilder();
+
+        public Task<TestState> Run()
         {
-            var tcs = new TaskCompletionSource<bool>();
+            var tcs = new TaskCompletionSource<TestState>();
 
             Task.Run(() =>
             {
@@ -57,21 +59,21 @@ namespace NUnit3Gui.Instanses
                         localProcess.BeginOutputReadLine();
                         localProcess.BeginErrorReadLine();
 
-                        tcs.SetResult(localProcess.ExitCode == 0);
+                        tcs.SetResult(localProcess.ExitCode == 0 ? TestState.Passed : TestState.Failed);
                     }
                 }
                 catch (Exception)
                 {
-                    tcs.SetResult(false);
+                    tcs.SetResult(TestState.Failed);
                 }
             });
 
             return tcs.Task;
         }
 
-        public Task<bool> Run(CancellationToken ct)
+        public Task<TestState> Run(CancellationToken ct)
         {
-            var tcs = new TaskCompletionSource<bool>();
+            var tcs = new TaskCompletionSource<TestState>();
 
             Task.Run(() =>
             {
@@ -99,12 +101,15 @@ namespace NUnit3Gui.Instanses
                         localProcess.BeginOutputReadLine();
                         localProcess.BeginErrorReadLine();
 
-                        tcs.SetResult(localProcess.ExitCode == 0);
+                        if (ct.IsCancellationRequested)
+                            tcs.SetResult(TestState.Cancelled);
+                        else
+                            tcs.SetResult(localProcess.ExitCode == 0 ? TestState.Passed : TestState.Failed);
                     }
                 }
                 catch (Exception)
                 {
-                    tcs.SetResult(false);
+                    tcs.SetResult(TestState.Failed);
                 }
             },
                 ct);
@@ -114,7 +119,7 @@ namespace NUnit3Gui.Instanses
 
         private void InternalProcessOnErrorDataReceived(object sender, DataReceivedEventArgs e)
         {
-            if(e.Data!=null)
+            if (e.Data != null)
                 StandardError.AppendLine(e.Data);
         }
 

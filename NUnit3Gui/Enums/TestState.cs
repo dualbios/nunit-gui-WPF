@@ -4,6 +4,7 @@
     {
         Unrunned,
         Running,
+        Cancelled,
         Failed,
         Ignored,
         Passed
