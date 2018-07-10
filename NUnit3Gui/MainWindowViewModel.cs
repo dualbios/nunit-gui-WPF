@@ -38,24 +38,17 @@ namespace NUnit3Gui
             selectedAssembly = this.WhenAny(vm => vm.SelectedAssembly, p => p.Value != null);
 
             Tests.Changed
-                .Subscribe(x =>
-                {
-                    if (x.Action == NotifyCollectionChangedAction.Add)
-                    {
-                        foreach (ReactiveObject test in x.NewItems)
-                        {
-                            test.PropertyChanged += TestOnPropertyChanged;
-                        }
-                    }
-                    else if (x.Action == NotifyCollectionChangedAction.Remove)
-                    {
-                        foreach (ReactiveObject test in x.OldItems)
-                        {
-                            test.PropertyChanged -= TestOnPropertyChanged;
-                        }
-                    }
-                    PropertiesChanged(nameof(Tests), nameof(AssembliesCount), nameof(TestCount), nameof(SelectedTests));
-                });
+                .Where(_ => _.Action == NotifyCollectionChangedAction.Add)
+                .SelectMany(_ => _.NewItems.OfType<ReactiveObject>())
+                .Subscribe(x => x.PropertyChanged += TestOnPropertyChanged);
+
+            Tests.Changed
+                .Where(_ => _.Action == NotifyCollectionChangedAction.Remove)
+                .SelectMany(_ => (_.OldItems != null ? _.OldItems.OfType<ReactiveObject>() : Enumerable.Empty<ReactiveObject>()))
+                .Where(_ => _ != null)
+                .Subscribe(x => x.PropertyChanged -= TestOnPropertyChanged);
+
+            Tests.Changed.Subscribe(x => PropertiesChanged(nameof(Tests), nameof(AssembliesCount), nameof(TestCount), nameof(SelectedTests)));
 
             BrowseAssembliesCommand = ReactiveCommand
                 .CreateFromObservable(() => Observable
@@ -64,25 +57,17 @@ namespace NUnit3Gui
                 , this.WhenAny(vm => vm.IsAllTestRunning, p => p.Value == false));
 
             LoadedAssemblies.ItemsRemoved
-                .Subscribe(x =>
-                {
-                    Tests.RemoveAll(x.Tests);
-                });
+                .Subscribe(x => Tests.RemoveAll(x.Tests));
 
             LoadedAssemblies.Changed
-                .Subscribe(x =>
-                {
-                    if (x.Action == NotifyCollectionChangedAction.Reset)
-                    {
-                        Tests.Clear();
-                    }
-                    PropertiesChanged(nameof(Tests), nameof(AssembliesCount), nameof(TestCount), nameof(SelectedTests));
-                });
+                .Where(_ => _.Action == NotifyCollectionChangedAction.Reset)
+                .Subscribe(x => Tests.Clear());
+
+            LoadedAssemblies.Changed
+                .Subscribe(x => PropertiesChanged(nameof(Tests), nameof(AssembliesCount), nameof(TestCount), nameof(SelectedTests)));
+
             LoadedAssemblies.ItemChanged
-                .Subscribe(x =>
-                {
-                    PropertiesChanged(nameof(Tests), nameof(AssembliesCount), nameof(TestCount));
-                });
+                .Subscribe(x => PropertiesChanged(nameof(Tests), nameof(AssembliesCount), nameof(TestCount)));
 
             CancelBrowseCommand = ReactiveCommand.Create(() => { }, BrowseAssembliesCommand.IsExecuting);
 
