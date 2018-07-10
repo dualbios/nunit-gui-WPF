@@ -64,6 +64,7 @@
     <Compile Include="Enums\TestState.cs" />
     <Compile Include="Extensions\EnumerableExtensions.cs" />
     <Compile Include="Extensions\ObservableExtensions.cs" />
+    <Compile Include="Extensions\ReactiveObjectExtensions.cs" />
     <Compile Include="Extensions\ResultSelector.cs" />
     <Compile Include="Instanses\FileLoader\FileItem.cs" />
     <Compile Include="Instanses\FileLoader\FileLoaderManager.cs" />
@@ -72,14 +73,25 @@
     <Compile Include="Instanses\Test.cs" />
     <Compile Include="Interfaces\IFileItem.cs" />
     <Compile Include="Interfaces\IFileLoaderManager.cs" />
+    <Compile Include="Interfaces\IMainViewModel.cs" />
+    <Compile Include="Interfaces\IProjectViewModel.cs" />
     <Compile Include="Interfaces\IRunProcess.cs" />
     <Compile Include="Interfaces\IRunTestManager.cs" />
     <Compile Include="Interfaces\ITest.cs" />
+    <Compile Include="Interfaces\ITestsViewModel.cs" />
+    <Compile Include="Views\MainWindow.xaml.cs">
+      <DependentUpon>MainWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Tools\NotifyPropertyChanged.cs" />
-    <Page Include="MainWindow.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
+    <Compile Include="ViewModels\MainViewModel.cs" />
+    <Compile Include="ViewModels\ProjectViewModel.cs" />
+    <Compile Include="ViewModels\TestsViewModel.cs" />
+    <Compile Include="Views\ProjectView.xaml.cs">
+      <DependentUpon>ProjectView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\TestsView.xaml.cs">
+      <DependentUpon>TestsView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -88,13 +100,20 @@
     <Compile Include="Convertres\ViewModelToViewConverter.cs" />
     <Compile Include="Instanses\VSMefCompositionManager.cs" />
     <Compile Include="Interfaces\ICompositionManager.cs" />
-    <Compile Include="MainWindow.xaml.cs">
-      <DependentUpon>MainWindow.xaml</DependentUpon>
-      <SubType>Code</SubType>
-    </Compile>
+    <Page Include="Views\MainWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\ProjectView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\TestsView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="MainWindowViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -132,9 +151,7 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="ViewModels\Views\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <PackageReference Include="Microsoft.VisualStudio.Composition">
       <Version>15.6.36</Version>

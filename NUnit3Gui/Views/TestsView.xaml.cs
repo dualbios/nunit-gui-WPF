@@ -13,14 +13,14 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace NUnit3Gui
+namespace NUnit3Gui.Views
 {
     /// <summary>
-    /// Interaction logic for MainWindow.xaml
+    /// Interaction logic for TestsView.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class TestsView : UserControl
     {
-        public MainWindow()
+        public TestsView()
         {
             InitializeComponent();
         }
