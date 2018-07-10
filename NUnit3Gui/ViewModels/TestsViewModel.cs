@@ -35,47 +35,43 @@ namespace NUnit3Gui.ViewModels
         {
             this.RunTestManager = runTestManager;
 
-            Tests = new ReactiveList<ITest>() { ChangeTrackingEnabled = true};
+            //Tests.Changed
+            //    .Where(_ => _.Action == NotifyCollectionChangedAction.Add)
+            //    .SelectMany(_ => _.NewItems.OfType<ReactiveObject>())
+            //    .Subscribe(x => x.PropertyChanged += TestOnPropertyChanged);
 
-            HasTests = Tests.WhenAny(x => x.Count, p => p.Value > 0);
+            //Tests.Changed
+            //    .Where(_ => _.Action == NotifyCollectionChangedAction.Remove)
+            //    .SelectMany(_ => (_.OldItems != null ? _.OldItems.OfType<ReactiveObject>() : Enumerable.Empty<ReactiveObject>()))
+            //    .Where(_ => _ != null)
+            //    .Subscribe(x => x.PropertyChanged -= TestOnPropertyChanged);
 
-            Tests.Changed
-                .Where(_ => _.Action == NotifyCollectionChangedAction.Add)
-                .SelectMany(_ => _.NewItems.OfType<ReactiveObject>())
-                .Subscribe(x => x.PropertyChanged += TestOnPropertyChanged);
-
-            Tests.Changed
-                .Where(_ => _.Action == NotifyCollectionChangedAction.Remove)
-                .SelectMany(_ => (_.OldItems != null ? _.OldItems.OfType<ReactiveObject>() : Enumerable.Empty<ReactiveObject>()))
-                .Where(_ => _ != null)
-                .Subscribe(x => x.PropertyChanged -= TestOnPropertyChanged);
-
-            Tests.Changed.Subscribe(x => this.PropertiesChanged(nameof(TestCount), nameof(SelectedTests)));
+            //Tests.Changed.Subscribe(x => this.PropertiesChanged(nameof(TestCount), nameof(SelectedTests)));
 
             RunAllTestCommand = ReactiveCommand
-                .CreateFromObservable(() => Observable.StartAsync(ct => RunAllTestCommandExecute(ct, Tests))
+                .CreateFromObservable(() => Observable.StartAsync(ct => RunAllTestCommandExecute(ct, Enumerable.Empty<ITest>()))
                         .TakeUntil(this.CancelRunTestCommand)
-                    , Observable.CombineLatest(
-                        //_mainViewModel.ProjectViewModel.BrowseAssembliesCommand.IsExecuting.Select(_ => !_)
+                    , //Observable.CombineLatest(
+                         //_mainViewModel.ProjectViewModel.BrowseAssembliesCommand.IsExecuting.Select(_ => !_)
                          this.WhenAny(vm => vm.IsAllTestRunning, p => p.Value).Select(_ => !_)
-                        , HasTests
-                        , ResultSelector.And2Result));
+                        //, HasTests
+                        //, ResultSelector.And2Result)
+                        );
 
-            RunSelectedTestCommand = ReactiveCommand
-                .CreateFromObservable(() => Observable.StartAsync(ct => RunAllTestCommandExecute(ct, SelectedTests))
-                        .TakeUntil(this.CancelRunTestCommand)
-                    , Observable.CombineLatest(
-                        this.WhenAny(vm => vm.IsAllTestRunning, p => p.Value).Invert()
-                        //, _mainViewModel.ProjectViewModel.BrowseAssembliesCommand.IsExecuting.Invert()
-                        , HasTests
-                        , this.WhenAny(vm => vm.SelectedTests, p => p.Value != null && p.Value.Any())
-                        , ResultSelector.And3Result)
-                );
+            //RunSelectedTestCommand = ReactiveCommand
+            //    .CreateFromObservable(() => Observable.StartAsync(ct => RunAllTestCommandExecute(ct, SelectedTests))
+            //            .TakeUntil(this.CancelRunTestCommand)
+            //        , Observable.CombineLatest(
+            //            this.WhenAny(vm => vm.IsAllTestRunning, p => p.Value).Invert()
+            //            //, _mainViewModel.ProjectViewModel.BrowseAssembliesCommand.IsExecuting.Invert()
+            //            , HasTests
+            //            , this.WhenAny(vm => vm.SelectedTests, p => p.Value != null && p.Value.Any())
+            //            , ResultSelector.And3Result)
+            //    );
 
-            IsTestRunningObservable = Observable.CombineLatest(
+            IsTestRunningObservable = 
                 RunAllTestCommand.IsExecuting
-                , RunSelectedTestCommand.IsExecuting
-                , (a, b) => a || b);
+                ;
             isAllTestRunning = IsTestRunningObservable.ToProperty(this, x => x.IsAllTestRunning);
             CancelRunTestCommand = ReactiveCommand.Create(() => { }, IsTestRunningObservable);
         }
@@ -110,24 +106,23 @@ namespace NUnit3Gui.ViewModels
             set => this.RaiseAndSetIfChanged(ref _selectedTest, value);
         }
 
-        public IEnumerable<ITest> SelectedTests => Tests.Where(_ => _.IsSelected).EmptyIfNull();
+        //public IEnumerable<ITest> SelectedTests => Tests.Where(_ => _.IsSelected).EmptyIfNull();
 
-        public int TestCount => Tests?.Count() ?? 0;
+        //public int TestCount => Tests?.Count() ?? 0;
 
-        public int TestFailedCount => Tests
-            .Where(_ => _.Status == TestState.Failed)
-            .Count();
+        //public int TestFailedCount => Tests
+        //    .Where(_ => _.Status == TestState.Failed)
+        //    .Count();
 
-        public int TestPassedCount => Tests
-            .Where(_ => _.Status == TestState.Passed)
-            .Count();
+        //public int TestPassedCount => Tests
+        //    .Where(_ => _.Status == TestState.Passed)
+        //    .Count();
 
-        public IReactiveList<ITest> Tests { get; }
 
-        public IObservable<bool> HasTests { get; }
 
         private async Task<Unit> RunAllTestCommandExecute(CancellationToken ct, IEnumerable<ITest> testList)
         {
+            await Task.Delay(2000);
             RanTestsCount = 0;
             RunningTime = TimeSpan.Zero;
 
@@ -143,8 +138,8 @@ namespace NUnit3Gui.ViewModels
                 await RunTestManager.RunTestAsync(test, ct);
                 RanTestsCount = (int)(((double)index) / ((double)testCount) * 100D);
 
-                this.RaisePropertyChanged(nameof(TestFailedCount));
-                this.RaisePropertyChanged(nameof(TestPassedCount));
+                //this.RaisePropertyChanged(nameof(TestFailedCount));
+                //this.RaisePropertyChanged(nameof(TestPassedCount));
 
                 if (ct.IsCancellationRequested)
                     break;
@@ -158,8 +153,8 @@ namespace NUnit3Gui.ViewModels
 
         private void TestOnPropertyChanged(object sender, PropertyChangedEventArgs args)
         {
-            if (args.PropertyName == nameof(ITest.IsSelected))
-                this.PropertiesChanged(nameof(SelectedTests));
+            //if (args.PropertyName == nameof(ITest.IsSelected))
+            //    this.PropertiesChanged(nameof(SelectedTests));
         }
     }
 }

@@ -27,25 +27,34 @@ namespace NUnit3Gui.ViewModels
         private readonly IObservable<bool> selectedAssembly;
         private int _loadingProgress;
         private IFileItem _selectedAssembly;
+        private ITestsViewModel _testsViewModel;
+
+        public IReactiveList<ITest> Tests { get; }
+
+        public IObservable<bool> HasTests { get; }
 
         [ImportingConstructor]
-        public ProjectViewModel(IFileLoaderManager fileLoaderManager, ITestsViewModel testsViewModel)
+        public ProjectViewModel(IFileLoaderManager fileLoaderManager)
         {
             _fileLoaderManager = fileLoaderManager;
-            TestsViewModel = testsViewModel;
+            //TestsViewModel = testsViewModel;
+            Tests = new ReactiveList<ITest>() { ChangeTrackingEnabled = true };
 
             LoadedAssemblies = new ReactiveList<IFileItem>() { ChangeTrackingEnabled = true };
 
             selectedAssembly = this.WhenAny(vm => vm.SelectedAssembly, p => p.Value != null);
 
-            TestsViewModel.Tests.Changed.Subscribe(x => this.PropertiesChanged(propertiesToRefresh));
+            HasTests = Tests.WhenAny(x => x.Count, p => p.Value > 0);
+
+
+            Tests.Changed.Subscribe(x => this.PropertiesChanged(propertiesToRefresh));
 
             LoadedAssemblies.ItemsRemoved
-                .Subscribe(x => TestsViewModel.Tests.RemoveAll(x.Tests));
+                .Subscribe(x => Tests.RemoveAll(x.Tests));
 
             LoadedAssemblies.Changed
                 .Where(_ => _.Action == NotifyCollectionChangedAction.Reset)
-                .Subscribe(x => TestsViewModel.Tests.Clear());
+                .Subscribe(x => Tests.Clear());
 
             LoadedAssemblies.Changed
                 .Subscribe(x => this.PropertiesChanged(propertiesToRefresh));
@@ -57,7 +66,12 @@ namespace NUnit3Gui.ViewModels
                 .CreateFromObservable(() => Observable
                         .StartAsync(ct => OpenAssemblies(ct))
                         .TakeUntil(CancelBrowseCommand)
-                , testsViewModel.IsTestRunningObservable.Invert());
+                , this.WhenAnyValue(v => v.TestsViewModel)
+                        .Where(_ => _ != null)
+                        .Select(_ => _.IsTestRunningObservable)
+                        .Where(_ => _ != null)
+                        .SelectMany(_ => _)
+                        .Invert());
 
             CancelBrowseCommand = ReactiveCommand.Create(() => { }, BrowseAssembliesCommand.IsExecuting);
 
@@ -72,7 +86,12 @@ namespace NUnit3Gui.ViewModels
                 , Observable.CombineLatest(
                     BrowseAssembliesCommand.IsExecuting.Invert()
                     , selectedAssembly
-                    , TestsViewModel.IsTestRunningObservable.Invert()
+                    , this.WhenAnyValue(v => v.TestsViewModel)
+                        .Where(_ => _ != null)
+                        .Select(_ => _.IsTestRunningObservable)
+                        .Where(_ => _ != null)
+                        .SelectMany(_ => _)
+                        .Invert()
                     , ResultSelector.And3Result));
 
             RemoveAllAssembliesCommand = ReactiveCommand.CreateFromTask(() =>
@@ -81,9 +100,14 @@ namespace NUnit3Gui.ViewModels
                     return Task.FromResult(default(Unit));
                 }
                 , Observable.CombineLatest(
-                    TestsViewModel.HasTests
+                    HasTests
                     , BrowseAssembliesCommand.IsExecuting.Invert()
-                    , TestsViewModel.IsTestRunningObservable.Invert()
+                    , this.WhenAnyValue(v => v.TestsViewModel)
+                        .Where(_ => _ != null)
+                        .Select(_ => _.IsTestRunningObservable)
+                        .Where(_ => _ != null)
+                        .SelectMany(_ => _)
+                        .Invert()
                     , ResultSelector.And3Result));
         }
 
@@ -117,7 +141,10 @@ namespace NUnit3Gui.ViewModels
 
         public int TestCount { get; }
 
-        public ITestsViewModel TestsViewModel { get; }
+        [Import]
+        public ITestsViewModel TestsViewModel {
+            get => _testsViewModel;
+            private set => this.RaiseAndSetIfChanged(ref _testsViewModel , value); }
 
         private async Task<Unit> OpenAssemblies(CancellationToken ct)
         {
@@ -158,7 +185,7 @@ namespace NUnit3Gui.ViewModels
                         await item.LoadAsync();
                         foreach (ITest test in item.Tests)
                         {
-                            TestsViewModel.Tests.Add(test);
+                            Tests.Add(test);
                         }
 
                         LoadingProgress = (int)(((double)index) / ((double)ofd.FileNames.Length) * 100D);
