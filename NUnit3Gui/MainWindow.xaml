@@ -85,11 +85,19 @@
                     <TextBlock Text="{Binding TestFailedCount}"/>
                 </StackPanel>
             </StackPanel>
+            
             <ProgressBar DockPanel.Dock="Bottom" Value="{Binding RanTestsCount, Mode=OneWay}"/>
-            <TextBlock DockPanel.Dock="Bottom">
-                <Run Text="Is All test running:"/>
-                <Run Text="{Binding IsAllTestRunning, Mode=OneWay}"/>
-            </TextBlock>
+
+            <StackPanel Orientation="Horizontal" DockPanel.Dock="Bottom">
+                <TextBlock >
+                    <Run Text="Tests are running:"/>
+                    <Run Text="{Binding IsAllTestRunning, Mode=OneWay}"/>
+                </TextBlock>
+                <TextBlock >
+                    <Run Text="Running time:"/>
+                    <Run Text="{Binding RunningTime, Mode=OneWay}"/>
+                </TextBlock>
+            </StackPanel>
 
             <ListBox ItemsSource="{Binding Path=Tests}"
                      SelectedItem="{Binding SelectedTest}"

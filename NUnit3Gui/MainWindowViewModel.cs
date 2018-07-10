@@ -8,6 +8,7 @@ using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Windows.Threading;
 using NUnit3Gui.Enums;
 using NUnit3Gui.Extensions;
 using NUnit3Gui.Interfaces;
@@ -22,11 +23,11 @@ namespace NUnit3Gui
         private readonly IObservable<bool> selectedAssembly;
         private int _loadingProgress;
         private int _ranTestsCount;
+        private TimeSpan _runningTime;
         private IFileItem _selectedAssembly;
         private ITest _selectedTest;
         private IObservable<bool> hasTests;
         private IObservable<bool> isTestRunningObservable;
-
         public MainWindowViewModel()
         {
             LoadedAssemblies = new ReactiveList<IFileItem>() { ChangeTrackingEnabled = true };
@@ -80,8 +81,8 @@ namespace NUnit3Gui
                     .CreateFromObservable(() => Observable.StartAsync(ct => RunAllTestCommandExecute(ct, Tests))
                     .TakeUntil(this.CancelRunTestCommand)
                 , Observable.CombineLatest(
-                        BrowseAssembliesCommand.IsExecuting.Select(_=>!_)
-                        , this.WhenAny(vm => vm.IsAllTestRunning, p => p.Value).Select(_=>!_)
+                        BrowseAssembliesCommand.IsExecuting.Select(_ => !_)
+                        , this.WhenAny(vm => vm.IsAllTestRunning, p => p.Value).Select(_ => !_)
                         , hasTests
                         , ResultSelector.And3Result));
 
@@ -118,16 +119,8 @@ namespace NUnit3Gui
                     , ResultSelector.And3Result)
             );
 
-
             FileLoaderManager = AppRoot.Current.CompositionManager.ExportProvider.GetExportedValue<IFileLoaderManager>();
             RunTestManager = AppRoot.Current.CompositionManager.ExportProvider.GetExportedValue<IRunTestManager>();
-
-        }
-
-        private void TestOnPropertyChanged(object sender, PropertyChangedEventArgs args)
-        {
-            if (args.PropertyName == nameof(ITest.IsSelected))
-                PropertiesChanged(nameof(SelectedTests));
         }
 
         public int AssembliesCount => LoadedAssemblies.Count();
@@ -165,6 +158,12 @@ namespace NUnit3Gui
         public ReactiveCommand<Unit, Unit> RemoveAssembliesCommand { get; }
 
         public ReactiveCommand<Unit, Unit> RunAllTestCommand { get; }
+
+        public TimeSpan RunningTime
+        {
+            get => _runningTime;
+            set => this.RaiseAndSetIfChanged(ref _runningTime, value);
+        }
 
         public ReactiveCommand<Unit, Unit> RunSelectedTestCommand { get; }
 
@@ -299,6 +298,13 @@ namespace NUnit3Gui
         private async Task<Unit> RunAllTestCommandExecute(CancellationToken ct, IEnumerable<ITest> testList)
         {
             RanTestsCount = 0;
+            RunningTime = TimeSpan.Zero;
+
+            var timer = new DispatcherTimer() { Interval = TimeSpan.FromMilliseconds(250) };
+            var startTime = DateTime.Now;
+            timer.Tick += (sender, args) => { RunningTime = DateTime.Now - startTime; };
+            timer.Start();
+
             int index = 1;
             int testCount = testList.Count();
             foreach (ITest test in testList)
@@ -315,7 +321,14 @@ namespace NUnit3Gui
             }
 
             RanTestsCount = 100;
+            timer.Stop();
             return Unit.Default;
+        }
+
+        private void TestOnPropertyChanged(object sender, PropertyChangedEventArgs args)
+        {
+            if (args.PropertyName == nameof(ITest.IsSelected))
+                PropertiesChanged(nameof(SelectedTests));
         }
     }
 }

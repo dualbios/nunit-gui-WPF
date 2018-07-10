@@ -28,10 +28,11 @@ namespace NUnit3Gui.Instanses
                 timer.Tick += (sender, args) => { test.RunningTime = DateTime.Now - startTime; };
                 timer.Start();
                 await Task.Run(async () =>
-                {
-                    var result = await process.Run(ct);
-                    test.Status = result ? TestState.Passed : TestState.Failed;
-                });
+                    {
+                        var result = await process.Run(ct);
+                        test.Status = result ? TestState.Passed : TestState.Failed;
+                    }
+                    , ct);
                 timer.Stop();
                 await Task.Delay(25);
 
