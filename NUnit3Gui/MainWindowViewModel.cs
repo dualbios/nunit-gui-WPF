@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.ComponentModel;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
@@ -8,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using NUnit3Gui.Enums;
+using NUnit3Gui.Extensions;
 using NUnit3Gui.Interfaces;
 using ReactiveUI;
 using ITest = NUnit3Gui.Interfaces.ITest;
@@ -23,25 +25,47 @@ namespace NUnit3Gui
         private IFileItem _selectedAssembly;
         private ITest _selectedTest;
         private IObservable<bool> hasTests;
+        private IObservable<bool> isTestRunningObservable;
 
         public MainWindowViewModel()
         {
-            hasTests = this.WhenAny(vm => vm.Tests, p => p.Value != null && p.Value.Any());
+            LoadedAssemblies = new ReactiveList<IFileItem>() { ChangeTrackingEnabled = true };
+            Tests = new ReactiveList<ITest>() { ChangeTrackingEnabled = true };
+
+            hasTests = Tests.WhenAny(x => x.Count, p => p.Value > 0);
             selectedAssembly = this.WhenAny(vm => vm.SelectedAssembly, p => p.Value != null);
 
-            LoadedAssemblies = new ReactiveList<IFileItem>() { ChangeTrackingEnabled = true };
+            Tests.Changed
+                .Subscribe(x =>
+                {
+                    if (x.Action == NotifyCollectionChangedAction.Add)
+                    {
+                        foreach (ReactiveObject test in x.NewItems)
+                        {
+                            test.PropertyChanged += TestOnPropertyChanged;
+                        }
+                    }
+                    else if (x.Action == NotifyCollectionChangedAction.Remove)
+                    {
+                        foreach (ReactiveObject test in x.OldItems)
+                        {
+                            test.PropertyChanged -= TestOnPropertyChanged;
+                        }
+                    }
+                });
 
             BrowseAssembliesCommand = ReactiveCommand
                 .CreateFromObservable(() => Observable
                     .StartAsync(ct => OpenAssemblies(ct))
                     .TakeUntil(CancelBrowseCommand)
                 , this.WhenAny(vm => vm.IsAllTestRunning, p => p.Value == false));
+
             LoadedAssemblies.Changed
                 .Subscribe(x =>
                 {
                     if (x.Action == NotifyCollectionChangedAction.Reset)
                     {
-                        PropertiesChanged(nameof(Tests), nameof(AssembliesCount), nameof(TestCount));
+                        PropertiesChanged(nameof(Tests), nameof(AssembliesCount), nameof(TestCount), nameof(SelectedTests));
                     }
                 });
             LoadedAssemblies.ItemChanged
@@ -53,13 +77,24 @@ namespace NUnit3Gui
             CancelBrowseCommand = ReactiveCommand.Create(() => { }, BrowseAssembliesCommand.IsExecuting);
 
             RunAllTestCommand = ReactiveCommand
-                    .CreateFromObservable(() => Observable.StartAsync(ct => RunAllTestCommandExecute(ct))
+                    .CreateFromObservable(() => Observable.StartAsync(ct => RunAllTestCommandExecute(ct, Tests))
                     .TakeUntil(this.CancelRunTestCommand)
                 , Observable.CombineLatest(
                         BrowseAssembliesCommand.IsExecuting
                         , this.WhenAny(vm => vm.IsAllTestRunning, p => p.Value)
                         , hasTests
                         , (a, b, c) => !a && !b && c));
+
+            RunSelectedTestCommand = ReactiveCommand
+                .CreateFromObservable(() => Observable.StartAsync(ct => RunAllTestCommandExecute(ct, SelectedTests))
+                        .TakeUntil(this.CancelRunTestCommand)
+                    , Observable.CombineLatest(
+                       this.WhenAny(vm => vm.IsAllTestRunning, p => p.Value)
+                        , BrowseAssembliesCommand.IsExecuting
+                        , hasTests
+                        , this.WhenAny(vm => vm.SelectedTests, p => p.Value != null && p.Value.Any())
+                        , (a, b, c, d) => !a && !b && c && d)
+                    );
 
             RemoveAssembliesCommand = ReactiveCommand.CreateFromTask(() => RemoveSelecteddAssemblies()
                 , Observable.CombineLatest(
@@ -70,17 +105,31 @@ namespace NUnit3Gui
 
             RemoveAllAssembliesCommand = ReactiveCommand.CreateFromTask(() => RemoveAllAssembliesCommandExecute()
                 , Observable.CombineLatest(
-                    this.WhenAny(vm => vm.Tests, p => p.Value != null && p.Value.Any())
+                    hasTests
                     , RunAllTestCommand.IsExecuting
+                    , RunSelectedTestCommand.IsExecuting
                     , BrowseAssembliesCommand.IsExecuting
-                    , (a, b, c) => a && !b && !c)
+                    , (a, b, c, d) => a && !b && !c && !d)
                 );
+
+
+            isTestRunningObservable = Observable.CombineLatest(
+                RunAllTestCommand.IsExecuting
+                , RunSelectedTestCommand.IsExecuting
+                , (a, b) => a || b);
+            CancelRunTestCommand = ReactiveCommand.Create(() => { }, isTestRunningObservable);
+            
+            isAllTestRunning = isTestRunningObservable.ToProperty(this, x => x.IsAllTestRunning);
 
             FileLoaderManager = AppRoot.Current.CompositionManager.ExportProvider.GetExportedValue<IFileLoaderManager>();
             RunTestManager = AppRoot.Current.CompositionManager.ExportProvider.GetExportedValue<IRunTestManager>();
-            CancelRunTestCommand = ReactiveCommand.Create(() => { }, RunAllTestCommand.IsExecuting);
 
-            isAllTestRunning = RunAllTestCommand.IsExecuting.ToProperty(this, x => x.IsAllTestRunning);
+        }
+
+        private void TestOnPropertyChanged(object sender, PropertyChangedEventArgs args)
+        {
+            if (args.PropertyName == nameof(ITest.IsSelected))
+                PropertiesChanged(nameof(SelectedTests));
         }
 
         public int AssembliesCount => LoadedAssemblies.Count();
@@ -119,6 +168,8 @@ namespace NUnit3Gui
 
         public ReactiveCommand<Unit, Unit> RunAllTestCommand { get; }
 
+        public ReactiveCommand<Unit, Unit> RunSelectedTestCommand { get; }
+
         public IRunTestManager RunTestManager { get; }
 
         public IFileItem SelectedAssembly
@@ -133,6 +184,8 @@ namespace NUnit3Gui
             set => this.RaiseAndSetIfChanged(ref _selectedTest, value);
         }
 
+        public IEnumerable<ITest> SelectedTests => LoadedAssemblies.Where(_ => _.Tests != null).SelectMany(a => a.Tests).Where(_ => _.IsSelected).EmptyIfNull();
+
         public int TestCount => LoadedAssemblies.Sum(_ => _.Tests?.Count() ?? 0);
 
         public int TestFailedCount => LoadedAssemblies.SelectMany(_ => _.Tests ?? Enumerable.Empty<ITest>())
@@ -143,10 +196,7 @@ namespace NUnit3Gui
             .Where(_ => _.Status == TestState.Passed)
             .Count();
 
-        public IEnumerable<ITest> Tests
-        {
-            get => LoadedAssemblies.Where(_ => _.Tests != null).SelectMany(a => a.Tests);
-        }
+        public ReactiveList<ITest> Tests { get; }
 
         private async Task<Unit> OpenAssemblies(CancellationToken ct)
         {
@@ -180,7 +230,10 @@ namespace NUnit3Gui
                     foreach (IFileItem item in addedFiles)
                     {
                         await item.LoadAsync();
-                        this.RaisePropertyChanged(nameof(TestCount));
+                        foreach (ITest test in item.Tests)
+                        {
+                            Tests.Add(test);
+                        }
 
                         LoadingProgress = (int)(((double)index) / ((double)ofd.FileNames.Length) * 100D);
                         await Task.Delay(25);
@@ -217,7 +270,14 @@ namespace NUnit3Gui
 
         private Task<Unit> RemoveAllAssembliesCommandExecute()
         {
+            foreach (ITest test in LoadedAssemblies.SelectMany(_ => _.Tests).ToList())
+            {
+                Tests.Remove(test);
+            }
+
             LoadedAssemblies.Clear();
+            this.RaisePropertyChanged(nameof(TestCount));
+
             return Task.FromResult(default(Unit));
         }
 
@@ -225,21 +285,25 @@ namespace NUnit3Gui
         {
             if (SelectedAssembly != null)
             {
-                LoadedAssemblies.Remove(SelectedAssembly);
-                this.RaisePropertyChanged(nameof(Tests));
+                IFileItem fileItem = SelectedAssembly;
+                LoadedAssemblies.Remove(fileItem);
+                foreach (ITest test in fileItem.Tests)
+                {
+                    Tests.Remove(test);
+                }
+
                 this.RaisePropertyChanged(nameof(TestCount));
             }
 
             return Task.FromResult(default(Unit));
         }
 
-        private async Task<Unit> RunAllTestCommandExecute(CancellationToken ct)
+        private async Task<Unit> RunAllTestCommandExecute(CancellationToken ct, IEnumerable<ITest> testList)
         {
-            this.RaisePropertyChanged(nameof(BrowseAssembliesCommand));
             RanTestsCount = 0;
             int index = 1;
-            int testCount = Tests.Count();
-            foreach (ITest test in Tests)
+            int testCount = testList.Count();
+            foreach (ITest test in testList)
             {
                 await RunTestManager.RunTestAsync(test, ct);
                 RanTestsCount = (int)(((double)index) / ((double)testCount) * 100D);
@@ -251,6 +315,7 @@ namespace NUnit3Gui
                     break;
                 index++;
             }
+
             RanTestsCount = 100;
             return Unit.Default;
         }

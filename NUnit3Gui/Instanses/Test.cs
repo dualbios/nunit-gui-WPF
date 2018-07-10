@@ -7,6 +7,7 @@ namespace NUnit3Gui.Instanses
     public class Test : ReactiveObject, Interfaces.ITest
     {
         private bool _isRunning;
+        private bool _isSelected;
         private TimeSpan _ranningTime;
         private TestState _status = TestState.Unrunned;
         private string _stringStatus;
@@ -37,6 +38,12 @@ namespace NUnit3Gui.Instanses
         {
             get => _isRunning;
             set => this.RaiseAndSetIfChanged(ref _isRunning, value);
+        }
+
+        public bool IsSelected
+        {
+            get => _isSelected;
+            set => this.RaiseAndSetIfChanged(ref _isSelected, value);
         }
 
         public TimeSpan RunningTime

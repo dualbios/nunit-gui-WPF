@@ -18,5 +18,7 @@ namespace NUnit3Gui.Interfaces
         string StringStatus { get; set; }
 
         string TestName { get; }
+
+        bool IsSelected { get; set; }
     }
 }

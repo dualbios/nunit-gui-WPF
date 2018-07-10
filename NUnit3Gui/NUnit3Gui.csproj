@@ -62,6 +62,7 @@
     </ApplicationDefinition>
     <Compile Include="Convertres\NegateBooleanConverter.cs" />
     <Compile Include="Enums\TestState.cs" />
+    <Compile Include="Extensions\EnumerableExtensions.cs" />
     <Compile Include="Instanses\FileLoader\FileItem.cs" />
     <Compile Include="Instanses\FileLoader\FileLoaderManager.cs" />
     <Compile Include="Instanses\RunProcess.cs" />
