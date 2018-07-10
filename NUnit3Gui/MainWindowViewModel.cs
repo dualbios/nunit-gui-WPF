@@ -80,46 +80,44 @@ namespace NUnit3Gui
                     .CreateFromObservable(() => Observable.StartAsync(ct => RunAllTestCommandExecute(ct, Tests))
                     .TakeUntil(this.CancelRunTestCommand)
                 , Observable.CombineLatest(
-                        BrowseAssembliesCommand.IsExecuting
-                        , this.WhenAny(vm => vm.IsAllTestRunning, p => p.Value)
+                        BrowseAssembliesCommand.IsExecuting.Select(_=>!_)
+                        , this.WhenAny(vm => vm.IsAllTestRunning, p => p.Value).Select(_=>!_)
                         , hasTests
-                        , (a, b, c) => !a && !b && c));
+                        , ResultSelector.And3Result));
 
             RunSelectedTestCommand = ReactiveCommand
                 .CreateFromObservable(() => Observable.StartAsync(ct => RunAllTestCommandExecute(ct, SelectedTests))
                         .TakeUntil(this.CancelRunTestCommand)
                     , Observable.CombineLatest(
-                       this.WhenAny(vm => vm.IsAllTestRunning, p => p.Value)
-                        , BrowseAssembliesCommand.IsExecuting
+                       this.WhenAny(vm => vm.IsAllTestRunning, p => p.Value).Invert()
+                        , BrowseAssembliesCommand.IsExecuting.Invert()
                         , hasTests
                         , this.WhenAny(vm => vm.SelectedTests, p => p.Value != null && p.Value.Any())
-                        , (a, b, c, d) => !a && !b && c && d)
+                        , ResultSelector.And4Result)
                     );
-
-            RemoveAssembliesCommand = ReactiveCommand.CreateFromTask(() => RemoveSelecteddAssemblies()
-                , Observable.CombineLatest(
-                    BrowseAssembliesCommand.IsExecuting.Select(_ => !_)
-                    , selectedAssembly
-                    , RunAllTestCommand.IsExecuting
-                    , (a, b, c) => a && b && !c));
-
-            RemoveAllAssembliesCommand = ReactiveCommand.CreateFromTask(() => RemoveAllAssembliesCommandExecute()
-                , Observable.CombineLatest(
-                    hasTests
-                    , RunAllTestCommand.IsExecuting
-                    , RunSelectedTestCommand.IsExecuting
-                    , BrowseAssembliesCommand.IsExecuting
-                    , (a, b, c, d) => a && !b && !c && !d)
-                );
-
 
             isTestRunningObservable = Observable.CombineLatest(
                 RunAllTestCommand.IsExecuting
                 , RunSelectedTestCommand.IsExecuting
                 , (a, b) => a || b);
-            CancelRunTestCommand = ReactiveCommand.Create(() => { }, isTestRunningObservable);
-            
             isAllTestRunning = isTestRunningObservable.ToProperty(this, x => x.IsAllTestRunning);
+            CancelRunTestCommand = ReactiveCommand.Create(() => { }, isTestRunningObservable);
+
+            RemoveAssembliesCommand = ReactiveCommand.CreateFromTask(() => RemoveSelecteddAssemblies()
+                , Observable.CombineLatest(
+                    BrowseAssembliesCommand.IsExecuting.Invert()
+                    , selectedAssembly
+                    , isTestRunningObservable.Invert()
+                    , ResultSelector.And3Result));
+
+            RemoveAllAssembliesCommand = ReactiveCommand.CreateFromTask(() => RemoveAllAssembliesCommandExecute()
+                , Observable.CombineLatest(
+                    hasTests
+                    , isTestRunningObservable.Invert()
+                    , BrowseAssembliesCommand.IsExecuting.Invert()
+                    , ResultSelector.And3Result)
+            );
+
 
             FileLoaderManager = AppRoot.Current.CompositionManager.ExportProvider.GetExportedValue<IFileLoaderManager>();
             RunTestManager = AppRoot.Current.CompositionManager.ExportProvider.GetExportedValue<IRunTestManager>();
