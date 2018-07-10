@@ -28,6 +28,7 @@ namespace NUnit3Gui
         private ITest _selectedTest;
         private IObservable<bool> hasTests;
         private IObservable<bool> isTestRunningObservable;
+
         public MainWindowViewModel()
         {
             LoadedAssemblies = new ReactiveList<IFileItem>() { ChangeTrackingEnabled = true };
@@ -53,6 +54,7 @@ namespace NUnit3Gui
                             test.PropertyChanged -= TestOnPropertyChanged;
                         }
                     }
+                    PropertiesChanged(nameof(Tests), nameof(AssembliesCount), nameof(TestCount), nameof(SelectedTests));
                 });
 
             BrowseAssembliesCommand = ReactiveCommand
@@ -61,13 +63,20 @@ namespace NUnit3Gui
                     .TakeUntil(CancelBrowseCommand)
                 , this.WhenAny(vm => vm.IsAllTestRunning, p => p.Value == false));
 
+            LoadedAssemblies.ItemsRemoved
+                .Subscribe(x =>
+                {
+                    Tests.RemoveAll(x.Tests);
+                });
+
             LoadedAssemblies.Changed
                 .Subscribe(x =>
                 {
                     if (x.Action == NotifyCollectionChangedAction.Reset)
                     {
-                        PropertiesChanged(nameof(Tests), nameof(AssembliesCount), nameof(TestCount), nameof(SelectedTests));
+                        Tests.Clear();
                     }
+                    PropertiesChanged(nameof(Tests), nameof(AssembliesCount), nameof(TestCount), nameof(SelectedTests));
                 });
             LoadedAssemblies.ItemChanged
                 .Subscribe(x =>
@@ -197,6 +206,19 @@ namespace NUnit3Gui
 
         private async Task<Unit> OpenAssemblies(CancellationToken ct)
         {
+            void CancelationOpenAssemblies(IEnumerable<IFileItem> addedFiles)
+            {
+                using (LoadedAssemblies.SuppressChangeNotifications())
+                {
+                    foreach (IFileItem file in addedFiles)
+                    {
+                        LoadedAssemblies.Remove(file);
+                    }
+                }
+
+                LoadingProgress = 100;
+            }
+
             OpenFileDialog ofd = new OpenFileDialog() { Filter = "Dll files|*.dll", Multiselect = true, FileName = @"*.test*.dll" };
             if (ofd.ShowDialog() == DialogResult.OK)
             {
@@ -211,15 +233,7 @@ namespace NUnit3Gui
 
                     if (ct.IsCancellationRequested)
                     {
-                        using (LoadedAssemblies.SuppressChangeNotifications())
-                        {
-                            foreach (IFileItem file in addedFiles)
-                            {
-                                LoadedAssemblies.Remove(file);
-                            }
-                        }
-
-                        LoadingProgress = 100;
+                        CancelationOpenAssemblies(addedFiles);
                         return default(Unit);
                     }
 
@@ -238,15 +252,7 @@ namespace NUnit3Gui
 
                         if (ct.IsCancellationRequested)
                         {
-                            using (LoadedAssemblies.SuppressChangeNotifications())
-                            {
-                                foreach (IFileItem file in addedFiles)
-                                {
-                                    LoadedAssemblies.Remove(file);
-                                }
-                            }
-
-                            LoadingProgress = 100;
+                            CancelationOpenAssemblies(addedFiles);
                             return default(Unit);
                         }
                     }
@@ -267,11 +273,6 @@ namespace NUnit3Gui
 
         private Task<Unit> RemoveAllAssembliesCommandExecute()
         {
-            foreach (ITest test in LoadedAssemblies.SelectMany(_ => _.Tests).ToList())
-            {
-                Tests.Remove(test);
-            }
-
             LoadedAssemblies.Clear();
             this.RaisePropertyChanged(nameof(TestCount));
 
@@ -282,14 +283,7 @@ namespace NUnit3Gui
         {
             if (SelectedAssembly != null)
             {
-                IFileItem fileItem = SelectedAssembly;
-                LoadedAssemblies.Remove(fileItem);
-                foreach (ITest test in fileItem.Tests)
-                {
-                    Tests.Remove(test);
-                }
-
-                this.RaisePropertyChanged(nameof(TestCount));
+                LoadedAssemblies.Remove(SelectedAssembly);
             }
 
             return Task.FromResult(default(Unit));
