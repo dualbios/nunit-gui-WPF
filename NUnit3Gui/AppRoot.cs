@@ -2,6 +2,8 @@
 using System.Windows;
 using NUnit3Gui.Instanses;
 using NUnit3Gui.Interfaces;
+using NUnit3Gui.ViewModels;
+using NUnit3Gui.Views;
 
 namespace NUnit3Gui
 {
@@ -21,7 +23,11 @@ namespace NUnit3Gui
         public async Task OnStartup(StartupEventArgs e)
         {
             await CompositionManager.Compose(this);
-            MainWindow = new MainWindow { DataContext = new MainWindowViewModel() };
+            IMainViewModel mainViewModel = Current.CompositionManager.ExportProvider.GetExportedValue<IMainViewModel>();
+            MainWindow = new MainWindow
+            {
+                DataContext = mainViewModel
+            };
         }
     }
 }
