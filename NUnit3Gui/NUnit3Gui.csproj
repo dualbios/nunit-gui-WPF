@@ -68,6 +68,7 @@
     <Compile Include="Extensions\ResultSelector.cs" />
     <Compile Include="Instanses\FileLoader\FileItem.cs" />
     <Compile Include="Instanses\FileLoader\FileLoaderManager.cs" />
+    <Compile Include="Instanses\OpenFileDialog.cs" />
     <Compile Include="Instanses\RunProcess.cs" />
     <Compile Include="Instanses\RunTestManager.cs" />
     <Compile Include="Instanses\TemperatureReporter.cs" />
@@ -75,6 +76,7 @@
     <Compile Include="Interfaces\IFileItem.cs" />
     <Compile Include="Interfaces\IFileLoaderManager.cs" />
     <Compile Include="Interfaces\IMainViewModel.cs" />
+    <Compile Include="Interfaces\IOpenFileDialog.cs" />
     <Compile Include="Interfaces\IProjectViewModel.cs" />
     <Compile Include="Interfaces\IRunProcess.cs" />
     <Compile Include="Interfaces\IRunTestManager.cs" />

@@ -24,6 +24,7 @@ namespace NUnit3Gui.ViewModels
     public class ProjectViewModel : ReactiveObject, IProjectViewModel
     {
         private readonly IFileLoaderManager _fileLoaderManager;
+        private readonly IOpenFileDialog _openFileDialog;
         private readonly string[] propertiesToRefresh = { nameof(AssembliesCount) };
         private readonly IObservable<bool> selectedAssembly;
         private int _loadingProgress;
@@ -36,9 +37,10 @@ namespace NUnit3Gui.ViewModels
         public IObservable<bool> HasTests { get; }
 
         [ImportingConstructor]
-        public ProjectViewModel(IFileLoaderManager fileLoaderManager)
+        public ProjectViewModel(IFileLoaderManager fileLoaderManager, IOpenFileDialog openFileDialog)
         {
             _fileLoaderManager = fileLoaderManager;
+            _openFileDialog = openFileDialog;
 
             LoadedAssemblies = new ReactiveList<IFileItem>() { ChangeTrackingEnabled = true };
 
@@ -151,13 +153,15 @@ namespace NUnit3Gui.ViewModels
                 LoadingProgress = 100;
             }
 
-            OpenFileDialog ofd = new OpenFileDialog() { Filter = "Dll files|*.dll", Multiselect = true, FileName = @"*.test*.dll" };
-            if (ofd.ShowDialog() == DialogResult.OK)
+            _openFileDialog.Filter = "Dll files|*.dll";
+            _openFileDialog.Multiselect = true;
+            _openFileDialog.FileName = @"*.test*.dll";
+            if (_openFileDialog.ShowDialog() == DialogResult.OK)
             {
                 LoadingProgress = 0;
-                if (ofd.FileNames.Length > 0)
+                if (_openFileDialog.FileNames.Length > 0)
                 {
-                    IEnumerable<IFileItem> addedFiles = _fileLoaderManager.LoadFiles(ofd.FileNames).ToList();
+                    IEnumerable<IFileItem> addedFiles = _fileLoaderManager.LoadFiles(_openFileDialog.FileNames).ToList();
                     foreach (IFileItem fileItem in addedFiles)
                     {
                         LoadedAssemblies.Add(fileItem);
@@ -178,7 +182,7 @@ namespace NUnit3Gui.ViewModels
                             Tests.Add(test);
                         }
 
-                        LoadingProgress = (int)(((double)index) / ((double)ofd.FileNames.Length) * 100D);
+                        LoadingProgress = (int)(((double)index) / ((double)_openFileDialog.FileNames.Length) * 100D);
                         await Task.Delay(25);
                         index++;
 
