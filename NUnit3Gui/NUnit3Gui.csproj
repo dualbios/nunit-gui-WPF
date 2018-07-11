@@ -70,6 +70,7 @@
     <Compile Include="Instanses\FileLoader\FileLoaderManager.cs" />
     <Compile Include="Instanses\RunProcess.cs" />
     <Compile Include="Instanses\RunTestManager.cs" />
+    <Compile Include="Instanses\TemperatureReporter.cs" />
     <Compile Include="Instanses\Test.cs" />
     <Compile Include="Interfaces\IFileItem.cs" />
     <Compile Include="Interfaces\IFileLoaderManager.cs" />
