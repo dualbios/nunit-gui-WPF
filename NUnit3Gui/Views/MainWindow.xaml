@@ -10,19 +10,36 @@
     <Window.Resources>
         <converters:NegateBooleanConverter x:Key="NegateBooleanConverter" />
     </Window.Resources>
-    <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="350" />
-            <ColumnDefinition Width="4" />
-            <ColumnDefinition />
-        </Grid.ColumnDefinitions>
+    <DockPanel LastChildFill="True">
+        <Menu DockPanel.Dock="Top">
+            <MenuItem Header="File">
+                <MenuItem Header="Open" Command="{Binding OpenCommand}" />
+                <Separator />
+                <MenuItem Header="Exit" />
+            </MenuItem>
 
-        <GridSplitter Grid.Column="1"
+            <MenuItem Header="Tests">
+                <MenuItem Header="Run All" Command="{Binding RunAllTestsCommand}" />
+                <MenuItem Header="Run Selected" Command="{Binding RunSelectedTestCommand}" />
+                <MenuItem Header="Cancel run" Command="{Binding CancelRunTestCommand}" />
+                <Separator />
+                <MenuItem Header="Settings" IsEnabled="False" />
+            </MenuItem>
+        </Menu>
+
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="350" />
+                <ColumnDefinition Width="4" />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+
+            <GridSplitter Grid.Column="1"
                       HorizontalAlignment="Stretch" />
 
-        <ContentControl Grid.Column="0" Content="{Binding ProjectViewModel, Mode=OneWay}"/>
+            <ContentControl Grid.Column="0" Content="{Binding ProjectViewModel, Mode=OneWay}" />
 
-        <ContentControl Grid.Column="2" Content="{Binding TestsViewModel, Mode=OneWay}"/>
-
-    </Grid>
+            <ContentControl Grid.Column="2" Content="{Binding TestsViewModel, Mode=OneWay}" />
+        </Grid>
+    </DockPanel>
 </Window>
