@@ -12,13 +12,14 @@ namespace NUnit3Gui.ViewModels
     public class MainViewModel : IMainViewModel
     {
         [ImportingConstructor]
-        public MainViewModel(IProjectViewModel projectViewModel)
+        public MainViewModel(IProjectViewModel projectViewModel, ITestsViewModel testsViewModel)
         {
             ProjectViewModel = projectViewModel;
+            TestsViewModel = testsViewModel;
         }
 
         public IProjectViewModel ProjectViewModel { get; }
 
-        public ITestsViewModel TestsViewModel => ProjectViewModel?.TestsViewModel;
+        public ITestsViewModel TestsViewModel { get; }
     }
 }

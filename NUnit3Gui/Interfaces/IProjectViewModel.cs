@@ -14,6 +14,9 @@ namespace NUnit3Gui.Interfaces
 
         int TestCount { get; }
 
-        ITestsViewModel TestsViewModel { get; }
+         IReactiveList<ITest> Tests { get; }
+
+        IObservable<bool> HasTests { get; }
+        IObservable<bool> IsTestRunningObservable { get; set; }
     }
 }
