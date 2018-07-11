@@ -24,7 +24,6 @@ namespace NUnit3Gui.ViewModels
     [TypeConverter(typeof(ViewModelToViewConverter<TestsViewModel, TestsView>))]
     public class TestsViewModel : ReactiveObject, ITestsViewModel
     {
-        
         private readonly ObservableAsPropertyHelper<bool> isAllTestRunning;
         private int _ranTestsCount;
         private TimeSpan _runningTime;
@@ -69,22 +68,22 @@ namespace NUnit3Gui.ViewModels
                         , ResultSelector.And4Result)
                 );
 
-           ProjectViewModel.IsTestRunningObservable = 
-               IsTestRunningObservable = Observable.CombineLatest(
-                    RunAllTestCommand.IsExecuting
-                    , RunSelectedTestCommand.IsExecuting
-                    , (a, b) => a || b);
+            ProjectViewModel.IsTestRunningObservable =
+                IsTestRunningObservable = Observable.CombineLatest(
+                     RunAllTestCommand.IsExecuting
+                     , RunSelectedTestCommand.IsExecuting
+                     , (a, b) => a || b);
             isAllTestRunning = IsTestRunningObservable.ToProperty(this, x => x.IsAllTestRunning);
             CancelRunTestCommand = ReactiveCommand.Create(() => { }, IsTestRunningObservable);
         }
-
-        public IEnumerable<ITest> Tests => ProjectViewModel.Tests;
 
         public ReactiveCommand<Unit, Unit> CancelRunTestCommand { get; }
 
         public bool IsAllTestRunning => isAllTestRunning?.Value ?? false;
 
         public IObservable<bool> IsTestRunningObservable { get; }
+
+        public IProjectViewModel ProjectViewModel { get; }
 
         public int RanTestsCount
         {
@@ -103,7 +102,6 @@ namespace NUnit3Gui.ViewModels
         public ReactiveCommand<Unit, Unit> RunSelectedTestCommand { get; }
 
         public IRunTestManager RunTestManager { get; }
-        public IProjectViewModel ProjectViewModel { get; }
 
         public ITest SelectedTest
         {
@@ -123,7 +121,7 @@ namespace NUnit3Gui.ViewModels
             .Where(_ => _.Status == TestState.Passed)
             .Count();
 
-
+        public IEnumerable<ITest> Tests => ProjectViewModel.Tests;
 
         private async Task<Unit> RunAllTestCommandExecute(CancellationToken ct, IEnumerable<ITest> testList)
         {
