@@ -6,5 +6,6 @@ namespace NUnit3Gui.Interfaces
     public interface IFileLoaderManager
     {
         IEnumerable<IFileItem> LoadFiles(IEnumerable<string> fileNames);
+        IEnumerable<IFileItem> ParseFile(string file);
     }
 }

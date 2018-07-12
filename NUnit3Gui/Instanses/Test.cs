@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using NUnit3Gui.Enums;
 using ReactiveUI;
 
@@ -22,7 +20,6 @@ namespace NUnit3Gui.Instanses
             {
                 if (parts.Length > 2)
                 {
-                    Namespaces = parts.Take(parts.Length - 1).ToArray();
                     ClassName = parts[parts.Length - 2];
                     TestName = parts[parts.Length - 1];
                 }
@@ -32,8 +29,6 @@ namespace NUnit3Gui.Instanses
                 }
             }
         }
-
-        public string[] Namespaces { get; } = new string[0];
 
         public string AssemblyPath { get; }
 

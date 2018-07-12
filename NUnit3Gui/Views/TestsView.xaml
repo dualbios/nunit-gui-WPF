@@ -48,19 +48,7 @@
             </TextBlock>
         </StackPanel>
 
-        <TreeView ItemsSource="{Binding TestTree}">
-            <TreeView.ItemTemplate>
-                <HierarchicalDataTemplate ItemsSource="{Binding Path=Child}">
-                    <TextBlock Text="{Binding Path=Name}"/>
-                    <HierarchicalDataTemplate.ItemTemplate>
-                        <DataTemplate>
-                            <TextBlock Text="{Binding Path=Name}"></TextBlock>
-                        </DataTemplate>
-                    </HierarchicalDataTemplate.ItemTemplate>
-                </HierarchicalDataTemplate>
-            </TreeView.ItemTemplate>
-        </TreeView>
-        <!--<ListBox ItemsSource="{Binding Path=Tests}"
+        <ListBox ItemsSource="{Binding Path=Tests}"
                      SelectedItem="{Binding SelectedTest}"
                      SelectionMode="Extended">
             <ListBox.ItemContainerStyle>
@@ -86,6 +74,6 @@
                     </StackPanel>
                 </DataTemplate>
             </ListBox.ItemTemplate>
-        </ListBox>-->
+        </ListBox>
     </DockPanel>
 </UserControl>
