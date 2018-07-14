@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:NUnit3Gui.Views"
+             xmlns:interf="clr-namespace:NUnit3Gui.Instanses"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800"
              BorderBrush="DarkRed"
@@ -48,7 +49,25 @@
             </TextBlock>
         </StackPanel>
 
-        <ListBox ItemsSource="{Binding Path=Tests}"
+        <TreeView ItemsSource="{Binding TestTree}">
+            <!--<TreeView.ItemTemplate>
+                <HierarchicalDataTemplate ItemsSource="{Binding Path=Child}">
+                    <TextBlock Text="{Binding Path=Name}"/>
+                    <HierarchicalDataTemplate.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Path=Name}"></TextBlock>
+                        </DataTemplate>
+                    </HierarchicalDataTemplate.ItemTemplate>
+                </HierarchicalDataTemplate>
+            </TreeView.ItemTemplate>-->
+            <TreeView.Resources>
+                <HierarchicalDataTemplate ItemsSource="{Binding Path=Child}"
+                                          DataType="{x:Type interf:TestTreeItem}" >
+                    <TextBlock Text="{Binding Path=Name}" />
+                </HierarchicalDataTemplate>
+            </TreeView.Resources>
+        </TreeView>
+        <!--<ListBox ItemsSource="{Binding Path=Tests}"
                      SelectedItem="{Binding SelectedTest}"
                      SelectionMode="Extended">
             <ListBox.ItemContainerStyle>
@@ -74,6 +93,6 @@
                     </StackPanel>
                 </DataTemplate>
             </ListBox.ItemTemplate>
-        </ListBox>
+        </ListBox>-->
     </DockPanel>
 </UserControl>

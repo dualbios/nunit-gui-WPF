@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.ComponentModel.Composition;
@@ -13,6 +14,7 @@ using System.Windows.Threading;
 using NUnit3Gui.Convertres;
 using NUnit3Gui.Enums;
 using NUnit3Gui.Extensions;
+using NUnit3Gui.Instanses;
 using NUnit3Gui.Interfaces;
 using NUnit3Gui.Views;
 using ReactiveUI;
@@ -29,16 +31,20 @@ namespace NUnit3Gui.ViewModels
         private TimeSpan _runningTime;
         private ITest _selectedTest;
 
+        public ObservableCollection<TestTreeItem> TestTree { get; } = new ObservableCollection<TestTreeItem>();
+
         [ImportingConstructor]
         public TestsViewModel(IRunTestManager runTestManager, IProjectViewModel projectViewModel)
         {
             this.RunTestManager = runTestManager;
             ProjectViewModel = projectViewModel;
 
-            ProjectViewModel.Tests.Changed
+            IObservable<ReactiveObject> addItems = ProjectViewModel.Tests.Changed
                 .Where(_ => _.Action == NotifyCollectionChangedAction.Add)
-                .SelectMany(_ => _.NewItems.OfType<ReactiveObject>())
-                .Subscribe(x => x.PropertyChanged += TestOnPropertyChanged);
+                .SelectMany(_ => _.NewItems.OfType<ReactiveObject>());
+
+            addItems.Subscribe(x => x.PropertyChanged += TestOnPropertyChanged);
+            addItems.Subscribe(x => Add(x as Test, TestTree));
 
             ProjectViewModel.Tests.Changed
                 .Where(_ => _.Action == NotifyCollectionChangedAction.Remove)
@@ -122,6 +128,57 @@ namespace NUnit3Gui.ViewModels
             .Count();
 
         public IEnumerable<ITest> Tests => ProjectViewModel.Tests;
+
+        private void Add(Test x, IList<TestTreeItem> testTree, int level = 0)
+        {
+            string ggg = x.Namespaces[level];
+            var ddd = testTree.FirstOrDefault(_ => _.Name == ggg);
+            {
+                if (ddd == null)
+                {
+                    var ttt = new TestTreeItem(ggg);
+                    this.AddTreeItem(x, ttt, ++level);
+                    testTree.Add(ttt);
+                }
+                else
+                {
+                    if(level==x.Namespaces.Length-1)
+                    {
+                        var ttt = new TestTreeItem(x);
+                        testTree.Add(ttt);
+                    }
+                    else
+                        this.Add(x, ddd.Child, ++level);
+                }
+            }
+        }
+
+        private void AddTreeItem(Test x, TestTreeItem testTree, int level)
+        {
+            if (level >= x.Namespaces.Length-1)
+            {
+                TestTreeItem item = new TestTreeItem(x);
+
+                testTree.Child.Add(item);
+            }
+            else
+            {
+                string ggg = x.Namespaces[level];
+                TestTreeItem item = new TestTreeItem(ggg);
+                testTree.Child.Add(item);
+                AddTreeItem(x, item, ++level);
+            }
+        }
+
+        private int FindDepth(Test x, TestTreeItem item)
+        {
+            int d = Math.Min(x.Namespaces.Length, item.Namespaces.Length);
+            int index = 0;
+            while (x.Namespaces[index] == item.Namespaces[index])
+                index++;
+
+            return index;
+        }
 
         private async Task<Unit> RunAllTestCommandExecute(CancellationToken ct, IEnumerable<ITest> testList)
         {
