@@ -131,25 +131,23 @@ namespace NUnit3Gui.ViewModels
 
         private void Add(Test x, IList<TestTreeItem> testTree, int level = 0)
         {
-            string ggg = x.Namespaces[level];
-            var ddd = testTree.FirstOrDefault(_ => _.Name == ggg);
+            string currentNamespace = x.Namespaces[level];
+            TestTreeItem treeItemForAdd = testTree.FirstOrDefault(_ => _.Name == currentNamespace);
+            if (treeItemForAdd == null)
             {
-                if (ddd == null)
+                var newTreeItem = new TestTreeItem(currentNamespace);
+                AddTreeItem(x, newTreeItem, ++level);
+                testTree.Add(newTreeItem);
+            }
+            else
+            {
+                if (level == x.Namespaces.Length - 1)
                 {
-                    var ttt = new TestTreeItem(ggg);
-                    this.AddTreeItem(x, ttt, ++level);
-                    testTree.Add(ttt);
+                    var newTreeItem = new TestTreeItem(x);
+                    treeItemForAdd.Child.Add(newTreeItem);
                 }
                 else
-                {
-                    if (level == x.Namespaces.Length-1)
-                    {
-                        var ttt = new TestTreeItem(x);
-                        ddd.Child.Add(ttt);
-                    }
-                    else
-                        this.Add(x, ddd.Child, ++level);
-                }
+                    Add(x, treeItemForAdd.Child, ++level);
             }
         }
 
@@ -157,14 +155,11 @@ namespace NUnit3Gui.ViewModels
         {
             if (level >= x.Namespaces.Length)
             {
-                TestTreeItem item = new TestTreeItem(x);
-
-                testTree.Child.Add(item);
+                testTree.Child.Add(new TestTreeItem(x));
             }
             else
             {
-                string ggg = x.Namespaces[level];
-                TestTreeItem item = new TestTreeItem(ggg);
+                var item = new TestTreeItem(x.Namespaces[level]);
                 testTree.Child.Add(item);
                 AddTreeItem(x, item, ++level);
             }
