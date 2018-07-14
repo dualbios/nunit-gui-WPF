@@ -8,7 +8,7 @@ namespace NUnit3Gui.Instanses
         public TestTreeItem(Test test)
         {
             Test = test;
-            Name = test.ClassName;
+            Name = test.TestName;
             Child = new ObservableCollection<TestTreeItem>();
         }
 

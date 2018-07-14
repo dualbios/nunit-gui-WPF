@@ -142,7 +142,7 @@ namespace NUnit3Gui.ViewModels
                 }
                 else
                 {
-                    if(level==x.Namespaces.Length-1)
+                    if(level==x.Namespaces.Length)
                     {
                         var ttt = new TestTreeItem(x);
                         testTree.Add(ttt);
@@ -155,7 +155,7 @@ namespace NUnit3Gui.ViewModels
 
         private void AddTreeItem(Test x, TestTreeItem testTree, int level)
         {
-            if (level >= x.Namespaces.Length-1)
+            if (level >= x.Namespaces.Length)
             {
                 TestTreeItem item = new TestTreeItem(x);
 
