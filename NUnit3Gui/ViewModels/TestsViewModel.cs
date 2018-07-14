@@ -31,8 +31,6 @@ namespace NUnit3Gui.ViewModels
         private TimeSpan _runningTime;
         private ITest _selectedTest;
 
-        public ObservableCollection<TestTreeItem> TestTree { get; } = new ObservableCollection<TestTreeItem>();
-
         [ImportingConstructor]
         public TestsViewModel(IRunTestManager runTestManager, IProjectViewModel projectViewModel)
         {
@@ -129,6 +127,8 @@ namespace NUnit3Gui.ViewModels
 
         public IEnumerable<ITest> Tests => ProjectViewModel.Tests;
 
+        public ObservableCollection<TestTreeItem> TestTree { get; } = new ObservableCollection<TestTreeItem>();
+
         private void Add(Test x, IList<TestTreeItem> testTree, int level = 0)
         {
             string ggg = x.Namespaces[level];
@@ -142,10 +142,10 @@ namespace NUnit3Gui.ViewModels
                 }
                 else
                 {
-                    if(level==x.Namespaces.Length)
+                    if (level == x.Namespaces.Length-1)
                     {
                         var ttt = new TestTreeItem(x);
-                        testTree.Add(ttt);
+                        ddd.Child.Add(ttt);
                     }
                     else
                         this.Add(x, ddd.Child, ++level);

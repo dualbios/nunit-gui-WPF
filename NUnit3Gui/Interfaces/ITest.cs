@@ -11,6 +11,10 @@ namespace NUnit3Gui.Interfaces
 
         bool IsRunning { get; set; }
 
+        bool IsSelected { get; set; }
+
+        string[] Namespaces { get; }
+
         TimeSpan RunningTime { get; set; }
 
         TestState Status { get; set; }
@@ -18,7 +22,5 @@ namespace NUnit3Gui.Interfaces
         string StringStatus { get; set; }
 
         string TestName { get; }
-
-        bool IsSelected { get; set; }
     }
 }

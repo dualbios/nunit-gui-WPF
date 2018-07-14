@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using NUnit3Gui.Enums;
 using ReactiveUI;
 
@@ -20,6 +21,7 @@ namespace NUnit3Gui.Instanses
             {
                 if (parts.Length > 2)
                 {
+                    Namespaces = parts.Take(parts.Length - 1).ToArray();
                     ClassName = parts[parts.Length - 2];
                     TestName = parts[parts.Length - 1];
                 }
@@ -45,6 +47,8 @@ namespace NUnit3Gui.Instanses
             get => _isSelected;
             set => this.RaiseAndSetIfChanged(ref _isSelected, value);
         }
+
+        public string[] Namespaces { get; } = new string[0];
 
         public TimeSpan RunningTime
         {
