@@ -15,7 +15,7 @@ namespace NUnit3Gui.Instanses.FileLoader
             return fileNames.SelectMany(ParseFile);
         }
 
-        private IEnumerable<IFileItem> ParseFile(string file)
+        public IEnumerable<IFileItem> ParseFile(string file)
         {
             string fileExtention = Path.GetExtension(file);
             if (".dll".Equals(fileExtention, StringComparison.InvariantCultureIgnoreCase))

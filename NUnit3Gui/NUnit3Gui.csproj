@@ -73,7 +73,6 @@
     <Compile Include="Instanses\RunTestManager.cs" />
     <Compile Include="Instanses\TemperatureReporter.cs" />
     <Compile Include="Instanses\Test.cs" />
-    <Compile Include="Instanses\TestTreeItem.cs" />
     <Compile Include="Interfaces\IFileItem.cs" />
     <Compile Include="Interfaces\IFileLoaderManager.cs" />
     <Compile Include="Interfaces\IMainViewModel.cs" />
