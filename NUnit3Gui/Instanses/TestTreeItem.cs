@@ -5,7 +5,7 @@ namespace NUnit3Gui.Instanses
 {
     public class TestTreeItem
     {
-        public TestTreeItem(Test test)
+        public TestTreeItem(ITest test)
         {
             Test = test;
             Name = test.TestName;

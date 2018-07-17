@@ -11,9 +11,21 @@
              BorderThickness="2">
     <DockPanel LastChildFill="True">
         <StackPanel Orientation="Horizontal" DockPanel.Dock="Top">
-            <Button Content="Run all" Command="{Binding RunAllTestCommand}" />
-            <Button Content="Run selected" Command="{Binding RunSelectedTestCommand}" />
-            <Button Content="Cancel" Command="{Binding CancelRunTestCommand}" />
+            <StackPanel Orientation="Horizontal" >
+                <Button Content="Run all" Command="{Binding RunAllTestCommand}" />
+                <Button Content="Run selected" Command="{Binding RunSelectedTestCommand}" />
+                <Button Content="Cancel" Command="{Binding CancelRunTestCommand}" />
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Margin="16 0">
+                <ComboBox ItemsSource="{Binding TreeTypes}"
+                          SelectedItem="{Binding SelectedCollectorType}">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding}"/>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+            </StackPanel>
         </StackPanel>
 
         <ScrollViewer DockPanel.Dock="Bottom" MaxHeight="300">

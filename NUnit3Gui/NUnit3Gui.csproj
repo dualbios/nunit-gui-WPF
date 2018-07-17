@@ -62,6 +62,7 @@
     </ApplicationDefinition>
     <Compile Include="Convertres\NegateBooleanConverter.cs" />
     <Compile Include="Enums\TestState.cs" />
+    <Compile Include="Enums\TestTreeCollectorType.cs" />
     <Compile Include="Extensions\EnumerableExtensions.cs" />
     <Compile Include="Extensions\ObservableExtensions.cs" />
     <Compile Include="Extensions\ReactiveObjectExtensions.cs" />
@@ -74,6 +75,9 @@
     <Compile Include="Instanses\TemperatureReporter.cs" />
     <Compile Include="Instanses\Test.cs" />
     <Compile Include="Instanses\TestTreeItem.cs" />
+    <Compile Include="Instanses\TestTrees\CategoryCollector.cs" />
+    <Compile Include="Instanses\TestTrees\NamespaceTreeCollector.cs" />
+    <Compile Include="Instanses\TestTrees\TestTreeManager.cs" />
     <Compile Include="Interfaces\IFileItem.cs" />
     <Compile Include="Interfaces\IFileLoaderManager.cs" />
     <Compile Include="Interfaces\IMainViewModel.cs" />
@@ -83,6 +87,8 @@
     <Compile Include="Interfaces\IRunTestManager.cs" />
     <Compile Include="Interfaces\ITest.cs" />
     <Compile Include="Interfaces\ITestsViewModel.cs" />
+    <Compile Include="Interfaces\ITestTreeCollector.cs" />
+    <Compile Include="Interfaces\ITestTreeManager.cs" />
     <Compile Include="Views\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
     </Compile>

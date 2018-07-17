@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.ComponentModel.Composition;
@@ -27,23 +26,60 @@ namespace NUnit3Gui.ViewModels
     public class TestsViewModel : ReactiveObject, ITestsViewModel
     {
         private readonly ObservableAsPropertyHelper<bool> isAllTestRunning;
+        private readonly ITestTreeManager testTreeManager;
         private int _ranTestsCount;
         private TimeSpan _runningTime;
+        private TestTreeCollectorType _selectedCollectorType;
         private ITest _selectedTest;
+        private IEnumerable<TestTreeItem> _testTree;
+        private ITestTreeCollector currentCollector;
         private IDisposable currentTreeSubscription;
 
         [ImportingConstructor]
-        public TestsViewModel(IRunTestManager runTestManager, IProjectViewModel projectViewModel)
+        public TestsViewModel(IRunTestManager runTestManager,
+            IProjectViewModel projectViewModel,
+            ITestTreeManager testTreeManager)
         {
             this.RunTestManager = runTestManager;
             ProjectViewModel = projectViewModel;
+            this.testTreeManager = testTreeManager;
 
             IObservable<ReactiveObject> addItems = ProjectViewModel.Tests.Changed
                 .Where(_ => _.Action == NotifyCollectionChangedAction.Add)
                 .SelectMany(_ => _.NewItems.OfType<ReactiveObject>());
 
             addItems.Subscribe(x => x.PropertyChanged += TestOnPropertyChanged);
-            currentTreeSubscription = addItems.Subscribe(x => AddNamespace(x as Test, TestTree));
+
+            TreeTypes = this.testTreeManager.GetCollectorTypes().ToList();
+
+            this.WhenAnyValue(vm => vm.SelectedCollectorType)
+                .Subscribe(_ =>
+                {
+                    var currentTree = (currentCollector?.GetAllTests()).EmptyIfNull()
+                            .Where(x => x != null)
+                            .ToList();
+
+                    if (currentTreeSubscription != null)
+                        currentTreeSubscription.Dispose();
+                    if (currentCollector != null)
+                        currentCollector.Dispose();
+
+                    try
+                    {
+                        currentCollector = this.testTreeManager.GetCollector(_);
+                        currentCollector.CreateTree(currentTree);
+                        TestTree = currentCollector.TestTree;
+                        currentTreeSubscription = addItems.Subscribe(x => currentCollector.AddItem(x as ITest)/* AddNamespace(x as Test, TestTree)*/);
+                    }
+                    catch (Exception)
+                    {
+                        currentCollector = null;
+                        TestTree = null;
+                        currentTreeSubscription = null;
+                    }
+                });
+
+            SelectedCollectorType = TreeTypes.First();
 
             ProjectViewModel.Tests.Changed
                 .Where(_ => _.Action == NotifyCollectionChangedAction.Remove)
@@ -108,6 +144,12 @@ namespace NUnit3Gui.ViewModels
 
         public IRunTestManager RunTestManager { get; }
 
+        public TestTreeCollectorType SelectedCollectorType
+        {
+            get => _selectedCollectorType;
+            set => this.RaiseAndSetIfChanged(ref _selectedCollectorType, value);
+        }
+
         public ITest SelectedTest
         {
             get => _selectedTest;
@@ -128,43 +170,13 @@ namespace NUnit3Gui.ViewModels
 
         public IEnumerable<ITest> Tests => ProjectViewModel.Tests;
 
-        public ObservableCollection<TestTreeItem> TestTree { get; } = new ObservableCollection<TestTreeItem>();
-
-        private void AddNamespace(Test x, IList<TestTreeItem> testTree, int level = 0)
+        public IEnumerable<TestTreeItem> TestTree
         {
-            string currentNamespace = x.Namespaces[level];
-            TestTreeItem treeItemForAdd = testTree.FirstOrDefault(_ => _.Name == currentNamespace);
-            if (treeItemForAdd == null)
-            {
-                var newTreeItem = new TestTreeItem(currentNamespace);
-                AddNamespaceTreeItem(x, newTreeItem, ++level);
-                testTree.Add(newTreeItem);
-            }
-            else
-            {
-                if (level == x.Namespaces.Length - 1)
-                {
-                    var newTreeItem = new TestTreeItem(x);
-                    treeItemForAdd.Child.Add(newTreeItem);
-                }
-                else
-                    AddNamespace(x, treeItemForAdd.Child, ++level);
-            }
+            get => _testTree;
+            private set => this.RaiseAndSetIfChanged(ref _testTree, value);
         }
 
-        private void AddNamespaceTreeItem(Test x, TestTreeItem testTree, int level)
-        {
-            if (level >= x.Namespaces.Length)
-            {
-                testTree.Child.Add(new TestTreeItem(x));
-            }
-            else
-            {
-                var item = new TestTreeItem(x.Namespaces[level]);
-                testTree.Child.Add(item);
-                AddNamespaceTreeItem(x, item, ++level);
-            }
-        }
+        public IEnumerable<TestTreeCollectorType> TreeTypes { get; }
 
         private async Task<Unit> RunAllTestCommandExecute(CancellationToken ct, IEnumerable<ITest> testList)
         {
