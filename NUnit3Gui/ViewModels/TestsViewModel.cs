@@ -30,6 +30,7 @@ namespace NUnit3Gui.ViewModels
         private int _ranTestsCount;
         private TimeSpan _runningTime;
         private ITest _selectedTest;
+        private IDisposable currentTreeSubscription;
 
         [ImportingConstructor]
         public TestsViewModel(IRunTestManager runTestManager, IProjectViewModel projectViewModel)
@@ -42,7 +43,7 @@ namespace NUnit3Gui.ViewModels
                 .SelectMany(_ => _.NewItems.OfType<ReactiveObject>());
 
             addItems.Subscribe(x => x.PropertyChanged += TestOnPropertyChanged);
-            addItems.Subscribe(x => Add(x as Test, TestTree));
+            currentTreeSubscription = addItems.Subscribe(x => AddNamespace(x as Test, TestTree));
 
             ProjectViewModel.Tests.Changed
                 .Where(_ => _.Action == NotifyCollectionChangedAction.Remove)
@@ -129,14 +130,14 @@ namespace NUnit3Gui.ViewModels
 
         public ObservableCollection<TestTreeItem> TestTree { get; } = new ObservableCollection<TestTreeItem>();
 
-        private void Add(Test x, IList<TestTreeItem> testTree, int level = 0)
+        private void AddNamespace(Test x, IList<TestTreeItem> testTree, int level = 0)
         {
             string currentNamespace = x.Namespaces[level];
             TestTreeItem treeItemForAdd = testTree.FirstOrDefault(_ => _.Name == currentNamespace);
             if (treeItemForAdd == null)
             {
                 var newTreeItem = new TestTreeItem(currentNamespace);
-                AddTreeItem(x, newTreeItem, ++level);
+                AddNamespaceTreeItem(x, newTreeItem, ++level);
                 testTree.Add(newTreeItem);
             }
             else
@@ -147,11 +148,11 @@ namespace NUnit3Gui.ViewModels
                     treeItemForAdd.Child.Add(newTreeItem);
                 }
                 else
-                    Add(x, treeItemForAdd.Child, ++level);
+                    AddNamespace(x, treeItemForAdd.Child, ++level);
             }
         }
 
-        private void AddTreeItem(Test x, TestTreeItem testTree, int level)
+        private void AddNamespaceTreeItem(Test x, TestTreeItem testTree, int level)
         {
             if (level >= x.Namespaces.Length)
             {
@@ -161,18 +162,8 @@ namespace NUnit3Gui.ViewModels
             {
                 var item = new TestTreeItem(x.Namespaces[level]);
                 testTree.Child.Add(item);
-                AddTreeItem(x, item, ++level);
+                AddNamespaceTreeItem(x, item, ++level);
             }
-        }
-
-        private int FindDepth(Test x, TestTreeItem item)
-        {
-            int d = Math.Min(x.Namespaces.Length, item.Namespaces.Length);
-            int index = 0;
-            while (x.Namespaces[index] == item.Namespaces[index])
-                index++;
-
-            return index;
         }
 
         private async Task<Unit> RunAllTestCommandExecute(CancellationToken ct, IEnumerable<ITest> testList)
