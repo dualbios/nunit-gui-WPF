@@ -76,8 +76,7 @@ namespace NUnit3Gui.Instanses.FileLoader
                         .SelectMany(_ => _.GetMethods())
                         .Where(m => m.GetCustomAttributes(typeof(Attribute), true)
                             .Any(_ => _.GetType().Name == TestAttributeName))
-                        .Select(methodInfo => methodInfo.DeclaringType.FullName + "." + methodInfo.Name)
-                        .Select(test => new Test(FilePath, test))
+                        .Select(methodInfo => new Test(FilePath, methodInfo, methodInfo.DeclaringType.FullName + "." + methodInfo.Name))
                         .ToList();
 
                     StringState = $"{this.TestCount} classes(s)";

@@ -12,6 +12,7 @@ namespace NUnit3Gui.Instanses.TestTrees
     public class CategoryCollector : ITestTreeCollector
     {
         private readonly ObservableCollection<TestTreeItem> _testTree = new ObservableCollection<TestTreeItem>();
+        private readonly IList<ITest> testList = new List<ITest>();
 
         public TestTreeCollectorType CollectorType => TestTreeCollectorType.Category;
 
@@ -19,14 +20,29 @@ namespace NUnit3Gui.Instanses.TestTrees
 
         public void AddItem(ITest test)
         {
-            _testTree.Add(new TestTreeItem(test));
+            foreach (string category in test.Categories)
+            {
+                TestTreeItem testItem = _testTree.FirstOrDefault(_ => _.Name == category);
+                if (testItem == null)
+                {
+                    testItem = new TestTreeItem(category);
+                    _testTree.Add(testItem);
+                }
+
+                testItem.Child.Add(new TestTreeItem(test));
+            }
+            if(testList.Contains(test)==false)
+                testList.Add(test);
         }
 
         public Task CreateTree(IEnumerable<ITest> tests)
         {
             _testTree.Clear();
+            testList.Clear();
             foreach (var item in tests)
-                _testTree.Add(new TestTreeItem(item));
+            {
+                AddItem(item);
+            }
 
             return Task.CompletedTask;
         }
@@ -34,11 +50,25 @@ namespace NUnit3Gui.Instanses.TestTrees
         public void Dispose()
         {
             _testTree?.Clear();
+            testList.Clear();
         }
 
         public IEnumerable<ITest> GetAllTests()
         {
-            return _testTree.Select(_ => _.Test);
+            return testList;
+        }
+        private IEnumerable<ITest> GetAllTests(TestTreeItem testTreeItem)
+        {
+            if (testTreeItem.Test != null)
+                yield return testTreeItem.Test;
+
+            foreach (var children in testTreeItem.Child)
+            {
+                foreach (var c in GetAllTests(children))
+                {
+                    yield return c;
+                }
+            }
         }
     }
 }

@@ -12,6 +12,7 @@ namespace NUnit3Gui.Instanses.TestTrees
     public class NamespaceTreeCollector : ITestTreeCollector
     {
         private readonly ObservableCollection<TestTreeItem> _testTree = new ObservableCollection<TestTreeItem>();
+        private readonly IList<ITest> testList = new List<ITest>();
 
         public TestTreeCollectorType CollectorType => TestTreeCollectorType.Namespace;
 
@@ -20,13 +21,17 @@ namespace NUnit3Gui.Instanses.TestTrees
         public void AddItem(ITest test)
         {
             this.AddNamespace(test, _testTree);
+            testList.Add(test);
         }
 
         public Task CreateTree(IEnumerable<ITest> tests)
         {
             _testTree.Clear();
+            testList.Clear();
             foreach (var item in tests)
+            {
                 this.AddItem(item);
+            }
 
             return Task.CompletedTask;
         }
@@ -34,11 +39,12 @@ namespace NUnit3Gui.Instanses.TestTrees
         public void Dispose()
         {
             _testTree?.Clear();
+            testList.Clear();
         }
 
         public IEnumerable<ITest> GetAllTests()
         {
-            return _testTree.SelectMany(_ => GetAllTests(_));
+            return testList;
         }
 
         private void AddNamespace(ITest x, IList<TestTreeItem> testTree, int level = 0)

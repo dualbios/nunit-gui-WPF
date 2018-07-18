@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Linq;
+using System.Reflection;
+using NUnit.Framework;
 using NUnit3Gui.Enums;
 using ReactiveUI;
 
@@ -7,13 +9,15 @@ namespace NUnit3Gui.Instanses
 {
     public class Test : ReactiveObject, Interfaces.ITest
     {
+        private readonly string CategoryAttributeName = typeof(CategoryAttribute).Name;
+
         private bool _isRunning;
         private bool _isSelected;
         private TimeSpan _ranningTime;
         private TestState _status = TestState.Unrunned;
         private string _stringStatus;
 
-        public Test(string filePath, string testName)
+        public Test(string filePath, MethodInfo methodInfo, string testName)
         {
             AssemblyPath = filePath;
             var parts = testName.Split(new[] { '.' });
@@ -30,9 +34,17 @@ namespace NUnit3Gui.Instanses
                     TestName = parts[0];
                 }
             }
+
+            Categories = methodInfo.GetCustomAttributes(typeof(Attribute))
+                .Where(_=>_.GetType().Name == CategoryAttributeName)
+                           .OfType<CategoryAttribute>()
+                           .Select(_ => _.Name)
+                           .ToArray();
         }
 
         public string AssemblyPath { get; }
+
+        public string[] Categories { get; } = new string[0];
 
         public string ClassName { get; }
 

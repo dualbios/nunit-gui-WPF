@@ -7,6 +7,8 @@ namespace NUnit3Gui.Interfaces
     {
         string AssemblyPath { get; }
 
+        string[] Categories { get; }
+
         string ClassName { get; }
 
         bool IsRunning { get; set; }

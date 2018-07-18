@@ -15,6 +15,7 @@ namespace NUnit3Gui.UnitTest
     public class ProjectViewModelTests
     {
         [Test]
+        [Category("Project")]
         public void BrowseAssembliesCommand_Call_FillIn_LoadedAssemblies()
         {
             //Arrange
@@ -46,6 +47,7 @@ namespace NUnit3Gui.UnitTest
         }
 
         [Test]
+        [Category("Project")]
         public void BrowseAssembliesCommand_Calls_FileItem_Received_LoadAsync()
         {
             //Arrange
@@ -72,6 +74,8 @@ namespace NUnit3Gui.UnitTest
         }
 
         [Test]
+        [Category("Project")]
+        [Category("ProjectView")]
         public void BrowseAssembliesCommand_Calls_FillIn_Tests()
         {
             //Arrange
@@ -129,6 +133,7 @@ namespace NUnit3Gui.UnitTest
         }
 
         [Test]
+        [Category("ProjectView")]
         public void RemoveAssembliesCommand_Calls_Remove_Assembly()
         {
             //Arrange
@@ -158,6 +163,9 @@ namespace NUnit3Gui.UnitTest
         }
 
         [Test]
+        [Category("Project")]
+        [Category("ProjectViewModel")]
+        [Category("ProjectView")]
         public void Unset_SelectedAssembly_Disable_RemoveAssembliesCommand()
         {
             //Arrange
