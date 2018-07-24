@@ -4,6 +4,7 @@ using System.ComponentModel.Composition;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using NUnit3Gui.Interfaces;
@@ -55,7 +56,7 @@ namespace NUnit3Gui.Instanses.FileLoader
             private set => SetProperty(ref _message, value);
         }
 
-        public Task LoadAsync()
+        public Task LoadAsync(CancellationToken ct)
         {
             var tcs = new TaskCompletionSource<bool>();
 
@@ -90,7 +91,8 @@ namespace NUnit3Gui.Instanses.FileLoader
                     tcs.SetResult(false);
                 }
 
-            });
+            }
+                , ct);
 
             return tcs.Task;
         }

@@ -6,7 +6,6 @@ using System.ComponentModel.Composition;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
-using System.Reactive.Subjects;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -27,14 +26,10 @@ namespace NUnit3Gui.ViewModels
         private readonly IOpenFileDialog _openFileDialog;
         private readonly string[] propertiesToRefresh = { nameof(AssembliesCount) };
         private readonly IObservable<bool> selectedAssembly;
+        private IObservable<bool> _isTestRunningObservable;
         private int _loadingProgress;
         private IFileItem _selectedAssembly;
-        private IObservable<bool> _isTestRunningObservable;
         private IObservable<bool> isTestRunning;
-
-        public IReactiveList<ITest> Tests { get; } = new ReactiveList<ITest>() { ChangeTrackingEnabled = true };
-
-        public IObservable<bool> HasTests { get; }
 
         [ImportingConstructor]
         public ProjectViewModel(IFileLoaderManager fileLoaderManager, IOpenFileDialog openFileDialog)
@@ -75,7 +70,6 @@ namespace NUnit3Gui.ViewModels
 
             CancelBrowseCommand = ReactiveCommand.Create(() => { }, BrowseAssembliesCommand.IsExecuting);
 
-
             RemoveAssembliesCommand = ReactiveCommand.CreateFromTask(() =>
                 {
                     if (SelectedAssembly != null)
@@ -102,17 +96,19 @@ namespace NUnit3Gui.ViewModels
                     , ResultSelector.And3Result));
         }
 
-        public IObservable<bool> IsTestRunningObservable
-        {
-            get => _isTestRunningObservable;
-            set => this.RaiseAndSetIfChanged(ref _isTestRunningObservable, value);
-        }
-
         public int AssembliesCount => LoadedAssemblies.Count();
 
         public ReactiveCommand<Unit, Unit> BrowseAssembliesCommand { get; }
 
         public ReactiveCommand<Unit, Unit> CancelBrowseCommand { get; }
+
+        public IObservable<bool> HasTests { get; }
+
+        public IObservable<bool> IsTestRunningObservable
+        {
+            get => _isTestRunningObservable;
+            set => this.RaiseAndSetIfChanged(ref _isTestRunningObservable, value);
+        }
 
         public IReactiveList<IFileItem> LoadedAssemblies { get; }
 
@@ -138,6 +134,8 @@ namespace NUnit3Gui.ViewModels
 
         public int TestCount { get; }
 
+        public IReactiveList<ITest> Tests { get; } = new ReactiveList<ITest>() { ChangeTrackingEnabled = true };
+
         private async Task<Unit> OpenAssemblies(CancellationToken ct)
         {
             void CancelationOpenAssemblies(IEnumerable<IFileItem> addedFiles)
@@ -162,44 +160,34 @@ namespace NUnit3Gui.ViewModels
                 if (_openFileDialog.FileNames.Length > 0)
                 {
                     IEnumerable<IFileItem> addedFiles = _fileLoaderManager.LoadFiles(_openFileDialog.FileNames).ToList();
-                    foreach (IFileItem fileItem in addedFiles)
-                    {
-                        LoadedAssemblies.Add(fileItem);
-                    }
-
-                    if (ct.IsCancellationRequested)
-                    {
-                        CancelationOpenAssemblies(addedFiles);
-                        return default(Unit);
-                    }
-
                     int index = 1;
-                    foreach (IFileItem item in addedFiles)
+                    foreach (IFileItem fileItem in addedFiles)
                     {
                         try
                         {
-                            await item.LoadAsync();
-                            foreach (ITest test in item.Tests)
+                            LoadedAssemblies.Add(fileItem);
+                            await fileItem.LoadAsync(ct);
+
+                            if (ct.IsCancellationRequested)
+                            {
+                                CancelationOpenAssemblies(addedFiles);
+                                LoadingProgress = 100;
+                                return default(Unit);
+                            }
+
+                            foreach (ITest test in fileItem.Tests)
                             {
                                 Tests.Add(test);
                             }
+                            LoadingProgress = (int)(((double)index) / ((double)_openFileDialog.FileNames.Length) * 100D);
+                            await Task.Delay(25);
+                            index++;
                         }
                         catch (Exception e)
                         {
                             Console.WriteLine(e.Message);
                         }
-
-                        LoadingProgress = (int)(((double)index) / ((double)_openFileDialog.FileNames.Length) * 100D);
-                        await Task.Delay(25);
-                        index++;
-
-                        if (ct.IsCancellationRequested)
-                        {
-                            CancelationOpenAssemblies(addedFiles);
-                            return default(Unit);
-                        }
                     }
-                    LoadingProgress = 100;
                 }
             }
 

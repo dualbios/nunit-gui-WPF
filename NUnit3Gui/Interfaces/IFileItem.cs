@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace NUnit3Gui.Interfaces
@@ -17,6 +18,6 @@ namespace NUnit3Gui.Interfaces
 
         IEnumerable<ITest> Tests { get; }
 
-        Task LoadAsync();
+        Task LoadAsync(CancellationToken ct);
     }
 }
