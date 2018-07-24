@@ -24,6 +24,7 @@ namespace NUnit3Gui.ViewModels
     {
         private readonly IFileLoaderManager _fileLoaderManager;
         private readonly IOpenFileDialog _openFileDialog;
+        private readonly IFileParserManager _fileParserManager;
         private readonly string[] propertiesToRefresh = { nameof(AssembliesCount) };
         private readonly IObservable<bool> selectedAssembly;
         private IObservable<bool> _isTestRunningObservable;
@@ -32,10 +33,13 @@ namespace NUnit3Gui.ViewModels
         private IObservable<bool> isTestRunning;
 
         [ImportingConstructor]
-        public ProjectViewModel(IFileLoaderManager fileLoaderManager, IOpenFileDialog openFileDialog)
+        public ProjectViewModel(IFileLoaderManager fileLoaderManager, 
+            IOpenFileDialog openFileDialog,
+            [Import(RequiredCreationPolicy = CreationPolicy.Shared)] IFileParserManager fileParserManager)
         {
             _fileLoaderManager = fileLoaderManager;
             _openFileDialog = openFileDialog;
+            _fileParserManager = fileParserManager;
 
             LoadedAssemblies = new ReactiveList<IFileItem>() { ChangeTrackingEnabled = true };
 
@@ -166,7 +170,7 @@ namespace NUnit3Gui.ViewModels
                         try
                         {
                             LoadedAssemblies.Add(fileItem);
-                            await fileItem.LoadAsync(ct);
+                            await fileItem.LoadAsync(_fileParserManager, ct);
 
                             if (ct.IsCancellationRequested)
                             {

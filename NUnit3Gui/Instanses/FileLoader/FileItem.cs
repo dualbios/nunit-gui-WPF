@@ -3,10 +3,8 @@ using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using NUnit.Framework;
 using NUnit3Gui.Interfaces;
 using NUnit3Gui.Tools;
 
@@ -15,10 +13,8 @@ namespace NUnit3Gui.Instanses.FileLoader
     [Export(typeof(IFileItem))]
     public class FileItem : NotifyPropertyChanged, IFileItem
     {
-        private readonly string TestFixtureAttributeName = typeof(TestFixtureAttribute).Name;
-        private readonly string TestAttributeName = typeof(TestAttribute).Name;
-        private string _stringState;
         private string _message;
+        private string _stringState;
         private IEnumerable<ITest> _tests;
 
         public FileItem(string filePath)
@@ -31,6 +27,12 @@ namespace NUnit3Gui.Instanses.FileLoader
         public string FileName { get; }
 
         public string FilePath { get; }
+
+        public string Message
+        {
+            get => _message;
+            private set => SetProperty(ref _message, value);
+        }
 
         public string StringState
         {
@@ -50,13 +52,7 @@ namespace NUnit3Gui.Instanses.FileLoader
             }
         }
 
-        public string Message
-        {
-            get => _message;
-            private set => SetProperty(ref _message, value);
-        }
-
-        public Task LoadAsync(CancellationToken ct)
+        public Task LoadAsync(IFileParserManager fileParserManager, CancellationToken ct)
         {
             var tcs = new TaskCompletionSource<bool>();
 
@@ -68,18 +64,7 @@ namespace NUnit3Gui.Instanses.FileLoader
 
                 try
                 {
-                    Assembly assembly = Assembly.LoadFrom(FilePath);
-
-                    Tests = assembly.GetTypes()
-                        .Where(type =>
-                            type.GetCustomAttributes(typeof(Attribute), true).Any(_ =>
-                                _.GetType().Name == TestFixtureAttributeName))
-                        .SelectMany(_ => _.GetMethods())
-                        .Where(m => m.GetCustomAttributes(typeof(Attribute), true)
-                            .Any(_ => _.GetType().Name == TestAttributeName))
-                        .Select(methodInfo => methodInfo.DeclaringType.FullName + "." + methodInfo.Name)
-                        .Select(test => new Test(FilePath, test))
-                        .ToList();
+                    Tests = await fileParserManager.CurrentFileParser.ParseFileAsync(FilePath, ct);
 
                     StringState = $"{this.TestCount} classes(s)";
                     tcs.SetResult(true);
@@ -90,7 +75,6 @@ namespace NUnit3Gui.Instanses.FileLoader
                     Message = e.Message;
                     tcs.SetResult(false);
                 }
-
             }
                 , ct);
 

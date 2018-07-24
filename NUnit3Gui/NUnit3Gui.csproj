@@ -68,6 +68,8 @@
     <Compile Include="Extensions\ResultSelector.cs" />
     <Compile Include="Instanses\FileLoader\FileItem.cs" />
     <Compile Include="Instanses\FileLoader\FileLoaderManager.cs" />
+    <Compile Include="Instanses\FileParsers\CmdFileParser.cs" />
+    <Compile Include="Instanses\FileParsers\FileParserManager.cs" />
     <Compile Include="Instanses\OpenFileDialog.cs" />
     <Compile Include="Instanses\RunProcess.cs" />
     <Compile Include="Instanses\RunTestManager.cs" />
@@ -75,12 +77,14 @@
     <Compile Include="Instanses\Test.cs" />
     <Compile Include="Interfaces\IFileItem.cs" />
     <Compile Include="Interfaces\IFileLoaderManager.cs" />
+    <Compile Include="Interfaces\IFileParserManager.cs" />
     <Compile Include="Interfaces\IMainViewModel.cs" />
     <Compile Include="Interfaces\IOpenFileDialog.cs" />
     <Compile Include="Interfaces\IProjectViewModel.cs" />
     <Compile Include="Interfaces\IRunProcess.cs" />
     <Compile Include="Interfaces\IRunTestManager.cs" />
     <Compile Include="Interfaces\ITest.cs" />
+    <Compile Include="Interfaces\IFileParser.cs" />
     <Compile Include="Interfaces\ITestsViewModel.cs" />
     <Compile Include="Views\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
