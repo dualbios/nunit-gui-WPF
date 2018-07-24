@@ -176,10 +176,17 @@ namespace NUnit3Gui.ViewModels
                     int index = 1;
                     foreach (IFileItem item in addedFiles)
                     {
-                        await item.LoadAsync();
-                        foreach (ITest test in item.Tests)
+                        try
                         {
-                            Tests.Add(test);
+                            await item.LoadAsync();
+                            foreach (ITest test in item.Tests)
+                            {
+                                Tests.Add(test);
+                            }
+                        }
+                        catch (Exception e)
+                        {
+                            Console.WriteLine(e.Message);
                         }
 
                         LoadingProgress = (int)(((double)index) / ((double)_openFileDialog.FileNames.Length) * 100D);
