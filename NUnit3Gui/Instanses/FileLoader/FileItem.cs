@@ -52,7 +52,7 @@ namespace NUnit3Gui.Instanses.FileLoader
             }
         }
 
-        public Task LoadAsync(IFileParserManager fileParserManager, CancellationToken ct)
+        public Task LoadAsync(IFileLoaderManager fileLoaderManager, CancellationToken ct)
         {
             var tcs = new TaskCompletionSource<bool>();
 
@@ -64,7 +64,7 @@ namespace NUnit3Gui.Instanses.FileLoader
 
                 try
                 {
-                    Tests = await fileParserManager.CurrentFileParser.ParseFileAsync(FilePath, ct);
+                    Tests = await fileLoaderManager.ParseFileAsync(FilePath, ct);
 
                     StringState = $"{this.TestCount} classes(s)";
                     tcs.SetResult(true);

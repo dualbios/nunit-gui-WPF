@@ -21,7 +21,6 @@ namespace NUnit3Gui.UnitTest
             //Arrange
             IFileLoaderManager fileLoaderManager = Substitute.For<IFileLoaderManager>();
             IOpenFileDialog openFileDialog = Substitute.For<IOpenFileDialog>();
-            IFileParserManager fileParserManager = Substitute.For<IFileParserManager>();
 
             openFileDialog.ShowDialog().ReturnsForAnyArgs(DialogResult.OK);
             openFileDialog.FileNames.ReturnsForAnyArgs(new string[] { "file1.dll", "file2.dll" });
@@ -36,7 +35,7 @@ namespace NUnit3Gui.UnitTest
 
             fileLoaderManager.LoadFiles(Arg.Any<IEnumerable<string>>()).ReturnsForAnyArgs(new[] { file1, file2 });
 
-            var projectViewModel = new ProjectViewModel(fileLoaderManager, openFileDialog, fileParserManager);
+            var projectViewModel = new ProjectViewModel(fileLoaderManager, openFileDialog);
             projectViewModel.IsTestRunningObservable = Observable.Empty(true);
 
             //Act
@@ -53,7 +52,6 @@ namespace NUnit3Gui.UnitTest
             //Arrange
             IFileLoaderManager fileLoaderManager = Substitute.For<IFileLoaderManager>();
             IOpenFileDialog openFileDialog = Substitute.For<IOpenFileDialog>();
-            IFileParserManager fileParserManager = Substitute.For<IFileParserManager>();
 
             openFileDialog.ShowDialog().ReturnsForAnyArgs(DialogResult.OK);
             openFileDialog.FileNames.ReturnsForAnyArgs(new string[] { "file1.dll" });
@@ -64,14 +62,14 @@ namespace NUnit3Gui.UnitTest
 
             fileLoaderManager.LoadFiles(Arg.Any<IEnumerable<string>>()).ReturnsForAnyArgs(new[] { file1 });
 
-            var projectViewModel = new ProjectViewModel(fileLoaderManager, openFileDialog, fileParserManager);
+            var projectViewModel = new ProjectViewModel(fileLoaderManager, openFileDialog);
             projectViewModel.IsTestRunningObservable = Observable.Empty(true);
 
             //Act
             projectViewModel.BrowseAssembliesCommand.Execute();
 
             //Assert
-            file1.Received().LoadAsync(fileParserManager, CancellationToken.None);
+            file1.Received().LoadAsync(fileLoaderManager, CancellationToken.None);
         }
 
         [Test]
@@ -80,7 +78,6 @@ namespace NUnit3Gui.UnitTest
             //Arrange
             IFileLoaderManager fileLoaderManager = Substitute.For<IFileLoaderManager>();
             IOpenFileDialog openFileDialog = Substitute.For<IOpenFileDialog>();
-            IFileParserManager fileParserManager = Substitute.For<IFileParserManager>();
 
             openFileDialog.ShowDialog().ReturnsForAnyArgs(DialogResult.OK);
             openFileDialog.FileNames.ReturnsForAnyArgs(new string[] { "file1.dll" });
@@ -95,7 +92,7 @@ namespace NUnit3Gui.UnitTest
 
             fileLoaderManager.LoadFiles(Arg.Any<IEnumerable<string>>()).ReturnsForAnyArgs(new[] { file1 });
 
-            var projectViewModel = new ProjectViewModel(fileLoaderManager, openFileDialog, fileParserManager);
+            var projectViewModel = new ProjectViewModel(fileLoaderManager, openFileDialog);
             projectViewModel.IsTestRunningObservable = Observable.Empty(true);
 
             //Act
@@ -111,9 +108,8 @@ namespace NUnit3Gui.UnitTest
             //Arrange
             IFileLoaderManager fileLoaderManager = Substitute.For<IFileLoaderManager>();
             IOpenFileDialog openFileDialog = Substitute.For<IOpenFileDialog>();
-            IFileParserManager fileParserManager = Substitute.For<IFileParserManager>();
 
-            var projectViewModel = new ProjectViewModel(fileLoaderManager, openFileDialog, fileParserManager);
+            var projectViewModel = new ProjectViewModel(fileLoaderManager, openFileDialog);
 
             IFileItem file1 = Substitute.For<IFileItem>();
             file1.FilePath.Returns("file1.dll");
@@ -140,9 +136,8 @@ namespace NUnit3Gui.UnitTest
             //Arrange
             IFileLoaderManager fileLoaderManager = Substitute.For<IFileLoaderManager>();
             IOpenFileDialog openFileDialog = Substitute.For<IOpenFileDialog>();
-            IFileParserManager fileParserManager = Substitute.For<IFileParserManager>();
 
-            var projectViewModel = new ProjectViewModel(fileLoaderManager, openFileDialog, fileParserManager);
+            var projectViewModel = new ProjectViewModel(fileLoaderManager, openFileDialog);
 
             IFileItem file1 = Substitute.For<IFileItem>();
             file1.FilePath.Returns("file1.dll");
@@ -171,9 +166,8 @@ namespace NUnit3Gui.UnitTest
             //Arrange
             IFileLoaderManager fileLoaderManager = Substitute.For<IFileLoaderManager>();
             IOpenFileDialog openFileDialog = Substitute.For<IOpenFileDialog>();
-            IFileParserManager fileParserManager = Substitute.For<IFileParserManager>();
 
-            var projectViewModel = new ProjectViewModel(fileLoaderManager, openFileDialog, fileParserManager);
+            var projectViewModel = new ProjectViewModel(fileLoaderManager, openFileDialog);
 
             IFileItem file1 = Substitute.For<IFileItem>();
             file1.FilePath.Returns("file1.dll");
@@ -200,9 +194,8 @@ namespace NUnit3Gui.UnitTest
             //Arrange
             IFileLoaderManager fileLoaderManager = Substitute.For<IFileLoaderManager>();
             IOpenFileDialog openFileDialog = Substitute.For<IOpenFileDialog>();
-            IFileParserManager fileParserManager = Substitute.For<IFileParserManager>();
 
-            var projectViewModel = new ProjectViewModel(fileLoaderManager, openFileDialog, fileParserManager);
+            var projectViewModel = new ProjectViewModel(fileLoaderManager, openFileDialog);
 
             IFileItem file1 = Substitute.For<IFileItem>();
             file1.FilePath.Returns("file1.dll");

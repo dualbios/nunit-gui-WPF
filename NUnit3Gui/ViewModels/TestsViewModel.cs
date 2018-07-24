@@ -30,9 +30,9 @@ namespace NUnit3Gui.ViewModels
         private ITest _selectedTest;
 
         [ImportingConstructor]
-        public TestsViewModel(IRunTestManager runTestManager, IProjectViewModel projectViewModel)
+        public TestsViewModel(IFileLoaderManager fileLoaderManager, IProjectViewModel projectViewModel)
         {
-            this.RunTestManager = runTestManager;
+            this.FileLoaderManager = fileLoaderManager;
             ProjectViewModel = projectViewModel;
 
             ProjectViewModel.Tests.Changed
@@ -77,6 +77,8 @@ namespace NUnit3Gui.ViewModels
             CancelRunTestCommand = ReactiveCommand.Create(() => { }, IsTestRunningObservable);
         }
 
+        public IFileLoaderManager FileLoaderManager { get;  }
+
         public ReactiveCommand<Unit, Unit> CancelRunTestCommand { get; }
 
         public bool IsAllTestRunning => isAllTestRunning?.Value ?? false;
@@ -101,7 +103,6 @@ namespace NUnit3Gui.ViewModels
 
         public ReactiveCommand<Unit, Unit> RunSelectedTestCommand { get; }
 
-        public IRunTestManager RunTestManager { get; }
 
         public ITest SelectedTest
         {
@@ -137,7 +138,7 @@ namespace NUnit3Gui.ViewModels
             int testCount = testList.Count();
             foreach (ITest test in testList)
             {
-                await RunTestManager.RunTestAsync(test, ct);
+                await FileLoaderManager.RunTestAsync(test, ct);
                 RanTestsCount = (int)(((double)index) / ((double)testCount) * 100D);
 
                 this.RaisePropertyChanged(nameof(TestFailedCount));

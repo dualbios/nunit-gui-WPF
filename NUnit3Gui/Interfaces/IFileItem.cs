@@ -18,6 +18,6 @@ namespace NUnit3Gui.Interfaces
 
         IEnumerable<ITest> Tests { get; }
 
-        Task LoadAsync(IFileParserManager fileParserManager, CancellationToken ct);
+        Task LoadAsync(IFileLoaderManager fileLoaderManager, CancellationToken ct);
     }
 }
