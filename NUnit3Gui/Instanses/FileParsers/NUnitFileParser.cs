@@ -5,7 +5,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
-using System.Xml.Linq;
 using NUnit.Engine;
 using NUnit3Gui.Interfaces;
 
@@ -25,17 +24,51 @@ namespace NUnit3Gui.Instanses.FileParsers
 
         public string Name => "NUnit parser";
 
+        public static string GetAttribute(XmlNode result, string name)
+        {
+            XmlAttribute attr = result.Attributes[name];
+
+            return attr == null ? null : attr.Value;
+        }
+
         public Task<IEnumerable<ITest>> ParseFileAsync(string fileName, CancellationToken ct)
         {
             var _package = MakeTestPackage(fileName);
             ITestRunner Runner = _testEngine.GetRunner(_package);
-            System.Xml.XmlNode result = Runner.Explore(TestFilter.Empty);
+            XmlNode runnerResult = Runner.Explore(TestFilter.Empty);
 
-            var resultExplore = GetAttribute(result, "result");
-            if (resultExplore == "Failed")
-                throw new Exception($"Loading failed. {resultExplore}");
+            if (runnerResult.Name == "test-run")
+            {
+                var resultExplore = GetAttribute(runnerResult, "result");
+                if (resultExplore == "Failed")
+                {
+                    string message = string.Empty;
+                    try
+                    {
+                        message = runnerResult.SelectSingleNode(@"test-suite/failure/message").InnerText;
+                    }
+                    catch (Exception ex)
+                    {
+                        throw ex;
+                    }
 
-            return Task.FromResult(Enumerable.Empty<ITest>());
+                    throw new Exception(message);
+                }
+                else
+                {
+                    runnerResult = runnerResult.FirstChild;
+                    if (runnerResult.Name == "test-suite")
+                    {
+                        var runstateValue = GetAttribute(runnerResult, "runstate");
+                        if (runstateValue != "Runnable")
+                            throw new Exception("Cannot be ran");
+
+                        return Task.FromResult(ParseTestSuit(runnerResult));
+                    }
+                }
+            }
+
+            throw new Exception("Enexpected result.");
         }
 
         private TestPackage MakeTestPackage(string fileName)
@@ -45,11 +78,20 @@ namespace NUnit3Gui.Instanses.FileParsers
             return package;
         }
 
-        public static string GetAttribute(XmlNode result, string name)
+        private IEnumerable<ITest> ParseTestSuit(XmlNode xmlNode)
         {
-            XmlAttribute attr = result.Attributes[name];
+            if (xmlNode.Name == "test-case")
+            {
+                yield return new Test(GetAttribute(xmlNode, "fullname"), GetAttribute(xmlNode, "fullname"));
+            }
 
-            return attr == null ? null : attr.Value;
+            foreach (XmlNode node in xmlNode.ChildNodes)
+            {
+                    foreach (var test in ParseTestSuit(node))
+                    {
+                        yield return test;
+                    }
+            }
         }
     }
 }
