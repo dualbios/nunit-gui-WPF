@@ -5,6 +5,7 @@ using System.Globalization;
 using System.Reactive;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Threading;
 using System.Xml;
 using NUnit.Engine;
 using NUnit3Gui.Enums;

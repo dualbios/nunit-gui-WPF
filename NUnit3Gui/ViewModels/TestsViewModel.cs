@@ -138,6 +138,11 @@ namespace NUnit3Gui.ViewModels
             int testCount = testList.Count();
             foreach (ITest test in testList)
             {
+                var testTimer = new DispatcherTimer() { Interval = TimeSpan.FromMilliseconds(100) };
+                var testStartTime = DateTime.Now;
+                testTimer.Tick += (sender, args) => { test.RunningTime = DateTime.Now - testStartTime; };
+                testTimer.Start();
+
                 await FileLoaderManager.RunTestAsync(test, ct);
                 RanTestsCount = (int)(((double)index) / ((double)testCount) * 100D);
 
@@ -145,7 +150,11 @@ namespace NUnit3Gui.ViewModels
                 this.RaisePropertyChanged(nameof(TestPassedCount));
 
                 if (ct.IsCancellationRequested)
+                {
+                    testTimer.Stop();
                     break;
+                }
+                testTimer.Stop();
                 index++;
             }
 

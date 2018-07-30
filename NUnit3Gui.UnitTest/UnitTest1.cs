@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using System.Threading.Tasks;
+using NUnit.Framework;
 
 namespace NUnit3Gui.UnitTest
 {
@@ -6,8 +7,9 @@ namespace NUnit3Gui.UnitTest
     public class UnitTest1
     {
         [Test]
-        public void TestMethod1()
+        public async Task TestMethod1()
         {
+            await Task.Delay(1550);
             Assert.True(false);
         }
 
