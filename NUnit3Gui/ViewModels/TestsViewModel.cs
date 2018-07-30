@@ -149,6 +149,7 @@ namespace NUnit3Gui.ViewModels
                 index++;
             }
 
+            RunningTime = DateTime.Now - startTime;
             RanTestsCount = 100;
             timer.Stop();
             return Unit.Default;

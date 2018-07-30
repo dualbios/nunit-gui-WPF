@@ -72,7 +72,6 @@
     <Compile Include="Instanses\FileParsers\CmdFileParser.cs" />
     <Compile Include="Instanses\FileParsers\NUnitFileParser.cs" />
     <Compile Include="Instanses\FileParsers\NunitTest.cs" />
-    <Compile Include="Instanses\FileParsers\NUnitTestRunner.cs" />
     <Compile Include="Instanses\OpenFileDialog.cs" />
     <Compile Include="Instanses\RunProcess.cs" />
     <Compile Include="Instanses\RunTestManager.cs" />
