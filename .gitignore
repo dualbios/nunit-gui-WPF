@@ -57,3 +57,6 @@ NUnit3Gui/obj/
 NUnit3Gui/bin/
 NUnit3Gui.UnitTest/obj/
 .vs/
+NUnit3GUIWPF/obj/
+NUnit3GUIWPF/bin/
+NUnit3GUIWPF.sln.DotSettings.user
