@@ -50,3 +50,10 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+UnitTestProject1/obj/
+packages/
+NUnit3Gui/obj/
+
+NUnit3Gui/bin/
+NUnit3Gui.UnitTest/obj/
+.vs/
