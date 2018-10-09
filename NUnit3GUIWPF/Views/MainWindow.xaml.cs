@@ -13,7 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace NUnit3GUIWPF
+namespace NUnit3GUIWPF.Views
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml

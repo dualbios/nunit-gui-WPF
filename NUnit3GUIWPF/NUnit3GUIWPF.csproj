@@ -38,6 +38,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="DesktopBridge.Helpers, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\DesktopBridge.Helpers.1.1\lib\net45\DesktopBridge.Helpers.dll</HintPath>
+    </Reference>
     <Reference Include="DynamicData, Version=6.4.0.2419, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\DynamicData.6.4.0.2419\lib\net46\DynamicData.dll</HintPath>
     </Reference>
@@ -163,7 +166,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Page Include="MainWindow.xaml">
+    <Page Include="Views\MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -171,7 +174,14 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="MainWindow.xaml.cs">
+    <Compile Include="Models\ResultNode.cs" />
+    <Compile Include="Models\ResultState.cs" />
+    <Compile Include="Models\RunState.cs" />
+    <Compile Include="Models\TestNode.cs" />
+    <Compile Include="Models\TestStatus.cs" />
+    <Compile Include="Utils\XmlHelper.cs" />
+    <Compile Include="ViewModels\MainWindowViewModel.cs" />
+    <Compile Include="Views\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
@@ -203,6 +213,7 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
