@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Text;
 using System.Xml;
 using NUnit;
@@ -10,7 +11,8 @@ namespace NUnit3GUIWPF.Models
     public class TestNode : ReactiveObject
     {
         private List<TestNode> _children;
-        private TestAction _testAction;
+        private TimeSpan _duration;
+        private TestState _testAction;
 
         public TestNode(XmlNode xmlNode)
         {
@@ -44,6 +46,12 @@ namespace NUnit3GUIWPF.Models
             }
         }
 
+        public TimeSpan Duration
+        {
+            get => _duration;
+            set => this.RaiseAndSetIfChanged(ref _duration, value);
+        }
+
         public string FullName { get; }
 
         public string Id { get; }
@@ -54,7 +62,7 @@ namespace NUnit3GUIWPF.Models
 
         public RunState RunState { get; }
 
-        public TestAction TestAction
+        public TestState TestAction
         {
             get => _testAction;
             set => this.RaiseAndSetIfChanged(ref _testAction, value);

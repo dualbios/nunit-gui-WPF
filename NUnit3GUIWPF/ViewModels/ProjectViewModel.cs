@@ -33,6 +33,28 @@ namespace NUnit3GUIWPF.ViewModels
 
         private IEnumerable<TestNode> flattenTests = new List<TestNode>();
 
+        private IDictionary<string, Action<TestNode, XmlNode>> reportActions = new Dictionary<string, Action<TestNode, XmlNode>>()
+        {
+            {"start-test", (node, report) => { node.TestAction = TestState.Starting; }},
+            {"start-suite", (node, report) => { node.TestAction = TestState.Starting; }},
+            {"start-run", (node, report) => { node.TestAction = TestState.Starting; }},
+            {"test-case", (node, report) =>
+            {
+                node.TestAction = TestState.Finished;
+                node.Duration = ParseDuration(report.GetAttribute("start"), report.GetAttribute("end"));
+            }},
+            {"test-suite", (node, report) =>
+            {
+                node.TestAction = TestState.Finished;
+                node.Duration = ParseDuration(report.GetAttribute("start"), report.GetAttribute("end"));
+            }},
+            {"test-run", (node, report) =>
+            {
+                node.TestAction = TestState.Finished;
+                node.Duration = ParseDuration(report.GetAttribute("start"), report.GetAttribute("end"));
+            }},
+        };
+
         [ImportingConstructor]
         public ProjectViewModel(IUnitTestEngine engine)
         {
@@ -72,38 +94,28 @@ namespace NUnit3GUIWPF.ViewModels
 
         public TestNode Tests { get; private set; }
 
-        private IDictionary<string, Action<TestNode>> reportActions = new Dictionary<string, Action<TestNode>>()
-        {
-            { "start-test", node => { node.TestAction = TestAction.TestStarting; }},
-            { "start-suite", node => { node.TestAction = TestAction.SuiteStarting; }},
-            { "start-run", node => { node.TestAction = TestAction.RunStarting; }},
-            { "test-case", node => { node.TestAction = TestAction.TestFinished; }},
-            { "test-suite", node => { node.TestAction = TestAction.SuiteFinished; }},
-            { "test-run", node => { node.TestAction = TestAction.RunFinished; }},
-        };
-
         public void OnTestEvent(string report)
         {
             XmlNode xmlNode = XmlHelper.CreateXmlNode(report);
             string id = xmlNode.GetAttribute("id");
             string name = xmlNode.GetAttribute("name");
 
-            if (string.IsNullOrEmpty(name) && xmlNode.Name!="test-output")
+            if (string.IsNullOrEmpty(name) && xmlNode.Name != "test-output")
             {
-
-            }
-
-            if (name == "test-run")
-            {
-                Application.Current.Dispatcher.Invoke(() => { IsRunning = false; });
+                // TODO: implement test output
             }
 
             TestNode testNode = flattenTests.FirstOrDefault(_ => _.Id == id);
             if (testNode == null) return;
 
-            if (reportActions.TryGetValue(xmlNode.Name, out Action<TestNode> nodeAction))
+            if (reportActions.TryGetValue(xmlNode.Name, out Action<TestNode, XmlNode> nodeAction))
             {
-                nodeAction(testNode);
+                nodeAction(testNode, xmlNode);
+            }
+
+            if (xmlNode.Name == "test-run")
+            {
+                Application.Current.Dispatcher.Invoke(() => { IsRunning = false; });
             }
         }
 
@@ -113,31 +125,44 @@ namespace NUnit3GUIWPF.ViewModels
             return LoadFile(fileName);
         }
 
+        private static TimeSpan ParseDuration(string startTimeString, string endTimeString)
+        {
+            if (string.IsNullOrEmpty(startTimeString) || string.IsNullOrEmpty(endTimeString))
+                return TimeSpan.Zero;
+
+            TimeSpan startTime = TimeSpan.MinValue;
+            TimeSpan endTime = TimeSpan.MinValue;
+            TimeSpan.TryParse(startTimeString, out startTime);
+            TimeSpan.TryParse(endTimeString, out endTime);
+
+            return endTime - startTime;
+        }
+
         private IEnumerable<TestNode> FlattenTests(TestNode test)
         {
             yield return test;
-            foreach (TestNode child in test.Children)
+            foreach (TestNode node in test.Children.SelectMany(_ => FlattenTests(_)))
             {
-                foreach (TestNode node in FlattenTests(child))
-                {
-                    yield return node;
-                }
+                yield return node;
             }
 
             yield break;
         }
 
-        private Task LoadFile(string file)
+        private async Task LoadFile(string file)
         {
-            var package = new TestPackage(file);
-            Runner = _testEngine.GetRunner(package);
-            XmlNode node = Runner.Explore(TestFilter.Empty);
-            Tests = new TestNode(node);
-            flattenTests = FlattenTests(Tests).ToList();
+            await Task.Run(() =>
+            {
+                var package = new TestPackage(file);
+                Runner = _testEngine.GetRunner(package);
+                XmlNode node = Runner.Explore(TestFilter.Empty);
+                Tests = new TestNode(node);
+                flattenTests = FlattenTests(Tests).ToList();
+            });
 
             this.RaisePropertyChanged(nameof(Tests));
 
-            return Task.CompletedTask;
+            return;
         }
 
         private Task RunAllTestAsync(CancellationToken arg)
