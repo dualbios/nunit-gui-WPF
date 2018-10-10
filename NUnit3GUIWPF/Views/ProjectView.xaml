@@ -12,17 +12,40 @@
         <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
     </UserControl.Resources>
     <DockPanel LastChildFill="True">
-        <StackPanel DockPanel.Dock="Top">
-            <TextBlock Text="{Binding FileName}" />
-            <Button Content="Run All"
-                    Command="{Binding RunAllTestCommand}" />
-            <Button Content="Stop"
-                    Command="{Binding StopTestCommand}" />
+        <StackPanel DockPanel.Dock="Top"
+                    Orientation="Vertical">
+            <!--<TextBlock Text="{Binding FileName}" />-->
+            <StackPanel Orientation="Horizontal">
+                <Button Content="Run All"
+                        Command="{Binding RunAllTestCommand}" />
+                <Button Content="Stop"
+                        Command="{Binding StopTestCommand}" />
+                <ContentControl Margin="2 0"/>
+                <Button Content="Expand All" Click="ExpandAll_OnClick"/>
+                <Button Content="Collapse All" Click="CollapseAll_OnClick"/>
+            </StackPanel>
+
             <ProgressBar IsIndeterminate="True"
                          Height="4"
                          Visibility="{Binding IsRunning, Converter={StaticResource BooleanToVisibilityConverter}}" />
         </StackPanel>
-        <ListBox ItemsSource="{Binding Log}"
-                 ScrollViewer.CanContentScroll="false" />
+        <TreeView ItemsSource="{Binding Tests.Children}"
+                  x:Name="TestTreeView">
+            <TreeView.ItemTemplate>
+                <HierarchicalDataTemplate ItemsSource="{Binding Children}">
+                    <StackPanel>
+                        <TextBlock>
+                            <Run Text="[" />
+                            <Run Text="{Binding Id, Mode=OneWay}" />
+                            <Run Text="] " />
+                            <Run Text="{Binding Name, Mode=OneWay}" />
+                            <Run Text=" (" />
+                            <Run Text="{Binding TestAction, Mode=OneWay}" />
+                            <Run Text=") " />
+                        </TextBlock>
+                    </StackPanel>
+                </HierarchicalDataTemplate>
+            </TreeView.ItemTemplate>
+        </TreeView>
     </DockPanel>
 </UserControl>

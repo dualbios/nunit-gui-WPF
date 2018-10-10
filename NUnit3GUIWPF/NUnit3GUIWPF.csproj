@@ -171,6 +171,8 @@
     <Compile Include="Interfaces\IMainWindowViewModel.cs" />
     <Compile Include="Interfaces\IProjectViewModel.cs" />
     <Compile Include="Interfaces\IUnitTestEngine.cs" />
+    <Compile Include="Models\TestAction.cs" />
+    <Compile Include="Models\TestState.cs" />
     <Compile Include="Models\UnitTestEngine.cs" />
     <Compile Include="Views\ProjectView.xaml.cs">
       <DependentUpon>ProjectView.xaml</DependentUpon>

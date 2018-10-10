@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.ComponentModel.Composition;
+using System.Linq;
 using System.Reactive;
-using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -31,14 +31,38 @@ namespace NUnit3GUIWPF.ViewModels
 
         private ITestEngine _testEngine;
 
+        private IEnumerable<TestNode> flattenTests = new List<TestNode>();
+
+        private IDictionary<string, Action<TestNode, XmlNode>> reportActions = new Dictionary<string, Action<TestNode, XmlNode>>()
+        {
+            {"start-test", (node, report) => { node.TestAction = TestState.Starting; }},
+            {"start-suite", (node, report) => { node.TestAction = TestState.Starting; }},
+            {"start-run", (node, report) => { node.TestAction = TestState.Starting; }},
+            {"test-case", (node, report) =>
+            {
+                node.TestAction = TestState.Finished;
+                node.Duration = ParseDuration(report.GetAttribute("start"), report.GetAttribute("end"));
+            }},
+            {"test-suite", (node, report) =>
+            {
+                node.TestAction = TestState.Finished;
+                node.Duration = ParseDuration(report.GetAttribute("start"), report.GetAttribute("end"));
+            }},
+            {"test-run", (node, report) =>
+            {
+                node.TestAction = TestState.Finished;
+                node.Duration = ParseDuration(report.GetAttribute("start"), report.GetAttribute("end"));
+            }},
+        };
+
         [ImportingConstructor]
         public ProjectViewModel(IUnitTestEngine engine)
         {
             _testEngine = engine.TestEngine;
             RunAllTestCommand = ReactiveCommand.CreateFromTask(RunAllTestAsync,
                 this.WhenAny(
-                    vm => vm.FileName, 
-                    vm => vm.IsRunning, 
+                    vm => vm.FileName,
+                    vm => vm.IsRunning,
                     (p1, p2) => !string.IsNullOrEmpty(p1.Value) && !p2.Value));
             StopTestCommand = ReactiveCommand.CreateFromTask(StopTestAsync,
                 this.WhenAny(vm => vm.IsRunning, p => p.Value == true));
@@ -73,53 +97,26 @@ namespace NUnit3GUIWPF.ViewModels
         public void OnTestEvent(string report)
         {
             XmlNode xmlNode = XmlHelper.CreateXmlNode(report);
-            string logLine = null;
+            string id = xmlNode.GetAttribute("id");
+            string name = xmlNode.GetAttribute("name");
 
-            switch (xmlNode.Name)
+            if (string.IsNullOrEmpty(name) && xmlNode.Name != "test-output")
             {
-                case "start-test":
-                    //TestStarting?.Invoke(new TestNodeEventArgs(TestAction.TestStarting, new TestNode(xmlNode)));
-                    var rrr = new TestNode(xmlNode);
-                    logLine = $"start-test: {rrr.Name}";
-                    break;
-
-                case "start-suite":
-                    //SuiteStarting?.Invoke(new TestNodeEventArgs(TestAction.SuiteStarting, new TestNode(xmlNode)));
-                    var ddd = new TestNode(xmlNode);
-                    logLine = $"start-suite: {ddd.Name}";
-                    break;
-
-                case "start-run":
-                    //RunStarting?.Invoke(new RunStartingEventArgs(xmlNode.GetAttribute("count", -1)));
-                    var sss = xmlNode.GetAttribute("count", -1);
-                    logLine = $"start-run: {sss.ToString()}";
-                    break;
-
-                case "test-case":
-                    ResultNode result = new ResultNode(xmlNode);
-                    _resultIndex[result.Id] = result;
-                    logLine = $"test-case: ({result.Id})\r\n {result.Xml.InnerText}";
-                    //TestFinished?.Invoke(new TestResultEventArgs(TestAction.TestFinished, result));
-                    break;
-
-                case "test-suite":
-                    result = new ResultNode(xmlNode);
-                    _resultIndex[result.Id] = result;
-                    logLine = $"test-suite: ({result.Id})\r\n {result.Xml.InnerText}";
-                    //SuiteFinished?.Invoke(new TestResultEventArgs(TestAction.SuiteFinished, result));
-                    break;
-
-                case "test-run":
-                    result = new ResultNode(xmlNode);
-                    _resultIndex[result.Id] = result;
-                    logLine = $"test-run: ({result.Id})\r\n Status : {result.Status}; Duration : {result.Duration}; Test count : {result.TestCount}";
-                    Application.Current.Dispatcher.BeginInvoke(new Action(() => IsRunning = false));
-
-                    //RunFinished?.Invoke(new TestResultEventArgs(TestAction.RunFinished, result));
-                    break;
+                // TODO: implement test output
             }
 
-            Application.Current.Dispatcher.BeginInvoke(new Action(() => Log.Add(logLine)));
+            TestNode testNode = flattenTests.FirstOrDefault(_ => _.Id == id);
+            if (testNode == null) return;
+
+            if (reportActions.TryGetValue(xmlNode.Name, out Action<TestNode, XmlNode> nodeAction))
+            {
+                nodeAction(testNode, xmlNode);
+            }
+
+            if (xmlNode.Name == "test-run")
+            {
+                Application.Current.Dispatcher.Invoke(() => { IsRunning = false; });
+            }
         }
 
         public Task SetProjectFileAsync(string fileName, CancellationToken ct)
@@ -128,14 +125,44 @@ namespace NUnit3GUIWPF.ViewModels
             return LoadFile(fileName);
         }
 
-        private Task LoadFile(string file)
+        private static TimeSpan ParseDuration(string startTimeString, string endTimeString)
         {
-            var package = new TestPackage(file);
-            Runner = _testEngine.GetRunner(package);
-            XmlNode node = Runner.Explore(TestFilter.Empty);
-            Tests = new TestNode(node);
+            if (string.IsNullOrEmpty(startTimeString) || string.IsNullOrEmpty(endTimeString))
+                return TimeSpan.Zero;
 
-            return Task.CompletedTask;
+            TimeSpan startTime = TimeSpan.MinValue;
+            TimeSpan endTime = TimeSpan.MinValue;
+            TimeSpan.TryParse(startTimeString, out startTime);
+            TimeSpan.TryParse(endTimeString, out endTime);
+
+            return endTime - startTime;
+        }
+
+        private IEnumerable<TestNode> FlattenTests(TestNode test)
+        {
+            yield return test;
+            foreach (TestNode node in test.Children.SelectMany(_ => FlattenTests(_)))
+            {
+                yield return node;
+            }
+
+            yield break;
+        }
+
+        private async Task LoadFile(string file)
+        {
+            await Task.Run(() =>
+            {
+                var package = new TestPackage(file);
+                Runner = _testEngine.GetRunner(package);
+                XmlNode node = Runner.Explore(TestFilter.Empty);
+                Tests = new TestNode(node);
+                flattenTests = FlattenTests(Tests).ToList();
+            });
+
+            this.RaisePropertyChanged(nameof(Tests));
+
+            return;
         }
 
         private Task RunAllTestAsync(CancellationToken arg)
