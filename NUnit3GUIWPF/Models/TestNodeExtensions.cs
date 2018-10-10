@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Xml;
 using NUnit;
@@ -7,29 +8,22 @@ namespace NUnit3GUIWPF.Models
 {
     public static class TestNodeExtensions
     {
+        private static Dictionary<string, RunState> RunStateDictionary = new Dictionary<string, RunState>()
+        {
+            {"Runnable",  RunState.Runnable},
+            {"NotRunnable",  RunState.NotRunnable},
+            {"Ignored",  RunState.Ignored},
+            {"Explicit",  RunState.Explicit},
+            {"Skipped",  RunState.Skipped},
+        };
+
         public static RunState GetRunState(this XmlNode node)
         {
             string state = node.GetAttribute("runstate");
-            switch (state)
-            {
-                case "Runnable":
-                    return RunState.Runnable;
+            if (string.IsNullOrEmpty(state))
+                return RunState.Unknown;
 
-                case "NotRunnable":
-                    return RunState.NotRunnable;
-
-                case "Ignored":
-                    return RunState.Ignored;
-
-                case "Explicit":
-                    return RunState.Explicit;
-
-                case "Skipped":
-                    return RunState.Skipped;
-
-                default:
-                    return RunState.Unknown;
-            }
+            return (RunStateDictionary.TryGetValue(state, out RunState runState)) ? runState : RunState.Unknown;
         }
 
         public static TimeSpan ParseDuration(this XmlNode report)
