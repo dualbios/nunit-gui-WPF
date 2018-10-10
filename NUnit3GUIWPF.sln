@@ -4,6 +4,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 15.0.28010.2036
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NUnit3GUIWPF", "NUnit3GUIWPF\NUnit3GUIWPF.csproj", "{B3CC72A0-9B2F-45ED-BBB5-FBEAD8DC7C32}"
+	ProjectSection(ProjectDependencies) = postProject
+		{F94F6F36-D6AF-4811-AF8F-36E6B0656E54} = {F94F6F36-D6AF-4811-AF8F-36E6B0656E54}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test4Test", "Test4Test\Test4Test.csproj", "{F94F6F36-D6AF-4811-AF8F-36E6B0656E54}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +20,10 @@ Global
 		{B3CC72A0-9B2F-45ED-BBB5-FBEAD8DC7C32}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B3CC72A0-9B2F-45ED-BBB5-FBEAD8DC7C32}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B3CC72A0-9B2F-45ED-BBB5-FBEAD8DC7C32}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F94F6F36-D6AF-4811-AF8F-36E6B0656E54}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F94F6F36-D6AF-4811-AF8F-36E6B0656E54}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F94F6F36-D6AF-4811-AF8F-36E6B0656E54}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F94F6F36-D6AF-4811-AF8F-36E6B0656E54}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

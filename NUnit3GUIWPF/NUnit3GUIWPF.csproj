@@ -171,7 +171,7 @@
     <Compile Include="Interfaces\IMainWindowViewModel.cs" />
     <Compile Include="Interfaces\IProjectViewModel.cs" />
     <Compile Include="Interfaces\IUnitTestEngine.cs" />
-    <Compile Include="Models\TestAction.cs" />
+    <Compile Include="Models\TestNodeExtensions.cs" />
     <Compile Include="Models\TestState.cs" />
     <Compile Include="Models\UnitTestEngine.cs" />
     <Compile Include="Views\ProjectView.xaml.cs">
@@ -185,12 +185,9 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Models\ResultNode.cs" />
-    <Compile Include="Models\ResultState.cs" />
     <Compile Include="Models\RunState.cs" />
     <Compile Include="Models\TestNode.cs" />
     <Compile Include="Models\TestStatus.cs" />
-    <Compile Include="Utils\XmlHelper.cs" />
     <Compile Include="ViewModels\MainWindowViewModel.cs" />
     <Compile Include="ViewModels\ProjectViewModel.cs" />
     <Compile Include="Views\MainWindow.xaml.cs">
@@ -229,7 +226,9 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Utils\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>

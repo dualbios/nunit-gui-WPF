@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.ComponentModel.Composition;
 using System.Linq;
@@ -14,7 +13,6 @@ using NUnit.Engine;
 using NUnit3GUIWPF.Converters;
 using NUnit3GUIWPF.Interfaces;
 using NUnit3GUIWPF.Models;
-using NUnit3GUIWPF.Utils;
 using NUnit3GUIWPF.Views;
 using ReactiveUI;
 
@@ -26,11 +24,7 @@ namespace NUnit3GUIWPF.ViewModels
     {
         private string _fileName;
         private bool _isRunning;
-        private ObservableCollection<string> _log = new ObservableCollection<string>();
-        private IDictionary<string, ResultNode> _resultIndex = new Dictionary<string, ResultNode>();
-
         private ITestEngine _testEngine;
-
         private IEnumerable<TestNode> flattenTests = new List<TestNode>();
 
         private IDictionary<string, Action<TestNode, XmlNode>> reportActions = new Dictionary<string, Action<TestNode, XmlNode>>()
@@ -41,17 +35,17 @@ namespace NUnit3GUIWPF.ViewModels
             {"test-case", (node, report) =>
             {
                 node.TestAction = TestState.Finished;
-                node.Duration = ParseDuration(report.GetAttribute("start"), report.GetAttribute("end"));
+                node.Duration = report.ParseDuration();
             }},
             {"test-suite", (node, report) =>
             {
                 node.TestAction = TestState.Finished;
-                node.Duration = ParseDuration(report.GetAttribute("start"), report.GetAttribute("end"));
+                node.Duration =  report.ParseDuration();
             }},
             {"test-run", (node, report) =>
             {
                 node.TestAction = TestState.Finished;
-                node.Duration = ParseDuration(report.GetAttribute("start"), report.GetAttribute("end"));
+                node.Duration =  report.ParseDuration();
             }},
         };
 
@@ -80,12 +74,6 @@ namespace NUnit3GUIWPF.ViewModels
             private set { this.RaiseAndSetIfChanged(ref _isRunning, value); }
         }
 
-        public ObservableCollection<string> Log
-        {
-            get => _log;
-            set => this.RaiseAndSetIfChanged(ref _log, value);
-        }
-
         public ReactiveCommand<Unit, Unit> RunAllTestCommand { get; }
 
         public ITestRunner Runner { get; private set; }
@@ -96,9 +84,12 @@ namespace NUnit3GUIWPF.ViewModels
 
         public void OnTestEvent(string report)
         {
-            XmlNode xmlNode = XmlHelper.CreateXmlNode(report);
-            string id = xmlNode.GetAttribute("id");
-            string name = xmlNode.GetAttribute("name");
+            XmlDocument doc = new XmlDocument();
+            doc.LoadXml(report);
+            XmlNode xmlNode = doc.FirstChild;
+
+            string id = xmlNode.Attributes["id"]?.Value;
+            string name = xmlNode.Attributes["name"]?.Value;
 
             if (string.IsNullOrEmpty(name) && xmlNode.Name != "test-output")
             {
@@ -123,19 +114,6 @@ namespace NUnit3GUIWPF.ViewModels
         {
             Application.Current.Dispatcher.Invoke(() => FileName = fileName);
             return LoadFile(fileName);
-        }
-
-        private static TimeSpan ParseDuration(string startTimeString, string endTimeString)
-        {
-            if (string.IsNullOrEmpty(startTimeString) || string.IsNullOrEmpty(endTimeString))
-                return TimeSpan.Zero;
-
-            TimeSpan startTime = TimeSpan.MinValue;
-            TimeSpan endTime = TimeSpan.MinValue;
-            TimeSpan.TryParse(startTimeString, out startTime);
-            TimeSpan.TryParse(endTimeString, out endTime);
-
-            return endTime - startTime;
         }
 
         private IEnumerable<TestNode> FlattenTests(TestNode test)
@@ -167,8 +145,6 @@ namespace NUnit3GUIWPF.ViewModels
 
         private Task RunAllTestAsync(CancellationToken arg)
         {
-            Log.Clear();
-            _resultIndex.Clear();
             Runner.RunAsync(this, TestFilter.Empty);
             IsRunning = true;
             return Task.CompletedTask;

@@ -23,7 +23,7 @@ namespace NUnit3GUIWPF.Models
             FullName = Xml.GetAttribute("fullname");
             Type = IsSuite ? GetAttribute("type") : "TestCase";
             TestCount = IsSuite ? GetAttribute("testcasecount", 0) : 1;
-            RunState = GetRunState();
+            RunState = Xml.GetRunState();
         }
 
         public TestNode(string xmlText) : this(XmlHelper.CreateXmlNode(xmlText))
@@ -74,22 +74,6 @@ namespace NUnit3GUIWPF.Models
 
         public XmlNode Xml { get; }
 
-        public string[] GetAllProperties(bool displayHiddenProperties)
-        {
-            var items = new List<string>();
-
-            foreach (XmlNode propNode in this.Xml.SelectNodes("properties/property"))
-            {
-                var name = propNode.GetAttribute("name");
-                var val = propNode.GetAttribute("value");
-                if (name != null && val != null)
-                    if (displayHiddenProperties || !name.StartsWith("_"))
-                        items.Add(name + " = " + FormatPropertyValue(val));
-            }
-
-            return items.ToArray();
-        }
-
         public string GetAttribute(string name)
         {
             return Xml.GetAttribute(name);
@@ -109,25 +93,6 @@ namespace NUnit3GUIWPF.Models
                 : null;
         }
 
-        // Get a comma-separated list of all properties having the specified name
-        public string GetPropertyList(string name)
-        {
-            var propList = Xml.SelectNodes("properties/property[@name='" + name + "']");
-            if (propList == null || propList.Count == 0) return string.Empty;
-
-            StringBuilder result = new StringBuilder();
-
-            foreach (XmlNode propNode in propList)
-            {
-                var val = propNode.GetAttribute("value");
-                if (result.Length > 0)
-                    result.Append(',');
-                result.Append(FormatPropertyValue(val));
-            }
-
-            return result.ToString();
-        }
-
         public TestFilter GetTestFilter()
         {
             return new TestFilter(string.Format("<filter><id>{0}</id></filter>", this.Id));
@@ -138,37 +103,6 @@ namespace NUnit3GUIWPF.Models
             return $"{Name} [{Id}]";
         }
 
-        private static string FormatPropertyValue(string val)
-        {
-            return val == null
-                ? "<null>"
-                : val == string.Empty
-                    ? "<empty>"
-                    : val;
-        }
-
-        private RunState GetRunState()
-        {
-            switch (GetAttribute("runstate"))
-            {
-                case "Runnable":
-                    return RunState.Runnable;
-
-                case "NotRunnable":
-                    return RunState.NotRunnable;
-
-                case "Ignored":
-                    return RunState.Ignored;
-
-                case "Explicit":
-                    return RunState.Explicit;
-
-                case "Skipped":
-                    return RunState.Skipped;
-
-                default:
-                    return RunState.Unknown;
-            }
-        }
+       
     }
 }

@@ -40,8 +40,13 @@
                             <Run Text="] " />
                             <Run Text="{Binding Name, Mode=OneWay}" />
                             <Run Text=" (" />
+                            <Run Text="{Binding RunState, Mode=OneWay}" />
+                            <Run Text=", " />
                             <Run Text="{Binding TestAction, Mode=OneWay}" />
                             <Run Text=") " />
+                            <Run Text="[" />
+                            <Run Text="{Binding Duration.TotalMilliseconds, Mode=OneWay}" />
+                            <Run Text="] " />
                         </TextBlock>
                     </StackPanel>
                 </HierarchicalDataTemplate>
