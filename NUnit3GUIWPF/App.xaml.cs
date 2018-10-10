@@ -9,6 +9,7 @@ using System.Windows;
 using DesktopBridge;
 using Microsoft.VisualStudio.Composition;
 using NUnit.Engine;
+using NUnit3GUIWPF.Interfaces;
 using NUnit3GUIWPF.ViewModels;
 using NUnit3GUIWPF.Views;
 
@@ -20,8 +21,9 @@ namespace NUnit3GUIWPF
     public partial class App : Application
     {
 
-        private async Task<bool> Compose(object parentInstance)
+        private async Task<ExportProvider> Compose(object parentInstance)
         {
+            ExportProvider exportProvider = null;
             PartDiscovery discovery = PartDiscovery.Combine(
                 new AttributedPartDiscovery(Resolver.DefaultInstance),
                 new AttributedPartDiscoveryV1(Resolver.DefaultInstance)); // ".NET MEF" attributes (System.ComponentModel.Composition)
@@ -51,7 +53,7 @@ namespace NUnit3GUIWPF
                 config.ThrowOnErrors();
 
                 IExportProviderFactory epf = config.CreateExportProviderFactory();
-                ExportProvider exportProvider = epf.CreateExportProvider();
+                exportProvider = epf.CreateExportProvider();
 
                 ICompositionService service = exportProvider.GetExportedValue<ICompositionService>();
                 service.SatisfyImportsOnce(parentInstance);
@@ -60,18 +62,19 @@ namespace NUnit3GUIWPF
             {
                 Console.WriteLine(e.Message);
 
-                return false;
+                return null;
             }
 
-            return true;
+            return exportProvider;
         }
 
-        protected override void OnStartup(StartupEventArgs e)
+        protected override async void OnStartup(StartupEventArgs e)
         {
-            Task.Run(async () => { await Compose(this); });
-            var testEngine = TestEngineActivator.CreateInstance(true);
+            ExportProvider provider = await Compose(this);
 
-            this.MainWindow = new MainWindow() { DataContext = new MainWindowViewModel(testEngine) };
+            IMainWindowViewModel mainWindowViewModel =  provider.GetExportedValue<IMainWindowViewModel>();
+
+            this.MainWindow = new MainWindow() { DataContext = mainWindowViewModel };
             this.MainWindow.Show();
         }
     }

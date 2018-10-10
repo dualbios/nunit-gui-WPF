@@ -6,12 +6,11 @@
         xmlns:local="clr-namespace:NUnit3GUIWPF"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
-    <Grid>
-        <StackPanel>
-            <TextBlock Text="{Binding File}"/>
+    <DockPanel LastChildFill="True">
+        <StackPanel DockPanel.Dock="Left" Orientation="Horizontal">
             <Button Content="Open" Command="{Binding OpenFileCommand}"/>
-            <Button Content="Run all" Command="{Binding RunAllTestCommand}"/>
+            <!--<Button Content="Run all" Command="{Binding RunAllTestCommand}"/>-->
         </StackPanel>
-        
-    </Grid>
+        <ContentControl Content="{Binding ProjectViewModel}"/>
+    </DockPanel>
 </Window>
