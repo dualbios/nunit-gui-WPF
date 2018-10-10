@@ -7,6 +7,7 @@ using System.Reactive;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Threading;
 using System.Xml;
 using Microsoft.VisualStudio.Composition;
 using NUnit.Engine;
@@ -48,6 +49,9 @@ namespace NUnit3GUIWPF.ViewModels
                 node.Duration =  report.ParseDuration();
             }},
         };
+
+        private IList<TestNode> runningTestNode = new List<TestNode>();
+        private DispatcherTimer timer = new DispatcherTimer();
 
         [ImportingConstructor]
         public ProjectViewModel(IUnitTestEngine engine)
@@ -102,11 +106,20 @@ namespace NUnit3GUIWPF.ViewModels
             if (reportActions.TryGetValue(xmlNode.Name, out Action<TestNode, XmlNode> nodeAction))
             {
                 nodeAction(testNode, xmlNode);
+                if (testNode.TestAction == TestState.Starting)
+                {
+                    runningTestNode.Add(testNode);
+                }
+                if (testNode.TestAction == TestState.Finished)
+                {
+                    runningTestNode.Remove(testNode);
+                }
             }
 
             if (xmlNode.Name == "test-run")
             {
                 Application.Current.Dispatcher.Invoke(() => { IsRunning = false; });
+                timer.Stop();
             }
         }
 
@@ -145,7 +158,18 @@ namespace NUnit3GUIWPF.ViewModels
 
         private Task RunAllTestAsync(CancellationToken arg)
         {
+            timer.Stop();
+            timer.Interval = TimeSpan.FromMilliseconds(100);
+            timer.Tick += (s, e) =>
+            {
+                foreach (TestNode tn in runningTestNode)
+                {
+                    tn.Duration = tn.Duration.Add(timer.Interval);
+                }
+            };
+            runningTestNode.Clear();
             Runner.RunAsync(this, TestFilter.Empty);
+            timer.Start();
             IsRunning = true;
             return Task.CompletedTask;
         }
