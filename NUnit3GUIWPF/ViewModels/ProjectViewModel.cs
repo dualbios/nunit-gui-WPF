@@ -162,6 +162,7 @@ namespace NUnit3GUIWPF.ViewModels
             timer.Interval = TimeSpan.FromMilliseconds(100);
             timer.Tick += (s, e) =>
             {
+                // TODO: implement concurent collection
                 foreach (TestNode tn in runningTestNode)
                 {
                     tn.Duration = tn.Duration.Add(timer.Interval);
