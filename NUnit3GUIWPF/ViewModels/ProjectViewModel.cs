@@ -122,7 +122,7 @@ namespace NUnit3GUIWPF.ViewModels
             Application.Current.Dispatcher.BeginInvoke(new Action(() => Log.Add(logLine)));
         }
 
-        public Task SetProjectFileAsync(string fileName)
+        public Task SetProjectFileAsync(string fileName, CancellationToken ct)
         {
             Application.Current.Dispatcher.Invoke(() => FileName = fileName);
             return LoadFile(fileName);
@@ -132,7 +132,8 @@ namespace NUnit3GUIWPF.ViewModels
         {
             var package = new TestPackage(file);
             Runner = _testEngine.GetRunner(package);
-            Tests = new TestNode(Runner.Explore(TestFilter.Empty));
+            XmlNode node = Runner.Explore(TestFilter.Empty);
+            Tests = new TestNode(node);
 
             return Task.CompletedTask;
         }
