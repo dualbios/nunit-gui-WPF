@@ -1,17 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Text;
-using System.Threading.Tasks;
 using System.Xml;
 using NUnit;
 using NUnit.Engine;
+using ReactiveUI;
 
 namespace NUnit3GUIWPF.Models
 {
-    public class TestNode 
+    public class TestNode : ReactiveObject
     {
-        #region Constructors
+        private List<TestNode> _children;
+        private TestAction _testAction;
 
         public TestNode(XmlNode xmlNode)
         {
@@ -25,22 +24,10 @@ namespace NUnit3GUIWPF.Models
             RunState = GetRunState();
         }
 
-        public TestNode(string xmlText) : this(XmlHelper.CreateXmlNode(xmlText)) { }
+        public TestNode(string xmlText) : this(XmlHelper.CreateXmlNode(xmlText))
+        {
+        }
 
-        #endregion
-
-        #region Public Properties
-
-        public XmlNode Xml { get; }
-        public bool IsSuite { get; }
-        public string Id { get; }
-        public string Name { get; }
-        public string FullName { get; }
-        public string Type { get; }
-        public int TestCount { get; }
-        public RunState RunState { get; }
-
-        private List<TestNode> _children;
         public IList<TestNode> Children
         {
             get
@@ -57,13 +44,42 @@ namespace NUnit3GUIWPF.Models
             }
         }
 
-        #endregion
+        public string FullName { get; }
 
-        #region Public Methods
+        public string Id { get; }
 
-        public TestFilter GetTestFilter()
+        public bool IsSuite { get; }
+
+        public string Name { get; }
+
+        public RunState RunState { get; }
+
+        public TestAction TestAction
         {
-            return new TestFilter(string.Format("<filter><id>{0}</id></filter>", this.Id));
+            get => _testAction;
+            set => this.RaiseAndSetIfChanged(ref _testAction, value);
+        }
+
+        public int TestCount { get; }
+
+        public string Type { get; }
+
+        public XmlNode Xml { get; }
+
+        public string[] GetAllProperties(bool displayHiddenProperties)
+        {
+            var items = new List<string>();
+
+            foreach (XmlNode propNode in this.Xml.SelectNodes("properties/property"))
+            {
+                var name = propNode.GetAttribute("name");
+                var val = propNode.GetAttribute("value");
+                if (name != null && val != null)
+                    if (displayHiddenProperties || !name.StartsWith("_"))
+                        items.Add(name + " = " + FormatPropertyValue(val));
+            }
+
+            return items.ToArray();
         }
 
         public string GetAttribute(string name)
@@ -104,25 +120,15 @@ namespace NUnit3GUIWPF.Models
             return result.ToString();
         }
 
-        public string[] GetAllProperties(bool displayHiddenProperties)
+        public TestFilter GetTestFilter()
         {
-            var items = new List<string>();
-
-            foreach (XmlNode propNode in this.Xml.SelectNodes("properties/property"))
-            {
-                var name = propNode.GetAttribute("name");
-                var val = propNode.GetAttribute("value");
-                if (name != null && val != null)
-                    if (displayHiddenProperties || !name.StartsWith("_"))
-                        items.Add(name + " = " + FormatPropertyValue(val));
-            }
-
-            return items.ToArray();
+            return new TestFilter(string.Format("<filter><id>{0}</id></filter>", this.Id));
         }
 
-        #endregion
-
-        #region Helper Methods
+        public override string ToString()
+        {
+            return $"{Name} [{Id}]";
+        }
 
         private static string FormatPropertyValue(string val)
         {
@@ -139,20 +145,22 @@ namespace NUnit3GUIWPF.Models
             {
                 case "Runnable":
                     return RunState.Runnable;
+
                 case "NotRunnable":
                     return RunState.NotRunnable;
+
                 case "Ignored":
                     return RunState.Ignored;
+
                 case "Explicit":
                     return RunState.Explicit;
+
                 case "Skipped":
                     return RunState.Skipped;
+
                 default:
                     return RunState.Unknown;
             }
         }
-
-        #endregion
     }
-
 }

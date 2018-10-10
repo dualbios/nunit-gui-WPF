@@ -24,5 +24,31 @@ namespace NUnit3GUIWPF.Views
         {
             InitializeComponent();
         }
+
+        private void ExpandAll_OnClick(object sender, RoutedEventArgs e)
+        {
+            TreeViewItem rootElement = (TreeViewItem) TestTreeView.ItemContainerGenerator.ContainerFromItem(TestTreeView.Items.GetItemAt(0));
+            rootElement.IsExpanded = true;
+            ExpandChildren(rootElement, true);
+        }
+
+        private void ExpandChildren(ItemsControl rootElement, bool expand)
+        {
+            (rootElement as TreeViewItem).IsExpanded = expand;
+            foreach (object item in rootElement.Items)
+            {
+                ItemsControl itemElement = (ItemsControl) TestTreeView.ItemContainerGenerator.ContainerFromItem(item);
+                if (itemElement != null)
+                {
+                    ExpandChildren(itemElement, expand);
+                }
+            }
+        }
+
+        private void CollapseAll_OnClick(object sender, RoutedEventArgs e)
+        {
+            TreeViewItem rootElement = (TreeViewItem) TestTreeView.ItemContainerGenerator.ContainerFromItem(TestTreeView.Items.GetItemAt(0));
+            ExpandChildren(rootElement, false);
+        }
     }
 }

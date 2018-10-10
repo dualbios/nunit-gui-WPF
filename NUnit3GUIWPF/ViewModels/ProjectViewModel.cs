@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.ComponentModel.Composition;
+using System.Linq;
 using System.Reactive;
-using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -31,14 +31,16 @@ namespace NUnit3GUIWPF.ViewModels
 
         private ITestEngine _testEngine;
 
+        private IEnumerable<TestNode> flattenTests = new List<TestNode>();
+
         [ImportingConstructor]
         public ProjectViewModel(IUnitTestEngine engine)
         {
             _testEngine = engine.TestEngine;
             RunAllTestCommand = ReactiveCommand.CreateFromTask(RunAllTestAsync,
                 this.WhenAny(
-                    vm => vm.FileName, 
-                    vm => vm.IsRunning, 
+                    vm => vm.FileName,
+                    vm => vm.IsRunning,
                     (p1, p2) => !string.IsNullOrEmpty(p1.Value) && !p2.Value));
             StopTestCommand = ReactiveCommand.CreateFromTask(StopTestAsync,
                 this.WhenAny(vm => vm.IsRunning, p => p.Value == true));
@@ -70,56 +72,39 @@ namespace NUnit3GUIWPF.ViewModels
 
         public TestNode Tests { get; private set; }
 
+        private IDictionary<string, Action<TestNode>> reportActions = new Dictionary<string, Action<TestNode>>()
+        {
+            { "start-test", node => { node.TestAction = TestAction.TestStarting; }},
+            { "start-suite", node => { node.TestAction = TestAction.SuiteStarting; }},
+            { "start-run", node => { node.TestAction = TestAction.RunStarting; }},
+            { "test-case", node => { node.TestAction = TestAction.TestFinished; }},
+            { "test-suite", node => { node.TestAction = TestAction.SuiteFinished; }},
+            { "test-run", node => { node.TestAction = TestAction.RunFinished; }},
+        };
+
         public void OnTestEvent(string report)
         {
             XmlNode xmlNode = XmlHelper.CreateXmlNode(report);
-            string logLine = null;
+            string id = xmlNode.GetAttribute("id");
+            string name = xmlNode.GetAttribute("name");
 
-            switch (xmlNode.Name)
+            if (string.IsNullOrEmpty(name) && xmlNode.Name!="test-output")
             {
-                case "start-test":
-                    //TestStarting?.Invoke(new TestNodeEventArgs(TestAction.TestStarting, new TestNode(xmlNode)));
-                    var rrr = new TestNode(xmlNode);
-                    logLine = $"start-test: {rrr.Name}";
-                    break;
 
-                case "start-suite":
-                    //SuiteStarting?.Invoke(new TestNodeEventArgs(TestAction.SuiteStarting, new TestNode(xmlNode)));
-                    var ddd = new TestNode(xmlNode);
-                    logLine = $"start-suite: {ddd.Name}";
-                    break;
-
-                case "start-run":
-                    //RunStarting?.Invoke(new RunStartingEventArgs(xmlNode.GetAttribute("count", -1)));
-                    var sss = xmlNode.GetAttribute("count", -1);
-                    logLine = $"start-run: {sss.ToString()}";
-                    break;
-
-                case "test-case":
-                    ResultNode result = new ResultNode(xmlNode);
-                    _resultIndex[result.Id] = result;
-                    logLine = $"test-case: ({result.Id})\r\n {result.Xml.InnerText}";
-                    //TestFinished?.Invoke(new TestResultEventArgs(TestAction.TestFinished, result));
-                    break;
-
-                case "test-suite":
-                    result = new ResultNode(xmlNode);
-                    _resultIndex[result.Id] = result;
-                    logLine = $"test-suite: ({result.Id})\r\n {result.Xml.InnerText}";
-                    //SuiteFinished?.Invoke(new TestResultEventArgs(TestAction.SuiteFinished, result));
-                    break;
-
-                case "test-run":
-                    result = new ResultNode(xmlNode);
-                    _resultIndex[result.Id] = result;
-                    logLine = $"test-run: ({result.Id})\r\n Status : {result.Status}; Duration : {result.Duration}; Test count : {result.TestCount}";
-                    Application.Current.Dispatcher.BeginInvoke(new Action(() => IsRunning = false));
-
-                    //RunFinished?.Invoke(new TestResultEventArgs(TestAction.RunFinished, result));
-                    break;
             }
 
-            Application.Current.Dispatcher.BeginInvoke(new Action(() => Log.Add(logLine)));
+            if (name == "test-run")
+            {
+                Application.Current.Dispatcher.Invoke(() => { IsRunning = false; });
+            }
+
+            TestNode testNode = flattenTests.FirstOrDefault(_ => _.Id == id);
+            if (testNode == null) return;
+
+            if (reportActions.TryGetValue(xmlNode.Name, out Action<TestNode> nodeAction))
+            {
+                nodeAction(testNode);
+            }
         }
 
         public Task SetProjectFileAsync(string fileName, CancellationToken ct)
@@ -128,12 +113,29 @@ namespace NUnit3GUIWPF.ViewModels
             return LoadFile(fileName);
         }
 
+        private IEnumerable<TestNode> FlattenTests(TestNode test)
+        {
+            yield return test;
+            foreach (TestNode child in test.Children)
+            {
+                foreach (TestNode node in FlattenTests(child))
+                {
+                    yield return node;
+                }
+            }
+
+            yield break;
+        }
+
         private Task LoadFile(string file)
         {
             var package = new TestPackage(file);
             Runner = _testEngine.GetRunner(package);
             XmlNode node = Runner.Explore(TestFilter.Empty);
             Tests = new TestNode(node);
+            flattenTests = FlattenTests(Tests).ToList();
+
+            this.RaisePropertyChanged(nameof(Tests));
 
             return Task.CompletedTask;
         }
