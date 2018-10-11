@@ -1,17 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace NUnit3GUIWPF.Views
 {
@@ -25,14 +13,20 @@ namespace NUnit3GUIWPF.Views
             InitializeComponent();
         }
 
-        private void ExpandAll_OnClick(object sender, RoutedEventArgs e)
+        private void CollapseAll_OnClick(object sender, RoutedEventArgs e)
         {
-            TreeViewItem rootElement = (TreeViewItem) TestTreeView.ItemContainerGenerator.ContainerFromItem(TestTreeView.Items.GetItemAt(0));
-            rootElement.IsExpanded = true;
-            ExpandChildren(rootElement, true);
+            TreeViewItem rootElement = (TreeViewItem)TestTreeView.ItemContainerGenerator.ContainerFromItem(TestTreeView.Items.GetItemAt(0));
+            ExpandChildren(rootElement, TestTreeView.ItemContainerGenerator, false);
         }
 
-        private void ExpandChildren(ItemsControl rootElement, bool expand)
+        private void ExpandAll_OnClick(object sender, RoutedEventArgs e)
+        {
+            TreeViewItem rootElement = (TreeViewItem)TestTreeView.ItemContainerGenerator.ContainerFromItem(TestTreeView.Items.GetItemAt(0));
+            rootElement.IsExpanded = true;
+            ExpandChildren(rootElement, TestTreeView.ItemContainerGenerator, true);
+        }
+
+        private void ExpandChildren(ItemsControl rootElement, ItemContainerGenerator parentContainerGenerator, bool expand)
         {
             (rootElement as TreeViewItem).IsExpanded = expand;
             foreach (object item in rootElement.Items)
@@ -40,15 +34,9 @@ namespace NUnit3GUIWPF.Views
                 ItemsControl itemElement = (ItemsControl)rootElement.ItemContainerGenerator.ContainerFromItem(item);
                 if (itemElement != null)
                 {
-                    ExpandChildren(itemElement, expand);
+                    ExpandChildren(itemElement, rootElement.ItemContainerGenerator, expand);
                 }
             }
-        }
-
-        private void CollapseAll_OnClick(object sender, RoutedEventArgs e)
-        {
-            TreeViewItem rootElement = (TreeViewItem) TestTreeView.ItemContainerGenerator.ContainerFromItem(TestTreeView.Items.GetItemAt(0));
-            ExpandChildren(rootElement, false);
         }
     }
 }

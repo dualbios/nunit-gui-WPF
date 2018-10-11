@@ -15,7 +15,7 @@
                                               IsReversed="True" />
     </Window.Resources>
     <Grid>
-        <Grid>
+        <Grid Visibility="{Binding IsProjectLoaded, Converter={StaticResource ReversedBoolToVisibilityConverter}}">
             <Grid Visibility="{Binding IsProjectLoading, Converter={StaticResource ReversedBoolToVisibilityConverter}}">
                 <StackPanel Orientation="Vertical"
                             HorizontalAlignment="Stretch"

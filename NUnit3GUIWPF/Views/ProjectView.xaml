@@ -5,52 +5,86 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:NUnit3GUIWPF.Views"
              xmlns:converters="clr-namespace:System.Windows.Controls;assembly=PresentationFramework"
+             xmlns:controls="clr-namespace:NUnit3GUIWPF.Controls"
              mc:Ignorable="d"
              d:DesignHeight="450"
              d:DesignWidth="800">
     <UserControl.Resources>
-        <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../Controls/TreeListViewResources.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+            <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+        </ResourceDictionary>
     </UserControl.Resources>
     <DockPanel LastChildFill="True">
         <StackPanel DockPanel.Dock="Top"
                     Orientation="Vertical">
-            <!--<TextBlock Text="{Binding FileName}" />-->
             <StackPanel Orientation="Horizontal">
                 <Button Content="Run All"
                         Command="{Binding RunAllTestCommand}" />
                 <Button Content="Stop"
                         Command="{Binding StopTestCommand}" />
-                <ContentControl Margin="2 0"/>
-                <Button Content="Expand All" Click="ExpandAll_OnClick"/>
-                <Button Content="Collapse All" Click="CollapseAll_OnClick"/>
+                <ContentControl Margin="2 0" />
+                <Button Content="Expand All"
+                        Click="ExpandAll_OnClick" />
+                <Button Content="Collapse All"
+                        Click="CollapseAll_OnClick" />
             </StackPanel>
 
             <ProgressBar IsIndeterminate="True"
                          Height="4"
                          Visibility="{Binding IsRunning, Converter={StaticResource BooleanToVisibilityConverter}}" />
         </StackPanel>
-        <TreeView ItemsSource="{Binding Tests.Children}"
-                  x:Name="TestTreeView">
-            <TreeView.ItemTemplate>
-                <HierarchicalDataTemplate ItemsSource="{Binding Children}">
-                    <StackPanel>
-                        <TextBlock>
-                            <Run Text="[" />
-                            <Run Text="{Binding Id, Mode=OneWay}" />
-                            <Run Text="] " />
-                            <Run Text="{Binding Name, Mode=OneWay}" />
-                            <Run Text=" (" />
-                            <Run Text="{Binding RunState, Mode=OneWay}" />
-                            <Run Text=", " />
-                            <Run Text="{Binding TestAction, Mode=OneWay}" />
-                            <Run Text=") " />
-                            <Run Text="[" />
-                            <Run Text="{Binding Duration.TotalMilliseconds, Mode=OneWay}" />
-                            <Run Text="] " />
-                        </TextBlock>
-                    </StackPanel>
-                </HierarchicalDataTemplate>
-            </TreeView.ItemTemplate>
-        </TreeView>
+        <controls:TreeListView AllowsColumnReorder="True"
+                               ItemsSource="{Binding Tests.Children}"
+                               x:Name="TestTreeView">
+            <controls:TreeListView.ItemTemplate>
+                <HierarchicalDataTemplate ItemsSource="{Binding Children}" />
+            </controls:TreeListView.ItemTemplate>
+            <controls:TreeListView.Columns>
+                <GridViewColumn Header="Name"
+                                Width="200">
+                    <GridViewColumn.CellTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal">
+                                <controls:TreeListViewExpander />
+                                <TextBlock>
+                                    <Run Text="[" />
+                                    <Run Text="{Binding Id, Mode=OneWay}" />
+                                    <Run Text="] " />
+                                    <Run Text="{Binding Name, Mode=OneWay}" />
+                                </TextBlock>
+                            </StackPanel>
+                        </DataTemplate>
+                    </GridViewColumn.CellTemplate>
+                </GridViewColumn>
+                <GridViewColumn Header="State"
+                                Width="100">
+                    <GridViewColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding RunState, Mode=OneWay}" />
+                        </DataTemplate>
+                    </GridViewColumn.CellTemplate>
+                </GridViewColumn>
+                <GridViewColumn Header="Action"
+                                Width="100">
+                    <GridViewColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding TestAction, Mode=OneWay}" />
+                        </DataTemplate>
+                    </GridViewColumn.CellTemplate>
+                </GridViewColumn>
+
+                <GridViewColumn Header="Duration"
+                                Width="100">
+                    <GridViewColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Duration.TotalMilliseconds, Mode=OneWay}" />
+                        </DataTemplate>
+                    </GridViewColumn.CellTemplate>
+                </GridViewColumn>
+            </controls:TreeListView.Columns>
+        </controls:TreeListView>
     </DockPanel>
 </UserControl>
