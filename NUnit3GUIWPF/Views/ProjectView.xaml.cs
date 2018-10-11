@@ -37,7 +37,7 @@ namespace NUnit3GUIWPF.Views
             (rootElement as TreeViewItem).IsExpanded = expand;
             foreach (object item in rootElement.Items)
             {
-                ItemsControl itemElement = (ItemsControl) TestTreeView.ItemContainerGenerator.ContainerFromItem(item);
+                ItemsControl itemElement = (ItemsControl)rootElement.ItemContainerGenerator.ContainerFromItem(item);
                 if (itemElement != null)
                 {
                     ExpandChildren(itemElement, expand);
