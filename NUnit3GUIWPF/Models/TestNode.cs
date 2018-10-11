@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Xml;
 using NUnit;
 using NUnit.Engine;
@@ -12,6 +11,7 @@ namespace NUnit3GUIWPF.Models
     {
         private List<TestNode> _children;
         private TimeSpan _duration;
+        private string _output;
         private TestState _testAction;
 
         public TestNode(XmlNode xmlNode)
@@ -60,6 +60,12 @@ namespace NUnit3GUIWPF.Models
 
         public string Name { get; }
 
+        public string Output
+        {
+            get => _output;
+            set => this.RaiseAndSetIfChanged(ref _output, value);
+        }
+
         public RunState RunState { get; }
 
         public TestState TestAction
@@ -102,7 +108,5 @@ namespace NUnit3GUIWPF.Models
         {
             return $"{Name} [{Id}]";
         }
-
-       
     }
 }

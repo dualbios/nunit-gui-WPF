@@ -105,14 +105,14 @@ namespace NUnit3GUIWPF.ViewModels
 
             string id = xmlNode.Attributes["id"]?.Value;
             string name = xmlNode.Attributes["name"]?.Value;
-
-            if (string.IsNullOrEmpty(name) && xmlNode.Name != "test-output")
-            {
-                // TODO: implement test output
-            }
-
             TestNode testNode = flattenTests.FirstOrDefault(_ => _.Id == id);
             if (testNode == null) return;
+
+            if (xmlNode.Name == "test-output")
+            {
+                testNode.Output = xmlNode.Value;
+                return;
+            }
 
             if (reportActions.TryGetValue(xmlNode.Name, out Action<TestNode, XmlNode> nodeAction))
             {
