@@ -6,6 +6,8 @@
              xmlns:local="clr-namespace:NUnit3GUIWPF.Views"
              xmlns:converters="clr-namespace:System.Windows.Controls;assembly=PresentationFramework"
              xmlns:controls="clr-namespace:NUnit3GUIWPF.Controls"
+             xmlns:behaviours="clr-namespace:NUnit3GUIWPF.Behaviors"
+             xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
              mc:Ignorable="d"
              d:DesignHeight="450"
              d:DesignWidth="800">
@@ -23,22 +25,24 @@
             <StackPanel Orientation="Horizontal">
                 <Button Content="Run All"
                         Command="{Binding RunAllTestCommand}" />
+                <Button Content="Run Selected"
+                        Command="{Binding RunSelectedTestCommand}" />
                 <Button Content="Stop"
                         Command="{Binding StopTestCommand}" />
                 <ContentControl Margin="2 0" />
-                <Button Content="Expand All"
-                        Click="ExpandAll_OnClick" />
-                <Button Content="Collapse All"
-                        Click="CollapseAll_OnClick" />
             </StackPanel>
 
-            <ProgressBar IsIndeterminate="True"
-                         Height="4"
+            <Grid Height="4">
+                <ProgressBar IsIndeterminate="True"
                          Visibility="{Binding IsRunning, Converter={StaticResource BooleanToVisibilityConverter}}" />
+            </Grid>
         </StackPanel>
         <controls:TreeListView AllowsColumnReorder="True"
                                ItemsSource="{Binding Tests.Children}"
                                x:Name="TestTreeView">
+            <i:Interaction.Behaviors>
+                <behaviours:BindableSelectedItemBehavior SelectedItem="{Binding SelectedItem, Mode=TwoWay}" />
+            </i:Interaction.Behaviors>
             <controls:TreeListView.ItemTemplate>
                 <HierarchicalDataTemplate ItemsSource="{Binding Children}" />
             </controls:TreeListView.ItemTemplate>

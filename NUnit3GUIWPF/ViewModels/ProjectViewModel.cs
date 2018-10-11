@@ -24,6 +24,7 @@ namespace NUnit3GUIWPF.ViewModels
     {
         private string _fileName;
         private bool _isRunning;
+        private TestNode _selectedItem;
         private ITestEngine _testEngine;
         private IEnumerable<TestNode> flattenTests = new List<TestNode>();
 
@@ -53,13 +54,19 @@ namespace NUnit3GUIWPF.ViewModels
         public ProjectViewModel(IUnitTestEngine engine)
         {
             _testEngine = engine.TestEngine;
-            RunAllTestCommand = ReactiveCommand.CreateFromTask(RunAllTestAsync,
+            RunAllTestCommand = ReactiveCommand.CreateFromTask(
+                RunAllTestAsync,
                 this.WhenAny(
                     vm => vm.FileName,
                     vm => vm.IsRunning,
                     (p1, p2) => !string.IsNullOrEmpty(p1.Value) && !p2.Value));
-            StopTestCommand = ReactiveCommand.CreateFromTask(StopTestAsync,
+            StopTestCommand = ReactiveCommand.CreateFromTask(
+                StopTestAsync,
                 this.WhenAny(vm => vm.IsRunning, p => p.Value == true));
+
+            RunSelectedTestCommand = ReactiveCommand.CreateFromTask(
+                RunSelectedTestAsync,
+                this.WhenAny(vm => vm.SelectedItem, p => p.Value != null));
         }
 
         public string FileName
@@ -77,6 +84,14 @@ namespace NUnit3GUIWPF.ViewModels
         public ReactiveCommand<Unit, Unit> RunAllTestCommand { get; }
 
         public ITestRunner Runner { get; private set; }
+
+        public ReactiveCommand<Unit, Unit> RunSelectedTestCommand { get; }
+
+        public TestNode SelectedItem
+        {
+            get => _selectedItem;
+            set => this.RaiseAndSetIfChanged(ref _selectedItem, value);
+        }
 
         public ReactiveCommand<Unit, Unit> StopTestCommand { get; }
 
@@ -146,6 +161,13 @@ namespace NUnit3GUIWPF.ViewModels
         private Task RunAllTestAsync(CancellationToken arg)
         {
             Runner.RunAsync(this, TestFilter.Empty);
+            IsRunning = true;
+            return Task.CompletedTask;
+        }
+
+        private Task RunSelectedTestAsync(CancellationToken arg)
+        {
+            Runner.RunAsync(this, SelectedItem.GetTestFilter());
             IsRunning = true;
             return Task.CompletedTask;
         }
