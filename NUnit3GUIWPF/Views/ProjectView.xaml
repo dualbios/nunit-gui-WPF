@@ -15,6 +15,7 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="../Controls/TreeListViewResources.xaml" />
+                <ResourceDictionary Source="../Assets/Icons.xaml" />
             </ResourceDictionary.MergedDictionaries>
             <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
         </ResourceDictionary>
@@ -23,12 +24,39 @@
         <StackPanel DockPanel.Dock="Top"
                     Orientation="Vertical">
             <StackPanel Orientation="Horizontal">
-                <Button Content="Run All"
-                        Command="{Binding RunAllTestCommand}" />
-                <Button Content="Run Selected"
-                        Command="{Binding RunSelectedTestCommand}" />
-                <Button Content="Stop"
-                        Command="{Binding StopTestCommand}" />
+                <Button Command="{Binding RunAllTestCommand}" >
+                    <Button.Content>
+                        <StackPanel Orientation="Vertical">
+                            <ContentControl Content="{StaticResource RunAllIcon}"
+                                            Width="32"
+                                            Height="32"
+                                            Foreground="DarkBlue"/>
+                            <Label Content="Run All"/>
+                        </StackPanel>
+                    </Button.Content>
+                </Button>
+                <Button Command="{Binding RunSelectedTestCommand}" >
+                    <Button.Content>
+                        <StackPanel Orientation="Vertical">
+                            <ContentControl Content="{StaticResource RunSelectedIcon}"
+                                            Width="32"
+                                            Height="32"
+                                            Foreground="DarkBlue"/>
+                            <Label Content="Run Selected"/>
+                        </StackPanel>
+                    </Button.Content>
+                </Button>
+                <Button Command="{Binding StopTestCommand}" >
+                     <Button.Content>
+                        <StackPanel Orientation="Vertical">
+                            <ContentControl Content="{StaticResource StopIcon}"
+                                            Width="32"
+                                            Height="32"
+                                            Foreground="DarkBlue"/>
+                            <Label Content="Stop"/>
+                        </StackPanel>
+                    </Button.Content>
+                </Button>
                 <ContentControl Margin="2 0" />
             </StackPanel>
 
