@@ -6,11 +6,11 @@
     <local:TreeListViewConverter x:Key="TreeListViewConverter" />
 
     <!--Control Template for TreeViewItem's.-->
-    <ControlTemplate TargetType="TreeViewItem" x:Key="TreeListViewItem">
+    <ControlTemplate TargetType="TreeViewItem" x:Key="TreeListViewItem" >
         <!--Grid containing the current information and the subnodes.-->
         <StackPanel>
             <!--Border wrapping the content presenter.-->
-            <Border x:Name="Border">
+            <Border x:Name="Border" >
                 <!--GridViewRowPrsenter containing the current information.-->
                 <GridViewRowPresenter Content="{TemplateBinding Header}"
                     Columns="{Binding Columns,
@@ -29,10 +29,10 @@
             <Trigger Property="IsSelected" Value="true">
                 <!--Change the background color-->
                 <Setter TargetName="Border" Property="Background"
-                    Value="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}" />
+                    Value="#666666" />
                 <!--Change the foreground color-->
                 <Setter Property="Foreground"
-                    Value="{DynamicResource {x:Static SystemColors.HighlightTextBrushKey}}" />
+                    Value="#808080" />
             </Trigger>
             <!--Trigger used to change the color based on selection-->
             <MultiTrigger>
@@ -42,7 +42,7 @@
                 </MultiTrigger.Conditions>
                 <!--Change the background color-->
                 <Setter TargetName="Border" Property="Background"
-                    Value="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" />
+                    Value="#cccccc" />
                 <!--Change the foreground color-->
                 <Setter Property="Foreground"
                     Value="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}" />
@@ -139,7 +139,7 @@
                                 </Grid.RowDefinitions>
                                 <!--The header row.-->
                                 <GridViewHeaderRowPresenter Columns="{TemplateBinding Columns}"
-                                    AllowsColumnReorder="{TemplateBinding AllowsColumnReorder}" />
+                                    AllowsColumnReorder="{TemplateBinding AllowsColumnReorder}"/>
                                 <!--ScrollViewer providing vertical scrolling
                                 functionality for the content.-->
                                 <ScrollViewer HorizontalScrollBarVisibility="Disabled"

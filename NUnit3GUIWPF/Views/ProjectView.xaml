@@ -23,16 +23,24 @@
             </ResourceDictionary.MergedDictionaries>
             <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
 
+            <Style TargetType="GridViewColumnHeader">
+                <Setter Property="Background"
+                        Value="Transparent" />
+                <Setter Property="Foreground"
+                        Value="White" />
+            </Style>
+
         </ResourceDictionary>
     </UserControl.Resources>
     <DockPanel LastChildFill="True">
         <StackPanel DockPanel.Dock="Top"
                     Orientation="Vertical">
-            <Grid>
+            <Grid Margin="8">
                 <StackPanel Orientation="Horizontal"
                             HorizontalAlignment="Left">
                     <Button Command="{Binding RunAllTestCommand}"
-                            Style="{StaticResource ProjectToolButtonStyle}">
+                            Style="{StaticResource ProjectToolButtonStyle}"
+                            Margin="0 0 4 0">
                         <Button.Content>
                             <StackPanel Orientation="Vertical">
                                 <ContentControl Content="{StaticResource RunAllIcon}"
@@ -67,7 +75,8 @@
                 </StackPanel>
                 <Button Command="{Binding CloseProjectCommand}"
                         HorizontalAlignment="Right"
-                        Style="{StaticResource ProjectToolButtonStyle}">
+                        Style="{StaticResource ProjectToolButtonStyle}"
+                        Margin="0 0 0 0">
                     <Button.Content>
                         <StackPanel Orientation="Vertical">
                             <ContentControl Style="{StaticResource IconContentControlStyle}" />
@@ -86,7 +95,16 @@
         </StackPanel>
         <controls:TreeListView AllowsColumnReorder="True"
                                ItemsSource="{Binding Tests.Children}"
+                               Foreground="White"
                                x:Name="TestTreeView">
+            <controls:TreeListView.Resources>
+                <Style TargetType="TextBlock"
+                       x:Key="TextBlockStyle">
+                    <Setter Property="Foreground"
+                            Value="#f2f2f2" />
+                    <Setter Property="FontSize" Value="14"/>
+                </Style>
+            </controls:TreeListView.Resources>
             <i:Interaction.Behaviors>
                 <behaviours:BindableSelectedItemBehavior SelectedItem="{Binding SelectedItem, Mode=TwoWay}" />
             </i:Interaction.Behaviors>
@@ -100,7 +118,7 @@
                         <DataTemplate>
                             <StackPanel Orientation="Horizontal">
                                 <controls:TreeListViewExpander />
-                                <TextBlock>
+                                <TextBlock Style="{StaticResource TextBlockStyle}">
                                     <Run Text="[" />
                                     <Run Text="{Binding Id, Mode=OneWay}" />
                                     <Run Text="] " />
@@ -114,7 +132,8 @@
                                 Width="100">
                     <GridViewColumn.CellTemplate>
                         <DataTemplate>
-                            <TextBlock Text="{Binding RunState, Mode=OneWay}" />
+                            <TextBlock Text="{Binding RunState, Mode=OneWay}"
+                                       Style="{StaticResource TextBlockStyle}" />
                         </DataTemplate>
                     </GridViewColumn.CellTemplate>
                 </GridViewColumn>
@@ -122,7 +141,8 @@
                                 Width="100">
                     <GridViewColumn.CellTemplate>
                         <DataTemplate>
-                            <TextBlock Text="{Binding TestAction, Mode=OneWay}" />
+                            <TextBlock Text="{Binding TestAction, Mode=OneWay}"
+                                       Style="{StaticResource TextBlockStyle}" />
                         </DataTemplate>
                     </GridViewColumn.CellTemplate>
                 </GridViewColumn>
@@ -131,11 +151,13 @@
                                 Width="100">
                     <GridViewColumn.CellTemplate>
                         <DataTemplate>
-                            <TextBlock Text="{Binding Duration.TotalMilliseconds, Mode=OneWay}" />
+                            <TextBlock Text="{Binding Duration.TotalMilliseconds, Mode=OneWay}"
+                                       Style="{StaticResource TextBlockStyle}" />
                         </DataTemplate>
                     </GridViewColumn.CellTemplate>
                 </GridViewColumn>
             </controls:TreeListView.Columns>
+
         </controls:TreeListView>
     </DockPanel>
 </UserControl>

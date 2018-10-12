@@ -62,6 +62,7 @@
                                 <ContentControl Content="{StaticResource OpenIcon}"
                                                 Width="64"
                                                 Height="64"
+                                                Margin="4"
                                                 Foreground="DarkBlue" />
                                 <Label Content="Open"
                                        HorizontalContentAlignment="Center" />
@@ -74,8 +75,10 @@
                         HorizontalAlignment="Center"
                         VerticalAlignment="Center"
                         Visibility="{Binding IsProjectLoading, Converter={StaticResource BoolToVisibilityConverter}}">
-                <TextBlock Text="Loading project ..."
-                           HorizontalAlignment="Center" />
+                <Label Content="Loading project ..."
+                       Foreground="AliceBlue"
+                       HorizontalContentAlignment="Center"
+                       HorizontalAlignment="Center" />
                 <Button Content="Cancel"
                         Command="{Binding CancelLoadingProjectCommand}" />
             </StackPanel>
