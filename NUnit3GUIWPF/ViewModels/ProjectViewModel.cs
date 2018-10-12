@@ -27,6 +27,8 @@ namespace NUnit3GUIWPF.ViewModels
         private TestNode _selectedItem;
         private ITestEngine _testEngine;
         private IEnumerable<TestNode> flattenTests = new List<TestNode>();
+        public IDictionary<string, object> PackageSettings { get; private set; } 
+
 
         private IDictionary<string, Action<TestNode, XmlNode>> reportActions = new Dictionary<string, Action<TestNode, XmlNode>>()
         {
@@ -126,10 +128,11 @@ namespace NUnit3GUIWPF.ViewModels
             }
         }
 
-        public Task SetProjectFileAsync(string fileName, CancellationToken ct)
+        public Task SetProjectFileAsync(string fileName, IDictionary<string, object> packageSettings, CancellationToken ct)
         {
             Application.Current.Dispatcher.Invoke(() => FileName = fileName);
-            return LoadFile(fileName);
+            return LoadFile(fileName, 
+                packageSettings);
         }
 
         private IEnumerable<TestNode> FlattenTests(TestNode test)
@@ -143,11 +146,17 @@ namespace NUnit3GUIWPF.ViewModels
             yield break;
         }
 
-        private async Task LoadFile(string file)
+        private async Task LoadFile(string file, IDictionary<string, object> packageSettings)
         {
             await Task.Run(() =>
             {
                 var package = new TestPackage(file);
+                PackageSettings = packageSettings;
+                foreach (var entry in PackageSettings)
+                {
+                    package.AddSetting(entry.Key, entry.Value);
+                }
+
                 Runner = _testEngine.GetRunner(package);
                 XmlNode node = Runner.Explore(TestFilter.Empty);
                 Tests = new TestNode(node);

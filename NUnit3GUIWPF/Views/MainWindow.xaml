@@ -31,9 +31,7 @@
                      Stretch="Fill">
             <VisualBrush.Visual>
                 <ContentControl Content="{StaticResource MainBackground}" />
-
             </VisualBrush.Visual>
-
         </VisualBrush>
     </Window.Background>
 
@@ -70,6 +68,14 @@
                         </Button.Content>
                     </Button>
                 </StackPanel>
+
+                <StackPanel Orientation="Vertical"
+                            HorizontalAlignment="Right"
+                            VerticalAlignment="Bottom"
+                            Margin="8">
+                    <CheckBox IsChecked="{Binding IsRunAsX86}"
+                              Content="Run as x86" />
+                </StackPanel>
             </Grid>
             <StackPanel Orientation="Vertical"
                         HorizontalAlignment="Center"
@@ -85,6 +91,5 @@
         </Grid>
         <ContentControl Content="{Binding ProjectViewModel}"
                         Visibility="{Binding IsProjectLoaded, Converter={StaticResource BoolToVisibilityConverter}}" />
-
     </Grid>
 </Window>
