@@ -86,6 +86,7 @@ namespace NUnit3GUIWPF.ViewModels
         public ITestRunner Runner { get; private set; }
 
         public ReactiveCommand<Unit, Unit> RunSelectedTestCommand { get; }
+        public ReactiveCommand<Unit, Unit> CloseProjectCommand { get; }
 
         public TestNode SelectedItem
         {

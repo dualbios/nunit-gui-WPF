@@ -14,55 +14,74 @@
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../Themes/MetroDark/MetroDark.MSControls.Core.Implicit.xaml" />
+                <ResourceDictionary Source="../Themes/MetroDark/MetroDark.MSControls.Toolkit.Implicit.xaml" />
+
                 <ResourceDictionary Source="../Controls/TreeListViewResources.xaml" />
+                <ResourceDictionary Source="../Assets/ControlStyles.xaml" />
                 <ResourceDictionary Source="../Assets/Icons.xaml" />
             </ResourceDictionary.MergedDictionaries>
             <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+
         </ResourceDictionary>
     </UserControl.Resources>
     <DockPanel LastChildFill="True">
         <StackPanel DockPanel.Dock="Top"
                     Orientation="Vertical">
-            <StackPanel Orientation="Horizontal">
-                <Button Command="{Binding RunAllTestCommand}" >
+            <Grid>
+                <StackPanel Orientation="Horizontal"
+                            HorizontalAlignment="Left">
+                    <Button Command="{Binding RunAllTestCommand}"
+                            Style="{StaticResource ProjectToolButtonStyle}">
+                        <Button.Content>
+                            <StackPanel Orientation="Vertical">
+                                <ContentControl Content="{StaticResource RunAllIcon}"
+                                                Style="{StaticResource IconContentControlStyle}" />
+                                <Label Content="Run All"
+                                       HorizontalContentAlignment="Center" />
+                            </StackPanel>
+                        </Button.Content>
+                    </Button>
+                    <Button Command="{Binding RunSelectedTestCommand}"
+                            Style="{StaticResource ProjectToolButtonStyle}">
+                        <Button.Content>
+                            <StackPanel Orientation="Vertical">
+                                <ContentControl Content="{StaticResource RunSelectedIcon}"
+                                                Style="{StaticResource IconContentControlStyle}" />
+                                <Label Content="Run Selected"
+                                       HorizontalContentAlignment="Center" />
+                            </StackPanel>
+                        </Button.Content>
+                    </Button>
+                    <Button Command="{Binding StopTestCommand}"
+                            Style="{StaticResource ProjectToolButtonStyle}">
+                        <Button.Content>
+                            <StackPanel Orientation="Vertical">
+                                <ContentControl Content="{StaticResource StopIcon}"
+                                                Style="{StaticResource IconContentControlStyle}" />
+                                <Label Content="Stop"
+                                       HorizontalContentAlignment="Center" />
+                            </StackPanel>
+                        </Button.Content>
+                    </Button>
+                </StackPanel>
+                <Button Command="{Binding CloseProjectCommand}"
+                        HorizontalAlignment="Right"
+                        Style="{StaticResource ProjectToolButtonStyle}">
                     <Button.Content>
                         <StackPanel Orientation="Vertical">
-                            <ContentControl Content="{StaticResource RunAllIcon}"
-                                            Width="32"
-                                            Height="32"
-                                            Foreground="DarkBlue"/>
-                            <Label Content="Run All"/>
+                            <ContentControl Style="{StaticResource IconContentControlStyle}" />
+                            <Label Content="Close"
+                                   HorizontalContentAlignment="Center" />
                         </StackPanel>
                     </Button.Content>
                 </Button>
-                <Button Command="{Binding RunSelectedTestCommand}" >
-                    <Button.Content>
-                        <StackPanel Orientation="Vertical">
-                            <ContentControl Content="{StaticResource RunSelectedIcon}"
-                                            Width="32"
-                                            Height="32"
-                                            Foreground="DarkBlue"/>
-                            <Label Content="Run Selected"/>
-                        </StackPanel>
-                    </Button.Content>
-                </Button>
-                <Button Command="{Binding StopTestCommand}" >
-                     <Button.Content>
-                        <StackPanel Orientation="Vertical">
-                            <ContentControl Content="{StaticResource StopIcon}"
-                                            Width="32"
-                                            Height="32"
-                                            Foreground="DarkBlue"/>
-                            <Label Content="Stop"/>
-                        </StackPanel>
-                    </Button.Content>
-                </Button>
-                <ContentControl Margin="2 0" />
-            </StackPanel>
+            </Grid>
 
-            <Grid Height="4">
+            <Grid Height="4"
+                  Margin="0 4">
                 <ProgressBar IsIndeterminate="True"
-                         Visibility="{Binding IsRunning, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                             Visibility="{Binding IsRunning, Converter={StaticResource BooleanToVisibilityConverter}}" />
             </Grid>
         </StackPanel>
         <controls:TreeListView AllowsColumnReorder="True"
