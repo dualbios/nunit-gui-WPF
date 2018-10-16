@@ -1,10 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
 using System.ComponentModel.Composition;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using NUnit;
+using System.Windows;
 using NUnit3GUIWPF.Interfaces;
 using ReactiveUI;
 
@@ -16,7 +16,6 @@ namespace NUnit3GUIWPF.ViewModels
         private string _fileName;
         private ObservableAsPropertyHelper<bool> _isProjectLoaded;
         private ObservableAsPropertyHelper<bool> _isProjectLoading;
-        private bool _isRunAsX86;
 
         [ImportingConstructor]
         public MainWindowViewModel()
@@ -48,29 +47,21 @@ namespace NUnit3GUIWPF.ViewModels
         public ReactiveCommand<Unit, bool> OpenFileCommand { get; }
 
         [Import]
-        public IProjectViewModel ProjectViewModel { get; private set; }
+        public IPackageSettingsViewModel PackageSettingsViewModel { get; private set; }
 
-        public bool IsRunAsX86
-        {
-            get => _isRunAsX86;
-            set => this.RaiseAndSetIfChanged(ref _isRunAsX86, value);
-        }
+        [Import]
+        public IProjectViewModel ProjectViewModel { get; private set; }
 
         private async Task<bool> OpenFileAsync(CancellationToken ct)
         {
             try
             {
-                IDictionary<string, object> settings = new Dictionary<string, object>();
-                if (IsRunAsX86)
-                {
-                    settings.Add(EnginePackageSettings.RunAsX86, true);
-                }
-
-                await ProjectViewModel.SetProjectFileAsync(FileName, settings, ct);
+                await ProjectViewModel.SetProjectFileAsync(FileName, PackageSettingsViewModel.GetSettings(), ct);
                 return true;
             }
-            catch
+            catch(Exception e)
             {
+                MessageBox.Show(e.Message);
                 return false;
             }
         }

@@ -186,11 +186,18 @@
     <Compile Include="Converters\BoolToVisibilityConverter.cs" />
     <Compile Include="Converters\ViewModelToViewConverter.cs" />
     <Compile Include="Interfaces\IMainWindowViewModel.cs" />
+    <Compile Include="Interfaces\IPackageSettingsViewModel.cs" />
     <Compile Include="Interfaces\IProjectViewModel.cs" />
     <Compile Include="Interfaces\IUnitTestEngine.cs" />
+    <Compile Include="Models\DefaultRuntimeFramework.cs" />
+    <Compile Include="Models\PackageSettings.cs" />
     <Compile Include="Models\TestNodeExtensions.cs" />
     <Compile Include="Models\TestState.cs" />
     <Compile Include="Models\UnitTestEngine.cs" />
+    <Compile Include="ViewModels\PackageSettingsViewModel.cs" />
+    <Compile Include="Views\PackageSettingsView.xaml.cs">
+      <DependentUpon>PackageSettingsView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\ProjectView.xaml.cs">
       <DependentUpon>ProjectView.xaml</DependentUpon>
     </Compile>
@@ -243,6 +250,10 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="Views\PackageSettingsView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\ProjectView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

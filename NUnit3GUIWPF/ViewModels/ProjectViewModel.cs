@@ -27,29 +27,33 @@ namespace NUnit3GUIWPF.ViewModels
         private TestNode _selectedItem;
         private ITestEngine _testEngine;
         private IEnumerable<TestNode> flattenTests = new List<TestNode>();
-        public IDictionary<string, object> PackageSettings { get; private set; } 
-
 
         private IDictionary<string, Action<TestNode, XmlNode>> reportActions = new Dictionary<string, Action<TestNode, XmlNode>>()
         {
             {"start-test", (node, report) => { node.TestAction = TestState.Starting; }},
             {"start-suite", (node, report) => { node.TestAction = TestState.Starting; }},
             {"start-run", (node, report) => { node.TestAction = TestState.Starting; }},
-            {"test-case", (node, report) =>
             {
-                node.TestAction = TestState.Finished;
-                node.Duration = report.ParseDuration();
-            }},
-            {"test-suite", (node, report) =>
+                "test-case", (node, report) =>
+                {
+                    node.TestAction = TestState.Finished;
+                    node.Duration = report.ParseDuration();
+                }
+            },
             {
-                node.TestAction = TestState.Finished;
-                node.Duration =  report.ParseDuration();
-            }},
-            {"test-run", (node, report) =>
+                "test-suite", (node, report) =>
+                {
+                    node.TestAction = TestState.Finished;
+                    node.Duration = report.ParseDuration();
+                }
+            },
             {
-                node.TestAction = TestState.Finished;
-                node.Duration =  report.ParseDuration();
-            }},
+                "test-run", (node, report) =>
+                {
+                    node.TestAction = TestState.Finished;
+                    node.Duration = report.ParseDuration();
+                }
+            },
         };
 
         [ImportingConstructor]
@@ -71,6 +75,8 @@ namespace NUnit3GUIWPF.ViewModels
                 this.WhenAny(vm => vm.SelectedItem, p => p.Value != null));
         }
 
+        public ReactiveCommand<Unit, Unit> CloseProjectCommand { get; }
+
         public string FileName
         {
             get => _fileName;
@@ -83,12 +89,13 @@ namespace NUnit3GUIWPF.ViewModels
             private set { this.RaiseAndSetIfChanged(ref _isRunning, value); }
         }
 
+        public IDictionary<string, object> PackageSettings { get; private set; }
+
         public ReactiveCommand<Unit, Unit> RunAllTestCommand { get; }
 
         public ITestRunner Runner { get; private set; }
 
         public ReactiveCommand<Unit, Unit> RunSelectedTestCommand { get; }
-        public ReactiveCommand<Unit, Unit> CloseProjectCommand { get; }
 
         public TestNode SelectedItem
         {
@@ -131,7 +138,7 @@ namespace NUnit3GUIWPF.ViewModels
         public Task SetProjectFileAsync(string fileName, IDictionary<string, object> packageSettings, CancellationToken ct)
         {
             Application.Current.Dispatcher.Invoke(() => FileName = fileName);
-            return LoadFile(fileName, 
+            return LoadFile(fileName,
                 packageSettings);
         }
 
@@ -152,7 +159,9 @@ namespace NUnit3GUIWPF.ViewModels
             {
                 var package = new TestPackage(file);
                 PackageSettings = packageSettings;
-                foreach (var entry in PackageSettings)
+                foreach (var entry in PackageSettings
+                    .Where(p => p.Value != null)
+                    .Where(s => (s.Value is string) == false || string.Equals("Default", s.Value as string, StringComparison.InvariantCultureIgnoreCase) == false))
                 {
                     package.AddSetting(entry.Key, entry.Value);
                 }
