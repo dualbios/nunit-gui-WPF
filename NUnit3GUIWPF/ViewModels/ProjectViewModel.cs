@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.ComponentModel.Composition;
 using System.Linq;
 using System.Reactive;
+using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -76,6 +77,7 @@ namespace NUnit3GUIWPF.ViewModels
         }
 
         public ReactiveCommand<Unit, Unit> CloseProjectCommand { get; }
+        public ReactiveCommand<Unit, Unit> LoadProjectCommand { get; }
 
         public string FileName
         {
@@ -135,11 +137,12 @@ namespace NUnit3GUIWPF.ViewModels
             }
         }
 
-        public Task SetProjectFileAsync(string fileName, IDictionary<string, object> packageSettings, CancellationToken ct)
+        public void SetProjectFileAsync(string fileName, IDictionary<string, object> packageSettings)
         {
             Application.Current.Dispatcher.Invoke(() => FileName = fileName);
-            return LoadFile(fileName,
-                packageSettings);
+            Task.Run(async () => await LoadFile(fileName, packageSettings));
+            //return LoadFile(fileName,
+            //    packageSettings);
         }
 
         private IEnumerable<TestNode> FlattenTests(TestNode test)
@@ -153,23 +156,43 @@ namespace NUnit3GUIWPF.ViewModels
             yield break;
         }
 
+        public bool IsProjectLoading
+        {
+            get => _isProjectLoading;
+            set => this.RaiseAndSetIfChanged(ref _isProjectLoading, value);
+        }
+
+        private bool _isProjectLoading;
+
+
         private async Task LoadFile(string file, IDictionary<string, object> packageSettings)
         {
             await Task.Run(() =>
             {
-                var package = new TestPackage(file);
-                PackageSettings = packageSettings;
-                foreach (var entry in PackageSettings
-                    .Where(p => p.Value != null)
-                    .Where(s => (s.Value is string) == false || string.Equals("Default", s.Value as string, StringComparison.InvariantCultureIgnoreCase) == false))
+                try
                 {
-                    package.AddSetting(entry.Key, entry.Value);
-                }
+                    IsProjectLoading = true;
+                    var package = new TestPackage(file);
+                    PackageSettings = packageSettings;
+                    foreach (var entry in PackageSettings
+                        .Where(p => p.Value != null)
+                        .Where(s => (s.Value is string) == false || string.Equals("Default", s.Value as string, StringComparison.InvariantCultureIgnoreCase) == false))
+                    {
+                        package.AddSetting(entry.Key, entry.Value);
+                    }
 
-                Runner = _testEngine.GetRunner(package);
-                XmlNode node = Runner.Explore(TestFilter.Empty);
-                Tests = new TestNode(node);
-                flattenTests = FlattenTests(Tests).ToList();
+                    Runner = _testEngine.GetRunner(package);
+                    XmlNode node = Runner.Explore(TestFilter.Empty);
+                    Tests = new TestNode(node);
+                    flattenTests = FlattenTests(Tests).ToList();
+                }
+                catch (Exception e)
+                {
+                }
+                finally
+                {
+                    IsProjectLoading = false;
+                }
             });
 
             this.RaisePropertyChanged(nameof(Tests));

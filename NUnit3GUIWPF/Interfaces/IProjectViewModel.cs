@@ -6,6 +6,6 @@ namespace NUnit3GUIWPF.Interfaces
 {
     public interface IProjectViewModel
     {
-        Task SetProjectFileAsync(string fileName, IDictionary<string, object> packageSettings, CancellationToken ct);
+        void SetProjectFileAsync(string fileName, IDictionary<string, object> packageSettings);
     }
 }

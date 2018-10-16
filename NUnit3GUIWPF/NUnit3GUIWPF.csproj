@@ -185,6 +185,7 @@
     <Compile Include="Controls\TreeListView.cs" />
     <Compile Include="Converters\BoolToVisibilityConverter.cs" />
     <Compile Include="Converters\ViewModelToViewConverter.cs" />
+    <Compile Include="Interfaces\IExportProvider.cs" />
     <Compile Include="Interfaces\IMainWindowViewModel.cs" />
     <Compile Include="Interfaces\IPackageSettingsViewModel.cs" />
     <Compile Include="Interfaces\IProjectViewModel.cs" />

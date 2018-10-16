@@ -20,7 +20,6 @@ namespace NUnit3GUIWPF
     /// </summary>
     public partial class App : Application
     {
-
         private async Task<ExportProvider> Compose(object parentInstance)
         {
             ExportProvider exportProvider = null;
@@ -72,10 +71,20 @@ namespace NUnit3GUIWPF
         {
             ExportProvider provider = await Compose(this);
 
+            IExportProvider ggg =  provider.GetExportedValue<IExportProvider>();
+            PropertyInfo pi = typeof(ExportProviderImp).GetProperty("Provider");
+            pi.SetValue(ggg, provider, null);
+
             IMainWindowViewModel mainWindowViewModel =  provider.GetExportedValue<IMainWindowViewModel>();
 
             this.MainWindow = new MainWindow() { DataContext = mainWindowViewModel };
             this.MainWindow.Show();
+        }
+
+        [Export(typeof(IExportProvider))]
+        sealed public class ExportProviderImp : IExportProvider
+        {
+            public ExportProvider Provider { get; private set; }
         }
     }
 }
