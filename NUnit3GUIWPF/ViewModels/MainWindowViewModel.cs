@@ -1,8 +1,10 @@
-﻿using System.ComponentModel.Composition;
+﻿using System;
+using System.ComponentModel.Composition;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
 using NUnit3GUIWPF.Interfaces;
 using ReactiveUI;
 
@@ -45,17 +47,21 @@ namespace NUnit3GUIWPF.ViewModels
         public ReactiveCommand<Unit, bool> OpenFileCommand { get; }
 
         [Import]
+        public IPackageSettingsViewModel PackageSettingsViewModel { get; private set; }
+
+        [Import]
         public IProjectViewModel ProjectViewModel { get; private set; }
 
         private async Task<bool> OpenFileAsync(CancellationToken ct)
         {
             try
             {
-                await ProjectViewModel.SetProjectFileAsync(FileName, ct);
+                await ProjectViewModel.SetProjectFileAsync(FileName, PackageSettingsViewModel.GetSettings(), ct);
                 return true;
             }
-            catch
+            catch(Exception e)
             {
+                MessageBox.Show(e.Message);
                 return false;
             }
         }

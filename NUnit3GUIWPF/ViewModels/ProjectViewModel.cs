@@ -33,21 +33,27 @@ namespace NUnit3GUIWPF.ViewModels
             {"start-test", (node, report) => { node.TestAction = TestState.Starting; }},
             {"start-suite", (node, report) => { node.TestAction = TestState.Starting; }},
             {"start-run", (node, report) => { node.TestAction = TestState.Starting; }},
-            {"test-case", (node, report) =>
             {
-                node.TestAction = TestState.Finished;
-                node.Duration = report.ParseDuration();
-            }},
-            {"test-suite", (node, report) =>
+                "test-case", (node, report) =>
+                {
+                    node.TestAction = TestState.Finished;
+                    node.Duration = report.ParseDuration();
+                }
+            },
             {
-                node.TestAction = TestState.Finished;
-                node.Duration =  report.ParseDuration();
-            }},
-            {"test-run", (node, report) =>
+                "test-suite", (node, report) =>
+                {
+                    node.TestAction = TestState.Finished;
+                    node.Duration = report.ParseDuration();
+                }
+            },
             {
-                node.TestAction = TestState.Finished;
-                node.Duration =  report.ParseDuration();
-            }},
+                "test-run", (node, report) =>
+                {
+                    node.TestAction = TestState.Finished;
+                    node.Duration = report.ParseDuration();
+                }
+            },
         };
 
         [ImportingConstructor]
@@ -69,6 +75,8 @@ namespace NUnit3GUIWPF.ViewModels
                 this.WhenAny(vm => vm.SelectedItem, p => p.Value != null));
         }
 
+        public ReactiveCommand<Unit, Unit> CloseProjectCommand { get; }
+
         public string FileName
         {
             get => _fileName;
@@ -81,12 +89,13 @@ namespace NUnit3GUIWPF.ViewModels
             private set { this.RaiseAndSetIfChanged(ref _isRunning, value); }
         }
 
+        public IDictionary<string, object> PackageSettings { get; private set; }
+
         public ReactiveCommand<Unit, Unit> RunAllTestCommand { get; }
 
         public ITestRunner Runner { get; private set; }
 
         public ReactiveCommand<Unit, Unit> RunSelectedTestCommand { get; }
-        public ReactiveCommand<Unit, Unit> CloseProjectCommand { get; }
 
         public TestNode SelectedItem
         {
@@ -126,10 +135,11 @@ namespace NUnit3GUIWPF.ViewModels
             }
         }
 
-        public Task SetProjectFileAsync(string fileName, CancellationToken ct)
+        public Task SetProjectFileAsync(string fileName, IDictionary<string, object> packageSettings, CancellationToken ct)
         {
             Application.Current.Dispatcher.Invoke(() => FileName = fileName);
-            return LoadFile(fileName);
+            return LoadFile(fileName,
+                packageSettings);
         }
 
         private IEnumerable<TestNode> FlattenTests(TestNode test)
@@ -143,11 +153,19 @@ namespace NUnit3GUIWPF.ViewModels
             yield break;
         }
 
-        private async Task LoadFile(string file)
+        private async Task LoadFile(string file, IDictionary<string, object> packageSettings)
         {
             await Task.Run(() =>
             {
                 var package = new TestPackage(file);
+                PackageSettings = packageSettings;
+                foreach (var entry in PackageSettings
+                    .Where(p => p.Value != null)
+                    .Where(s => (s.Value is string) == false || string.Equals("Default", s.Value as string, StringComparison.InvariantCultureIgnoreCase) == false))
+                {
+                    package.AddSetting(entry.Key, entry.Value);
+                }
+
                 Runner = _testEngine.GetRunner(package);
                 XmlNode node = Runner.Explore(TestFilter.Empty);
                 Tests = new TestNode(node);
