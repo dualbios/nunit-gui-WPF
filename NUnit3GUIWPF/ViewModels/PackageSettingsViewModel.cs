@@ -15,13 +15,14 @@ using ReactiveUI;
 namespace NUnit3GUIWPF.ViewModels
 {
     [Export(typeof(IPackageSettingsViewModel))]
+    [PartCreationPolicy(System.ComponentModel.Composition.CreationPolicy.NonShared)]
     [TypeConverter(typeof(ViewModelToViewConverter<PackageSettingsViewModel, PackageSettingsView>))]
     public class PackageSettingsViewModel : ReactiveObject, IPackageSettingsViewModel
     {
         [ImportingConstructor]
         public PackageSettingsViewModel(IUnitTestEngine engine)
         {
-            Runtimes = new[] { new DefaultRuntimeFramework() }
+            Runtimes = new[] {new DefaultRuntimeFramework()}
                 .Concat(engine.TestEngine.Services.GetService<IAvailableRuntimes>().AvailableRuntimes)
                 .ToList();
         }

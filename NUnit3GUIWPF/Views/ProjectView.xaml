@@ -4,10 +4,12 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:NUnit3GUIWPF.Views"
-             xmlns:converters="clr-namespace:System.Windows.Controls;assembly=PresentationFramework"
+             xmlns:converters="clr-namespace:NUnit3GUIWPF.Converters"
              xmlns:controls="clr-namespace:NUnit3GUIWPF.Controls"
              xmlns:behaviours="clr-namespace:NUnit3GUIWPF.Behaviors"
              xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
+             xmlns:views="clr-namespace:NUnit3GUIWPF.Views"
+             xmlns:converters1="clr-namespace:NUnit3GUIWPF.Converters"
              mc:Ignorable="d"
              d:DesignHeight="450"
              d:DesignWidth="800">
@@ -21,8 +23,9 @@
                 <ResourceDictionary Source="../Assets/ControlStyles.xaml" />
                 <ResourceDictionary Source="../Assets/Icons.xaml" />
             </ResourceDictionary.MergedDictionaries>
-            <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
-
+            <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+            <converters:BoolToVisibilityConverter x:Key="ReversedBoolToVisibilityConverter"
+                                                  IsReversed="True" />
             <Style TargetType="GridViewColumnHeader">
                 <Setter Property="Background"
                         Value="Transparent" />
@@ -32,132 +35,154 @@
 
         </ResourceDictionary>
     </UserControl.Resources>
-    <DockPanel LastChildFill="True">
-        <StackPanel DockPanel.Dock="Top"
-                    Orientation="Vertical">
-            <Grid Margin="8">
-                <StackPanel Orientation="Horizontal"
-                            HorizontalAlignment="Left">
-                    <Button Command="{Binding RunAllTestCommand}"
+    <Grid>
+        <DockPanel LastChildFill="True"
+                   Visibility="{Binding IsProjectLoaded, Converter={StaticResource BoolToVisibilityConverter}}">
+            <StackPanel DockPanel.Dock="Top"
+                        Orientation="Vertical">
+                <Grid Margin="8">
+                    <StackPanel Orientation="Horizontal"
+                                HorizontalAlignment="Left">
+                        <Button Command="{Binding RunAllTestCommand}"
+                                Style="{StaticResource ProjectToolButtonStyle}"
+                                Margin="0 0 4 0">
+                            <Button.Content>
+                                <StackPanel Orientation="Vertical">
+                                    <ContentControl Content="{StaticResource RunAllIcon}"
+                                                    Style="{StaticResource IconContentControlStyle}" />
+                                    <Label Content="Run All"
+                                           HorizontalContentAlignment="Center" />
+                                </StackPanel>
+                            </Button.Content>
+                        </Button>
+                        <Button Command="{Binding RunSelectedTestCommand}"
+                                Style="{StaticResource ProjectToolButtonStyle}">
+                            <Button.Content>
+                                <StackPanel Orientation="Vertical">
+                                    <ContentControl Content="{StaticResource RunSelectedIcon}"
+                                                    Style="{StaticResource IconContentControlStyle}" />
+                                    <Label Content="Run Selected"
+                                           HorizontalContentAlignment="Center" />
+                                </StackPanel>
+                            </Button.Content>
+                        </Button>
+                        <Button Command="{Binding StopTestCommand}"
+                                Style="{StaticResource ProjectToolButtonStyle}">
+                            <Button.Content>
+                                <StackPanel Orientation="Vertical">
+                                    <ContentControl Content="{StaticResource StopIcon}"
+                                                    Style="{StaticResource IconContentControlStyle}" />
+                                    <Label Content="Stop"
+                                           HorizontalContentAlignment="Center" />
+                                </StackPanel>
+                            </Button.Content>
+                        </Button>
+                    </StackPanel>
+                    <Button Command="{Binding CloseProjectCommand}"
+                            HorizontalAlignment="Right"
                             Style="{StaticResource ProjectToolButtonStyle}"
-                            Margin="0 0 4 0">
+                            Margin="0 0 0 0">
                         <Button.Content>
                             <StackPanel Orientation="Vertical">
-                                <ContentControl Content="{StaticResource RunAllIcon}"
-                                                Style="{StaticResource IconContentControlStyle}" />
-                                <Label Content="Run All"
+                                <ContentControl Style="{StaticResource IconContentControlStyle}" />
+                                <Label Content="Close"
                                        HorizontalContentAlignment="Center" />
                             </StackPanel>
                         </Button.Content>
                     </Button>
-                    <Button Command="{Binding RunSelectedTestCommand}"
-                            Style="{StaticResource ProjectToolButtonStyle}">
-                        <Button.Content>
-                            <StackPanel Orientation="Vertical">
-                                <ContentControl Content="{StaticResource RunSelectedIcon}"
-                                                Style="{StaticResource IconContentControlStyle}" />
-                                <Label Content="Run Selected"
-                                       HorizontalContentAlignment="Center" />
-                            </StackPanel>
-                        </Button.Content>
-                    </Button>
-                    <Button Command="{Binding StopTestCommand}"
-                            Style="{StaticResource ProjectToolButtonStyle}">
-                        <Button.Content>
-                            <StackPanel Orientation="Vertical">
-                                <ContentControl Content="{StaticResource StopIcon}"
-                                                Style="{StaticResource IconContentControlStyle}" />
-                                <Label Content="Stop"
-                                       HorizontalContentAlignment="Center" />
-                            </StackPanel>
-                        </Button.Content>
-                    </Button>
-                </StackPanel>
-                <Button Command="{Binding CloseProjectCommand}"
-                        HorizontalAlignment="Right"
-                        Style="{StaticResource ProjectToolButtonStyle}"
-                        Margin="0 0 0 0">
-                    <Button.Content>
-                        <StackPanel Orientation="Vertical">
-                            <ContentControl Style="{StaticResource IconContentControlStyle}" />
-                            <Label Content="Close"
-                                   HorizontalContentAlignment="Center" />
-                        </StackPanel>
-                    </Button.Content>
-                </Button>
-            </Grid>
+                </Grid>
 
-            <Grid Height="4"
-                  Margin="0 4">
-                <ProgressBar IsIndeterminate="True"
-                             Visibility="{Binding IsRunning, Converter={StaticResource BooleanToVisibilityConverter}}" />
-            </Grid>
+                <Grid Height="4"
+                      Margin="0 4">
+                    <ProgressBar IsIndeterminate="True"
+                                 Visibility="{Binding IsRunning, Converter={StaticResource BoolToVisibilityConverter}}" />
+                </Grid>
+            </StackPanel>
+            <controls:TreeListView AllowsColumnReorder="True"
+                                   ItemsSource="{Binding Tests.Children}"
+                                   Foreground="White"
+                                   x:Name="TestTreeView">
+                <controls:TreeListView.Resources>
+                    <Style TargetType="TextBlock"
+                           x:Key="TextBlockStyle">
+                        <Setter Property="Foreground"
+                                Value="#f2f2f2" />
+                        <Setter Property="FontSize"
+                                Value="14" />
+                    </Style>
+                </controls:TreeListView.Resources>
+                <i:Interaction.Behaviors>
+                    <behaviours:BindableSelectedItemBehavior SelectedItem="{Binding SelectedItem, Mode=TwoWay}" />
+                </i:Interaction.Behaviors>
+                <controls:TreeListView.ItemTemplate>
+                    <HierarchicalDataTemplate ItemsSource="{Binding Children}" />
+                </controls:TreeListView.ItemTemplate>
+                <controls:TreeListView.Columns>
+                    <GridViewColumn Header="Name"
+                                    Width="200">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <controls:TreeListViewExpander />
+                                    <TextBlock Style="{StaticResource TextBlockStyle}">
+                                        <Run Text="[" />
+                                        <Run Text="{Binding Id, Mode=OneWay}" />
+                                        <Run Text="] " />
+                                        <Run Text="{Binding Name, Mode=OneWay}" />
+                                    </TextBlock>
+                                </StackPanel>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn Header="State"
+                                    Width="100">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding RunState, Mode=OneWay}"
+                                           Style="{StaticResource TextBlockStyle}" />
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn Header="Action"
+                                    Width="100">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding TestAction, Mode=OneWay}"
+                                           Style="{StaticResource TextBlockStyle}" />
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+
+                    <GridViewColumn Header="Duration"
+                                    Width="100">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Duration.TotalMilliseconds, Mode=OneWay}"
+                                           Style="{StaticResource TextBlockStyle}" />
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                </controls:TreeListView.Columns>
+
+            </controls:TreeListView>
+        </DockPanel>
+        <StackPanel Orientation="Vertical"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Visibility="{Binding IsProjectLoading, Converter={StaticResource BoolToVisibilityConverter}}">
+            <Label Content="Loading project ..."
+                   Foreground="AliceBlue"
+                   HorizontalContentAlignment="Center"
+                   HorizontalAlignment="Center" />
+            <Button Content="Cancel"
+                    Command="{Binding CancelLoadingProjectCommand}" />
         </StackPanel>
-        <controls:TreeListView AllowsColumnReorder="True"
-                               ItemsSource="{Binding Tests.Children}"
-                               Foreground="White"
-                               x:Name="TestTreeView">
-            <controls:TreeListView.Resources>
-                <Style TargetType="TextBlock"
-                       x:Key="TextBlockStyle">
-                    <Setter Property="Foreground"
-                            Value="#f2f2f2" />
-                    <Setter Property="FontSize" Value="14"/>
-                </Style>
-            </controls:TreeListView.Resources>
-            <i:Interaction.Behaviors>
-                <behaviours:BindableSelectedItemBehavior SelectedItem="{Binding SelectedItem, Mode=TwoWay}" />
-            </i:Interaction.Behaviors>
-            <controls:TreeListView.ItemTemplate>
-                <HierarchicalDataTemplate ItemsSource="{Binding Children}" />
-            </controls:TreeListView.ItemTemplate>
-            <controls:TreeListView.Columns>
-                <GridViewColumn Header="Name"
-                                Width="200">
-                    <GridViewColumn.CellTemplate>
-                        <DataTemplate>
-                            <StackPanel Orientation="Horizontal">
-                                <controls:TreeListViewExpander />
-                                <TextBlock Style="{StaticResource TextBlockStyle}">
-                                    <Run Text="[" />
-                                    <Run Text="{Binding Id, Mode=OneWay}" />
-                                    <Run Text="] " />
-                                    <Run Text="{Binding Name, Mode=OneWay}" />
-                                </TextBlock>
-                            </StackPanel>
-                        </DataTemplate>
-                    </GridViewColumn.CellTemplate>
-                </GridViewColumn>
-                <GridViewColumn Header="State"
-                                Width="100">
-                    <GridViewColumn.CellTemplate>
-                        <DataTemplate>
-                            <TextBlock Text="{Binding RunState, Mode=OneWay}"
-                                       Style="{StaticResource TextBlockStyle}" />
-                        </DataTemplate>
-                    </GridViewColumn.CellTemplate>
-                </GridViewColumn>
-                <GridViewColumn Header="Action"
-                                Width="100">
-                    <GridViewColumn.CellTemplate>
-                        <DataTemplate>
-                            <TextBlock Text="{Binding TestAction, Mode=OneWay}"
-                                       Style="{StaticResource TextBlockStyle}" />
-                        </DataTemplate>
-                    </GridViewColumn.CellTemplate>
-                </GridViewColumn>
-
-                <GridViewColumn Header="Duration"
-                                Width="100">
-                    <GridViewColumn.CellTemplate>
-                        <DataTemplate>
-                            <TextBlock Text="{Binding Duration.TotalMilliseconds, Mode=OneWay}"
-                                       Style="{StaticResource TextBlockStyle}" />
-                        </DataTemplate>
-                    </GridViewColumn.CellTemplate>
-                </GridViewColumn>
-            </controls:TreeListView.Columns>
-
-        </controls:TreeListView>
-    </DockPanel>
+        <Grid Visibility="{Binding IsProjectLoading, Converter={StaticResource ReversedBoolToVisibilityConverter}}">
+            <views:OpenProjectView
+                Visibility="{Binding IsProjectLoaded, Converter={StaticResource ReversedBoolToVisibilityConverter}}" />
+            <ContentControl Content="{Binding PackageSettingsViewModel}"
+                            HorizontalAlignment="Right"
+                            VerticalAlignment="Bottom" />
+        </Grid>
+    </Grid>
 </UserControl>
