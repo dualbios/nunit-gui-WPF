@@ -2,6 +2,6 @@
 {
     public interface IContainerViewModel
     {
-        object Header { get; }
+        string Header { get; set; }
     }
 }
