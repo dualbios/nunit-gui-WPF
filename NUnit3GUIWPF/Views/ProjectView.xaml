@@ -78,18 +78,7 @@
                             </Button.Content>
                         </Button>
                     </StackPanel>
-                    <Button Command="{Binding CloseProjectCommand}"
-                            HorizontalAlignment="Right"
-                            Style="{StaticResource ProjectToolButtonStyle}"
-                            Margin="0 0 0 0">
-                        <Button.Content>
-                            <StackPanel Orientation="Vertical">
-                                <ContentControl Style="{StaticResource IconContentControlStyle}" />
-                                <Label Content="Close"
-                                       HorizontalContentAlignment="Center" />
-                            </StackPanel>
-                        </Button.Content>
-                    </Button>
+                    
                 </Grid>
 
                 <Grid Height="4"
@@ -182,7 +171,8 @@
                 Visibility="{Binding IsProjectLoaded, Converter={StaticResource ReversedBoolToVisibilityConverter}}" />
             <ContentControl Content="{Binding PackageSettingsViewModel}"
                             HorizontalAlignment="Right"
-                            VerticalAlignment="Bottom" />
+                            VerticalAlignment="Bottom"
+                            Visibility="{Binding IsProjectLoaded, Converter={StaticResource ReversedBoolToVisibilityConverter}}"/>
         </Grid>
     </Grid>
 </UserControl>

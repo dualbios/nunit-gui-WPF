@@ -20,7 +20,6 @@ using ReactiveUI;
 namespace NUnit3GUIWPF.ViewModels
 {
     [Export(typeof(IProjectViewModel))]
-    [Export(typeof(IContainerViewModel))]
     [PartCreationPolicy(System.ComponentModel.Composition.CreationPolicy.NonShared)]
     [TypeConverter(typeof(ViewModelToViewConverter<ProjectViewModel, ProjectView>))]
     public class ProjectViewModel : ReactiveObject, IProjectViewModel, ITestEventListener
@@ -99,7 +98,6 @@ namespace NUnit3GUIWPF.ViewModels
 
         public ReactiveCommand<Unit, Unit> CancelLoadingProjectCommand { get; }
 
-        public ReactiveCommand<Unit, Unit> CloseProjectCommand { get; }
 
         public string FileName
         {

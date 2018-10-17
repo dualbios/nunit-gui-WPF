@@ -2,9 +2,13 @@
 
 namespace NUnit3GUIWPF.Interfaces
 {
-    public interface IProjectViewModel : IContainerViewModel
+    public interface IProjectViewModel 
     {
         string FileName { get; }
+
+        string Header { get; set; }
+
+        bool IsRunning { get; }
 
         ProjectState State { get; }
     }

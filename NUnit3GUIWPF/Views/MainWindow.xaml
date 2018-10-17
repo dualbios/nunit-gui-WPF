@@ -8,7 +8,8 @@
         mc:Ignorable="d"
         Title="MainWindow"
         Height="450"
-        Width="800">
+        Width="800"
+        x:Name="MainWindow2">
 
     <Window.Resources>
         <ResourceDictionary>
@@ -19,6 +20,7 @@
                 <ResourceDictionary Source="../Themes/MetroDark/MetroDark.MSControls.Toolkit.Implicit.xaml" />
             </ResourceDictionary.MergedDictionaries>
             <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+            <converters:ProjectStateToEnableConverter x:Key="ProjectStateToEnableConverter" />
             <converters:BoolToVisibilityConverter x:Key="ReversedBoolToVisibilityConverter"
                                                   IsReversed="True" />
         </ResourceDictionary>
@@ -50,20 +52,33 @@
                          BorderThickness="0">
                     <ListBox.ItemTemplate>
                         <DataTemplate>
-                            <StackPanel Orientation="Vertical">
-                                <Label Content="{Binding Header}"
-                                       FontSize="14"
-                                       Foreground="AliceBlue" />
-                                <TextBlock Text="{Binding FileName}"
-                                           MaxWidth="150"
-                                           TextTrimming="CharacterEllipsis"
-                                           ToolTip="{Binding Text, RelativeSource={RelativeSource Self}}"
-                                           FontSize="12"
-                                           Foreground="#FFBABABA" />
-                                <TextBlock Text="{Binding State}"
-                                           FontSize="12"
-                                           Foreground="#FFBABABA" />
-                            </StackPanel>
+                            <Grid>
+                                <StackPanel Orientation="Vertical">
+                                    <Label Content="{Binding Header}"
+                                           FontSize="14"
+                                           Foreground="AliceBlue" />
+                                    <TextBlock Text="{Binding FileName}"
+                                               MaxWidth="150"
+                                               TextTrimming="CharacterEllipsis"
+                                               ToolTip="{Binding Text, RelativeSource={RelativeSource Self}}"
+                                               FontSize="12"
+                                               Foreground="#FFBABABA" />
+                                    <TextBlock Text="{Binding State}"
+                                               FontSize="12"
+                                               Foreground="#FFBABABA" />
+                                    <Grid Height="4"
+                                          Margin="0 4">
+                                        <ProgressBar IsIndeterminate="True"
+                                                     Visibility="{Binding IsRunning, Converter={StaticResource BoolToVisibilityConverter}}" />
+                                    </Grid>
+                                </StackPanel>
+                                <Button Content="X"
+                                        Command="{Binding DataContext.CloseProjectCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"
+                                        CommandParameter="{Binding}"
+                                        HorizontalAlignment="Right"
+                                        VerticalAlignment="Top"
+                                        IsEnabled="{Binding State, Converter={StaticResource ProjectStateToEnableConverter}}"/>
+                            </Grid>
                         </DataTemplate>
                     </ListBox.ItemTemplate>
                 </ListBox>
