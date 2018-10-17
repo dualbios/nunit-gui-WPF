@@ -34,50 +34,48 @@
             </VisualBrush.Visual>
         </VisualBrush>
     </Window.Background>
+    <DockPanel LastChildFill="True">
+        <Button Margin="16"
+                DockPanel.Dock="Top"
+                Command="{Binding AddProjectCommand}"
+                HorizontalAlignment="Center"
+                Content="Add" />
+        <TabControl ItemsSource="{Binding Projects, Mode=OneWay}"
+                    SelectedItem="{Binding CurrentViewModel}"
+                    Background="Transparent">
+            <TabControl.Resources>
+                <Style TargetType="TabItem">
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="TabItem">
+                                <Grid Name="Panel">
+                                    <ContentPresenter x:Name="ContentSite"
+                                                      VerticalAlignment="Center"
+                                                      HorizontalAlignment="Center"
+                                                      ContentSource="Header"
+                                                      Margin="10,2" />
+                                </Grid>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsSelected"
+                                             Value="True">
+                                        <Setter TargetName="Panel"
+                                                Property="Background"
+                                                Value="LightSkyBlue" />
 
-    <Grid>
-
-        <Grid >
-            <Grid>
-                <StackPanel Orientation="Vertical"
-                            HorizontalAlignment="Stretch"
-                            VerticalAlignment="Center">
-                    <DockPanel LastChildFill="True"
-                               Margin="32">
-                        <Button Content="..."
-                                Width="32"
-                                DockPanel.Dock="Right"
-                                Margin="4 0"
-                                Click="SelectFile_OnClick" />
-                        <TextBox x:Name="FileNameTextBox"
-                                 Text="{Binding FileName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-                    </DockPanel>
-                    <Button Margin="16"
-                            Command="{Binding OpenFileCommand}"
-                            HorizontalAlignment="Center">
-                        <Button.Content>
-                            <StackPanel Orientation="Vertical">
-                                <ContentControl Content="{StaticResource OpenIcon}"
-                                                Width="64"
-                                                Height="64"
-                                                Margin="4"
-                                                Foreground="DarkBlue" />
-                                <Label Content="Open"
-                                       HorizontalContentAlignment="Center" />
-                            </StackPanel>
-                        </Button.Content>
-                    </Button>
-                </StackPanel>
-
-                <StackPanel Orientation="Vertical"
-                            HorizontalAlignment="Right"
-                            VerticalAlignment="Bottom"
-                            Margin="8">
-                    <ContentControl Content="{Binding PackageSettingsViewModel}"/>
-                </StackPanel>
-            </Grid>
-
-        </Grid>
-        <ContentControl Content="{Binding CurrentViewModel}"/>
-    </Grid>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                    <Setter Property="HeaderTemplate">
+                        <Setter.Value>
+                            <DataTemplate>
+                                <Label Content="{Binding Header}" />
+                            </DataTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </TabControl.Resources>
+        </TabControl>
+    </DockPanel>
 </Window>

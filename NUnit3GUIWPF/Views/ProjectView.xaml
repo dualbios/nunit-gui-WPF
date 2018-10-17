@@ -8,6 +8,7 @@
              xmlns:controls="clr-namespace:NUnit3GUIWPF.Controls"
              xmlns:behaviours="clr-namespace:NUnit3GUIWPF.Behaviors"
              xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
+             xmlns:views="clr-namespace:NUnit3GUIWPF.Views"
              xmlns:converters1="clr-namespace:NUnit3GUIWPF.Converters"
              mc:Ignorable="d"
              d:DesignHeight="450"
@@ -36,77 +37,78 @@
     </UserControl.Resources>
     <Grid>
         <DockPanel LastChildFill="True"
-                   Visibility="{Binding IsProjectLoading, Converter={StaticResource ReversedBoolToVisibilityConverter}}">
+                   Visibility="{Binding IsProjectLoaded, Converter={StaticResource BoolToVisibilityConverter}}">
             <StackPanel DockPanel.Dock="Top"
-                    Orientation="Vertical">
+                        Orientation="Vertical">
                 <Grid Margin="8">
                     <StackPanel Orientation="Horizontal"
-                            HorizontalAlignment="Left">
+                                HorizontalAlignment="Left">
                         <Button Command="{Binding RunAllTestCommand}"
-                            Style="{StaticResource ProjectToolButtonStyle}"
-                            Margin="0 0 4 0">
+                                Style="{StaticResource ProjectToolButtonStyle}"
+                                Margin="0 0 4 0">
                             <Button.Content>
                                 <StackPanel Orientation="Vertical">
                                     <ContentControl Content="{StaticResource RunAllIcon}"
-                                                Style="{StaticResource IconContentControlStyle}" />
+                                                    Style="{StaticResource IconContentControlStyle}" />
                                     <Label Content="Run All"
-                                       HorizontalContentAlignment="Center" />
+                                           HorizontalContentAlignment="Center" />
                                 </StackPanel>
                             </Button.Content>
                         </Button>
                         <Button Command="{Binding RunSelectedTestCommand}"
-                            Style="{StaticResource ProjectToolButtonStyle}">
+                                Style="{StaticResource ProjectToolButtonStyle}">
                             <Button.Content>
                                 <StackPanel Orientation="Vertical">
                                     <ContentControl Content="{StaticResource RunSelectedIcon}"
-                                                Style="{StaticResource IconContentControlStyle}" />
+                                                    Style="{StaticResource IconContentControlStyle}" />
                                     <Label Content="Run Selected"
-                                       HorizontalContentAlignment="Center" />
+                                           HorizontalContentAlignment="Center" />
                                 </StackPanel>
                             </Button.Content>
                         </Button>
                         <Button Command="{Binding StopTestCommand}"
-                            Style="{StaticResource ProjectToolButtonStyle}">
+                                Style="{StaticResource ProjectToolButtonStyle}">
                             <Button.Content>
                                 <StackPanel Orientation="Vertical">
                                     <ContentControl Content="{StaticResource StopIcon}"
-                                                Style="{StaticResource IconContentControlStyle}" />
+                                                    Style="{StaticResource IconContentControlStyle}" />
                                     <Label Content="Stop"
-                                       HorizontalContentAlignment="Center" />
+                                           HorizontalContentAlignment="Center" />
                                 </StackPanel>
                             </Button.Content>
                         </Button>
                     </StackPanel>
                     <Button Command="{Binding CloseProjectCommand}"
-                        HorizontalAlignment="Right"
-                        Style="{StaticResource ProjectToolButtonStyle}"
-                        Margin="0 0 0 0">
+                            HorizontalAlignment="Right"
+                            Style="{StaticResource ProjectToolButtonStyle}"
+                            Margin="0 0 0 0">
                         <Button.Content>
                             <StackPanel Orientation="Vertical">
                                 <ContentControl Style="{StaticResource IconContentControlStyle}" />
                                 <Label Content="Close"
-                                   HorizontalContentAlignment="Center" />
+                                       HorizontalContentAlignment="Center" />
                             </StackPanel>
                         </Button.Content>
                     </Button>
                 </Grid>
 
                 <Grid Height="4"
-                  Margin="0 4">
+                      Margin="0 4">
                     <ProgressBar IsIndeterminate="True"
-                             Visibility="{Binding IsRunning, Converter={StaticResource BoolToVisibilityConverter}}" />
+                                 Visibility="{Binding IsRunning, Converter={StaticResource BoolToVisibilityConverter}}" />
                 </Grid>
             </StackPanel>
             <controls:TreeListView AllowsColumnReorder="True"
-                               ItemsSource="{Binding Tests.Children}"
-                               Foreground="White"
-                               x:Name="TestTreeView">
+                                   ItemsSource="{Binding Tests.Children}"
+                                   Foreground="White"
+                                   x:Name="TestTreeView">
                 <controls:TreeListView.Resources>
                     <Style TargetType="TextBlock"
-                       x:Key="TextBlockStyle">
+                           x:Key="TextBlockStyle">
                         <Setter Property="Foreground"
-                            Value="#f2f2f2" />
-                        <Setter Property="FontSize" Value="14"/>
+                                Value="#f2f2f2" />
+                        <Setter Property="FontSize"
+                                Value="14" />
                     </Style>
                 </controls:TreeListView.Resources>
                 <i:Interaction.Behaviors>
@@ -117,46 +119,46 @@
                 </controls:TreeListView.ItemTemplate>
                 <controls:TreeListView.Columns>
                     <GridViewColumn Header="Name"
-                                Width="200">
+                                    Width="200">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
                                 <StackPanel Orientation="Horizontal">
                                     <controls:TreeListViewExpander />
                                     <TextBlock Style="{StaticResource TextBlockStyle}">
-                                    <Run Text="[" />
-                                    <Run Text="{Binding Id, Mode=OneWay}" />
-                                    <Run Text="] " />
-                                    <Run Text="{Binding Name, Mode=OneWay}" />
+                                        <Run Text="[" />
+                                        <Run Text="{Binding Id, Mode=OneWay}" />
+                                        <Run Text="] " />
+                                        <Run Text="{Binding Name, Mode=OneWay}" />
                                     </TextBlock>
                                 </StackPanel>
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
                     <GridViewColumn Header="State"
-                                Width="100">
+                                    Width="100">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
                                 <TextBlock Text="{Binding RunState, Mode=OneWay}"
-                                       Style="{StaticResource TextBlockStyle}" />
+                                           Style="{StaticResource TextBlockStyle}" />
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
                     <GridViewColumn Header="Action"
-                                Width="100">
+                                    Width="100">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
                                 <TextBlock Text="{Binding TestAction, Mode=OneWay}"
-                                       Style="{StaticResource TextBlockStyle}" />
+                                           Style="{StaticResource TextBlockStyle}" />
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
 
                     <GridViewColumn Header="Duration"
-                                Width="100">
+                                    Width="100">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
                                 <TextBlock Text="{Binding Duration.TotalMilliseconds, Mode=OneWay}"
-                                       Style="{StaticResource TextBlockStyle}" />
+                                           Style="{StaticResource TextBlockStyle}" />
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
@@ -175,5 +177,12 @@
             <Button Content="Cancel"
                     Command="{Binding CancelLoadingProjectCommand}" />
         </StackPanel>
+        <Grid Visibility="{Binding IsProjectLoading, Converter={StaticResource ReversedBoolToVisibilityConverter}}">
+            <views:OpenProjectView
+                Visibility="{Binding IsProjectLoaded, Converter={StaticResource ReversedBoolToVisibilityConverter}}" />
+            <ContentControl Content="{Binding PackageSettingsViewModel}"
+                            HorizontalAlignment="Right"
+                            VerticalAlignment="Bottom" />
+        </Grid>
     </Grid>
 </UserControl>

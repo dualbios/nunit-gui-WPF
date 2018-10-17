@@ -1,5 +1,4 @@
 ﻿using System.Windows;
-using Microsoft.Win32;
 
 namespace NUnit3GUIWPF.Views
 {
@@ -11,21 +10,6 @@ namespace NUnit3GUIWPF.Views
         public MainWindow()
         {
             InitializeComponent();
-        }
-
-        private void SelectFile_OnClick(object sender, RoutedEventArgs e)
-        {
-            //FileNameTextBox
-            OpenFileDialog ofd = new OpenFileDialog()
-            {
-                CheckFileExists = true,
-                DefaultExt = "*.dll"
-            };
-            string file = (ofd.ShowDialog(this) == true) ? ofd.FileName : null;
-            if (file != null)
-            {
-                FileNameTextBox.Text = file;
-            }
         }
     }
 }

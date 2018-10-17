@@ -1,4 +1,6 @@
-﻿using System.ComponentModel.Composition;
+﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel.Composition;
 using System.Reactive;
 using Microsoft.VisualStudio.Composition;
 using NUnit3GUIWPF.Interfaces;
@@ -9,57 +11,31 @@ namespace NUnit3GUIWPF.ViewModels
     [Export(typeof(IMainWindowViewModel))]
     public class MainWindowViewModel : ReactiveObject, IMainWindowViewModel
     {
-        private readonly ExportProvider _provider;
-        private string _fileName;
-        private ObservableAsPropertyHelper<bool> _isProjectLoaded;
-        private ObservableAsPropertyHelper<bool> _isProjectLoading;
-        private IProjectViewModel _currentViewModel;
+        private readonly IContainerFactory _containerFactory;
+        private IContainerViewModel _currentViewModel;
 
         [ImportingConstructor]
-        public MainWindowViewModel(ExportProvider provider)
+        public MainWindowViewModel(IContainerFactory containerFactory)
         {
-            _provider = provider;
-            OpenFileCommand = ReactiveCommand.Create(OpenFile);
-            //, this.WhenAny(vm => vm.FileName, p => !string.IsNullOrEmpty(p.Value)));
-            //CancelLoadingProjectCommand = ReactiveCommand.Create(
-            //    () => { },
-            //    OpenFileCommand.IsExecuting);
+            _containerFactory = containerFactory;
 
-            //_isProjectLoaded = OpenFileCommand.ToProperty(this, p => p.IsProjectLoaded);
+            Projects = new ObservableCollection<IContainerViewModel>();
+            AddProjectCommand = ReactiveCommand.Create(() =>
+            {
+                var viewModel = containerFactory.CreateProjectViewModel();
+                Projects.Add(viewModel);
+                CurrentViewModel = viewModel;
+            });
         }
 
-        public ReactiveCommand<Unit, Unit> CancelLoadingProjectCommand { get; }
+        public ReactiveCommand<Unit, Unit> AddProjectCommand { get; }
 
-        public string FileName
-        {
-            get => _fileName;
-            set => this.RaiseAndSetIfChanged(ref _fileName, value);
-        }
-
-        public bool IsProjectLoaded => _isProjectLoaded?.Value ?? false;
-
-        public ReactiveCommand<Unit, Unit> OpenFileCommand { get; }
-
-        [Import]
-        public IPackageSettingsViewModel PackageSettingsViewModel { get; private set; }
-
-        [Import]
-        public IProjectViewModel ProjectViewModel { get; private set; }
-
-        public IProjectViewModel CurrentViewModel
+        public IContainerViewModel CurrentViewModel
         {
             get => _currentViewModel;
-            private set => this.RaiseAndSetIfChanged(ref _currentViewModel, value);
+            set => this.RaiseAndSetIfChanged(ref _currentViewModel, value);
         }
 
-        [Import(RequiredCreationPolicy = System.ComponentModel.Composition.CreationPolicy.Shared)]
-        public IExportProvider Provider { get; private set; }
-
-        private void OpenFile()
-        {
-            var rrr = Provider.Provider.GetExportedValue<IProjectViewModel>();
-            CurrentViewModel = rrr;
-            rrr.SetProjectFileAsync(FileName, PackageSettingsViewModel.GetSettings());
-        }
+        public IList<IContainerViewModel> Projects { get; }
     }
 }

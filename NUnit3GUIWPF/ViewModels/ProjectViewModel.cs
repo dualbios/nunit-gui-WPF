@@ -20,10 +20,14 @@ using ReactiveUI;
 namespace NUnit3GUIWPF.ViewModels
 {
     [Export(typeof(IProjectViewModel))]
+    [Export(typeof(IContainerViewModel))]
+    [PartCreationPolicy(System.ComponentModel.Composition.CreationPolicy.NonShared)]
     [TypeConverter(typeof(ViewModelToViewConverter<ProjectViewModel, ProjectView>))]
     public class ProjectViewModel : ReactiveObject, IProjectViewModel, ITestEventListener
     {
         private string _fileName;
+        private bool _isProjectLoaded;
+        private ObservableAsPropertyHelper<bool> _isProjectLoading;
         private bool _isRunning;
         private TestNode _selectedItem;
         private ITestEngine _testEngine;
@@ -58,7 +62,7 @@ namespace NUnit3GUIWPF.ViewModels
         };
 
         [ImportingConstructor]
-        public ProjectViewModel(IUnitTestEngine engine)
+        public ProjectViewModel(IUnitTestEngine engine, IExportProvider provider)
         {
             _testEngine = engine.TestEngine;
             RunAllTestCommand = ReactiveCommand.CreateFromTask(
@@ -74,10 +78,22 @@ namespace NUnit3GUIWPF.ViewModels
             RunSelectedTestCommand = ReactiveCommand.CreateFromTask(
                 RunSelectedTestAsync,
                 this.WhenAny(vm => vm.SelectedItem, p => p.Value != null));
+
+            OpenFileCommand = ReactiveCommand.CreateFromObservable(
+                () => Observable.StartAsync(ct => LoadFile(FileName, ct))
+                    .TakeUntil(CancelLoadingProjectCommand),
+                this.WhenAny(vm => vm.FileName, p => !string.IsNullOrEmpty(p.Value)));
+
+            _isProjectLoading = OpenFileCommand.IsExecuting.ToProperty(this, vm => vm.IsProjectLoading);
+
+            CancelLoadingProjectCommand = ReactiveCommand.Create(
+                () => { },
+                OpenFileCommand.IsExecuting);
         }
 
+        public ReactiveCommand<Unit, Unit> CancelLoadingProjectCommand { get; }
+
         public ReactiveCommand<Unit, Unit> CloseProjectCommand { get; }
-        public ReactiveCommand<Unit, Unit> LoadProjectCommand { get; }
 
         public string FileName
         {
@@ -85,13 +101,28 @@ namespace NUnit3GUIWPF.ViewModels
             set => this.RaiseAndSetIfChanged(ref _fileName, value);
         }
 
+        public object Header { get; } = "Project";
+
+        public bool IsProjectLoaded
+        {
+            get => _isProjectLoaded;
+            private set => this.RaiseAndSetIfChanged(ref _isProjectLoaded, value);
+        }
+
+        public bool IsProjectLoading => _isProjectLoading?.Value ?? false;
+
         public bool IsRunning
         {
             get { return _isRunning; }
             private set { this.RaiseAndSetIfChanged(ref _isRunning, value); }
         }
 
-        public IDictionary<string, object> PackageSettings { get; private set; }
+        public ReactiveCommand<Unit, Unit> LoadProjectCommand { get; }
+
+        public ReactiveCommand<Unit, Unit> OpenFileCommand { get; }
+
+        [Import]
+        public IPackageSettingsViewModel PackageSettingsViewModel { get; private set; }
 
         public ReactiveCommand<Unit, Unit> RunAllTestCommand { get; }
 
@@ -137,18 +168,11 @@ namespace NUnit3GUIWPF.ViewModels
             }
         }
 
-        public void SetProjectFileAsync(string fileName, IDictionary<string, object> packageSettings)
+        private IEnumerable<TestNode> FlattenTests(TestNode test, CancellationToken ct)
         {
-            Application.Current.Dispatcher.Invoke(() => FileName = fileName);
-            Task.Run(async () => await LoadFile(fileName, packageSettings));
-            //return LoadFile(fileName,
-            //    packageSettings);
-        }
-
-        private IEnumerable<TestNode> FlattenTests(TestNode test)
-        {
+            ct.ThrowIfCancellationRequested();
             yield return test;
-            foreach (TestNode node in test.Children.SelectMany(_ => FlattenTests(_)))
+            foreach (TestNode node in test.Children.SelectMany(_ => FlattenTests(_, ct)))
             {
                 yield return node;
             }
@@ -156,44 +180,35 @@ namespace NUnit3GUIWPF.ViewModels
             yield break;
         }
 
-        public bool IsProjectLoading
-        {
-            get => _isProjectLoading;
-            set => this.RaiseAndSetIfChanged(ref _isProjectLoading, value);
-        }
-
-        private bool _isProjectLoading;
-
-
-        private async Task LoadFile(string file, IDictionary<string, object> packageSettings)
+        private async Task LoadFile(string file, CancellationToken ct)
         {
             await Task.Run(() =>
             {
                 try
                 {
-                    IsProjectLoading = true;
                     var package = new TestPackage(file);
-                    PackageSettings = packageSettings;
-                    foreach (var entry in PackageSettings
+                    foreach (var entry in PackageSettingsViewModel.GetSettings()
                         .Where(p => p.Value != null)
                         .Where(s => (s.Value is string) == false || string.Equals("Default", s.Value as string, StringComparison.InvariantCultureIgnoreCase) == false))
                     {
                         package.AddSetting(entry.Key, entry.Value);
                     }
 
+                    ct.ThrowIfCancellationRequested();
+
                     Runner = _testEngine.GetRunner(package);
+                    ct.ThrowIfCancellationRequested();
+
                     XmlNode node = Runner.Explore(TestFilter.Empty);
                     Tests = new TestNode(node);
-                    flattenTests = FlattenTests(Tests).ToList();
+                    flattenTests = FlattenTests(Tests, ct).ToList();
+                    IsProjectLoaded = true;
                 }
                 catch (Exception e)
                 {
+                    IsProjectLoaded = false;
                 }
-                finally
-                {
-                    IsProjectLoading = false;
-                }
-            });
+            }, ct);
 
             this.RaisePropertyChanged(nameof(Tests));
 
