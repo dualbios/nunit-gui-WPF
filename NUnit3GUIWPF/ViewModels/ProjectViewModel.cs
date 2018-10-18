@@ -43,6 +43,7 @@ namespace NUnit3GUIWPF.ViewModels
                 "test-case", (vm, node, report) =>
                 {
                     node.TestAction = TestState.Finished;
+                    node.Output = report.InnerText;
                     node.Duration = report.ParseDuration();
                 }
             },
@@ -50,6 +51,7 @@ namespace NUnit3GUIWPF.ViewModels
                 "test-suite", (vm, node, report) =>
                 {
                     node.TestAction = TestState.Finished;
+                    node.Output = report.InnerText;
                     node.Duration = report.ParseDuration();
                 }
             },
@@ -58,6 +60,7 @@ namespace NUnit3GUIWPF.ViewModels
                 {
                     node.TestAction = TestState.Finished;
                     node.Duration = report.ParseDuration();
+                    node.Output = report.InnerText;
                     vm.State = ProjectState.Finished;
                     Application.Current.Dispatcher.Invoke(() => { vm.IsRunning = false; });
                 }

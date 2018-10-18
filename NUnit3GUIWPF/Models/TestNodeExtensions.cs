@@ -26,19 +26,11 @@ namespace NUnit3GUIWPF.Models
             return (RunStateDictionary.TryGetValue(state, out RunState runState)) ? runState : RunState.Unknown;
         }
 
-        public static TimeSpan ParseDuration(this XmlNode report)
+        public static double ParseDuration(this XmlNode report)
         {
-            string startTimeString = report.Attributes["start-time"]?.Value;
-            string endTimeString = report.Attributes["end-time"]?.Value;
-            if (string.IsNullOrEmpty(startTimeString) || string.IsNullOrEmpty(endTimeString))
-                return TimeSpan.Zero;
-
-            DateTime startTime = DateTime.MinValue;
-            DateTime endTime = DateTime.MinValue;
-            DateTime.TryParse(startTimeString, CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal | DateTimeStyles.AllowWhiteSpaces, out startTime);
-            DateTime.TryParse(endTimeString, CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal | DateTimeStyles.AllowWhiteSpaces, out endTime);
-
-            return endTime - startTime;
+            string durationText = report.Attributes["duration"]?.Value;
+            double.TryParse(durationText, NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out double duration);
+            return duration;
         }
     }
 }

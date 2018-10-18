@@ -23,16 +23,20 @@ namespace NUnit3GUIWPF.ViewModels
             _containerFactory = containerFactory;
 
             Projects = new ObservableCollection<IProjectViewModel>();
-            AddProjectCommand = ReactiveCommand.Create(() =>
-            {
-                var viewModel = containerFactory.CreateProjectViewModel();
-                viewModel.Header = CreateUniqueName("Project", Projects.Select(_ => _.Header).ToList());
-                Projects.Add(viewModel);
-                CurrentViewModel = viewModel;
-            });
+            AddProjectCommand = ReactiveCommand.Create(() => InternalAddNewProject());
 
             CloseProjectCommand = ReactiveCommand.Create<IProjectViewModel, Unit>(
                 p => CloseProject(p));
+
+            InternalAddNewProject();
+        }
+
+        private void InternalAddNewProject()
+        {
+            var viewModel = _containerFactory.CreateProjectViewModel();
+            viewModel.Header = CreateUniqueName("Project", Projects.Select(_ => _.Header).ToList());
+            Projects.Add(viewModel);
+            CurrentViewModel = viewModel;
         }
 
         public ReactiveCommand<Unit, Unit> AddProjectCommand { get; }
