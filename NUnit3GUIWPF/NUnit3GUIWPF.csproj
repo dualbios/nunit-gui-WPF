@@ -184,10 +184,10 @@
     <Compile Include="Behaviors\BindableSelectedItemBehavio.cs" />
     <Compile Include="Controls\TreeListView.cs" />
     <Compile Include="Converters\BoolToVisibilityConverter.cs" />
+    <Compile Include="Converters\ProjectStateToEnableConverter.cs" />
     <Compile Include="Converters\ViewModelToViewConverter.cs" />
     <Compile Include="Factories\ContainerFactory.cs" />
     <Compile Include="Interfaces\IContainerFactory.cs" />
-    <Compile Include="Interfaces\IContainerViewModel.cs" />
     <Compile Include="Interfaces\IExportProvider.cs" />
     <Compile Include="Interfaces\IMainWindowViewModel.cs" />
     <Compile Include="Interfaces\IPackageSettingsViewModel.cs" />
@@ -196,6 +196,7 @@
     <Compile Include="Models\DefaultRuntimeFramework.cs" />
     <Compile Include="Models\ExportProviderImp.cs" />
     <Compile Include="Models\PackageSettings.cs" />
+    <Compile Include="Models\ProjectState.cs" />
     <Compile Include="Models\TestNodeExtensions.cs" />
     <Compile Include="Models\TestState.cs" />
     <Compile Include="Models\UnitTestEngine.cs" />

@@ -78,18 +78,7 @@
                             </Button.Content>
                         </Button>
                     </StackPanel>
-                    <Button Command="{Binding CloseProjectCommand}"
-                            HorizontalAlignment="Right"
-                            Style="{StaticResource ProjectToolButtonStyle}"
-                            Margin="0 0 0 0">
-                        <Button.Content>
-                            <StackPanel Orientation="Vertical">
-                                <ContentControl Style="{StaticResource IconContentControlStyle}" />
-                                <Label Content="Close"
-                                       HorizontalContentAlignment="Center" />
-                            </StackPanel>
-                        </Button.Content>
-                    </Button>
+
                 </Grid>
 
                 <Grid Height="4"
@@ -98,73 +87,88 @@
                                  Visibility="{Binding IsRunning, Converter={StaticResource BoolToVisibilityConverter}}" />
                 </Grid>
             </StackPanel>
-            <controls:TreeListView AllowsColumnReorder="True"
-                                   ItemsSource="{Binding Tests.Children}"
-                                   Foreground="White"
-                                   x:Name="TestTreeView">
-                <controls:TreeListView.Resources>
-                    <Style TargetType="TextBlock"
-                           x:Key="TextBlockStyle">
-                        <Setter Property="Foreground"
-                                Value="#f2f2f2" />
-                        <Setter Property="FontSize"
-                                Value="14" />
-                    </Style>
-                </controls:TreeListView.Resources>
-                <i:Interaction.Behaviors>
-                    <behaviours:BindableSelectedItemBehavior SelectedItem="{Binding SelectedItem, Mode=TwoWay}" />
-                </i:Interaction.Behaviors>
-                <controls:TreeListView.ItemTemplate>
-                    <HierarchicalDataTemplate ItemsSource="{Binding Children}" />
-                </controls:TreeListView.ItemTemplate>
-                <controls:TreeListView.Columns>
-                    <GridViewColumn Header="Name"
-                                    Width="200">
-                        <GridViewColumn.CellTemplate>
-                            <DataTemplate>
-                                <StackPanel Orientation="Horizontal">
-                                    <controls:TreeListViewExpander />
-                                    <TextBlock Style="{StaticResource TextBlockStyle}">
-                                        <Run Text="[" />
-                                        <Run Text="{Binding Id, Mode=OneWay}" />
-                                        <Run Text="] " />
-                                        <Run Text="{Binding Name, Mode=OneWay}" />
-                                    </TextBlock>
-                                </StackPanel>
-                            </DataTemplate>
-                        </GridViewColumn.CellTemplate>
-                    </GridViewColumn>
-                    <GridViewColumn Header="State"
-                                    Width="100">
-                        <GridViewColumn.CellTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding RunState, Mode=OneWay}"
-                                           Style="{StaticResource TextBlockStyle}" />
-                            </DataTemplate>
-                        </GridViewColumn.CellTemplate>
-                    </GridViewColumn>
-                    <GridViewColumn Header="Action"
-                                    Width="100">
-                        <GridViewColumn.CellTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding TestAction, Mode=OneWay}"
-                                           Style="{StaticResource TextBlockStyle}" />
-                            </DataTemplate>
-                        </GridViewColumn.CellTemplate>
-                    </GridViewColumn>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="2*"/>
+                    <ColumnDefinition Width="8"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                
+                <GridSplitter Grid.Column="1" ResizeDirection="Columns" ResizeBehavior="PreviousAndNext"/>
 
-                    <GridViewColumn Header="Duration"
-                                    Width="100">
-                        <GridViewColumn.CellTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding Duration.TotalMilliseconds, Mode=OneWay}"
-                                           Style="{StaticResource TextBlockStyle}" />
-                            </DataTemplate>
-                        </GridViewColumn.CellTemplate>
-                    </GridViewColumn>
-                </controls:TreeListView.Columns>
 
-            </controls:TreeListView>
+                <controls:TreeListView AllowsColumnReorder="True"
+                                       ItemsSource="{Binding Tests.Children}"
+                                       Foreground="White"
+                                       x:Name="TestTreeView">
+                    <controls:TreeListView.Resources>
+                        <Style TargetType="TextBlock"
+                               x:Key="TextBlockStyle">
+                            <Setter Property="Foreground"
+                                    Value="#f2f2f2" />
+                            <Setter Property="FontSize"
+                                    Value="14" />
+                        </Style>
+                    </controls:TreeListView.Resources>
+                    <i:Interaction.Behaviors>
+                        <behaviours:BindableSelectedItemBehavior SelectedItem="{Binding SelectedItem, Mode=TwoWay}" />
+                    </i:Interaction.Behaviors>
+                    <controls:TreeListView.ItemTemplate>
+                        <HierarchicalDataTemplate ItemsSource="{Binding Children}" />
+                    </controls:TreeListView.ItemTemplate>
+                    <controls:TreeListView.Columns>
+                        <GridViewColumn Header="Name"
+                                        Width="200">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal">
+                                        <controls:TreeListViewExpander />
+                                        <TextBlock Style="{StaticResource TextBlockStyle}">
+                                            <Run Text="[" />
+                                            <Run Text="{Binding Id, Mode=OneWay}" />
+                                            <Run Text="] " />
+                                            <Run Text="{Binding Name, Mode=OneWay}" />
+                                        </TextBlock>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                        <GridViewColumn Header="State"
+                                        Width="100">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding RunState, Mode=OneWay}"
+                                               Style="{StaticResource TextBlockStyle}" />
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                        <GridViewColumn Header="Action"
+                                        Width="100">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding TestAction, Mode=OneWay}"
+                                               Style="{StaticResource TextBlockStyle}" />
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+
+                        <GridViewColumn Header="Duration"
+                                        Width="100">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Duration, Mode=OneWay}"
+                                               Style="{StaticResource TextBlockStyle}" />
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                    </controls:TreeListView.Columns>
+
+                </controls:TreeListView>
+
+                <TextBox IsReadOnly="True"
+                         Grid.Column="2"
+                         Text="{Binding SelectedItem.Output, Mode=OneWay}" />
+            </Grid>
         </DockPanel>
         <StackPanel Orientation="Vertical"
                     HorizontalAlignment="Center"
@@ -182,7 +186,8 @@
                 Visibility="{Binding IsProjectLoaded, Converter={StaticResource ReversedBoolToVisibilityConverter}}" />
             <ContentControl Content="{Binding PackageSettingsViewModel}"
                             HorizontalAlignment="Right"
-                            VerticalAlignment="Bottom" />
+                            VerticalAlignment="Bottom"
+                            Visibility="{Binding IsProjectLoaded, Converter={StaticResource ReversedBoolToVisibilityConverter}}" />
         </Grid>
     </Grid>
 </UserControl>

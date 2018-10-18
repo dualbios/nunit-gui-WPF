@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Xml;
 using NUnit;
 using NUnit.Engine;
@@ -11,7 +10,8 @@ namespace NUnit3GUIWPF.Models
     public class TestNode : ReactiveObject
     {
         private List<TestNode> _children;
-        private TimeSpan _duration;
+        private double _duration;
+        private string _output;
         private TestState _testAction;
 
         public TestNode(XmlNode xmlNode)
@@ -46,7 +46,7 @@ namespace NUnit3GUIWPF.Models
             }
         }
 
-        public TimeSpan Duration
+        public double Duration
         {
             get => _duration;
             set => this.RaiseAndSetIfChanged(ref _duration, value);
@@ -59,6 +59,12 @@ namespace NUnit3GUIWPF.Models
         public bool IsSuite { get; }
 
         public string Name { get; }
+
+        public string Output
+        {
+            get => _output;
+            set => this.RaiseAndSetIfChanged(ref _output, value);
+        }
 
         public RunState RunState { get; }
 
@@ -102,7 +108,5 @@ namespace NUnit3GUIWPF.Models
         {
             return $"{Name} [{Id}]";
         }
-
-       
     }
 }
