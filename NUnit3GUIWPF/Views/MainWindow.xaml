@@ -37,91 +37,94 @@
             </VisualBrush.Visual>
         </VisualBrush>
     </Window.Background>
-    <DockPanel LastChildFill="True">
-        <Border DockPanel.Dock="Left"
-                BorderThickness="1"
-                BorderBrush="AliceBlue">
-            <DockPanel>
-                <Button Margin="16"
-                        DockPanel.Dock="Top"
-                        Command="{Binding AddProjectCommand}"
-                        HorizontalAlignment="Center"
-                        Content="Add" />
-                <ListBox ItemsSource="{Binding Projects, Mode=OneWay}"
-                         SelectedItem="{Binding CurrentViewModel}"
-                         Background="Transparent"
-                         BorderThickness="0">
-                    <ListBox.ItemTemplate>
-                        <DataTemplate>
-                            <Grid>
-                                <DockPanel>
-                                    <Label Content="{Binding Header}"
-                                           FontSize="14"
-                                           Foreground="AliceBlue"
-                                           DockPanel.Dock="Top"/>
-                                    <TextBlock
-                                        Text="{Binding FilePath, Converter={StaticResource PathToFilenameConverter}}"
-                                        TextTrimming="CharacterEllipsis"
-                                        ToolTip="{Binding FilePath}"
-                                        FontSize="12"
-                                        Foreground="#FFBABABA" 
-                                        DockPanel.Dock="Top"/>
-                                    <TextBlock Text="{Binding State}"
-                                               FontSize="12"
-                                               Foreground="#FFBABABA" 
-                                               DockPanel.Dock="Top"/>
-                                    <StackPanel Orientation="Horizontal"
-                                                DockPanel.Dock="Top">
-                                        <StackPanel.Resources>
-                                            <Style TargetType="TextBlock">
-                                                <Setter Property="Foreground"
-                                                        Value="#f2f2f2" />
-                                                <Setter Property="FontSize"
-                                                        Value="12" />
-                                            </Style>
-                                        </StackPanel.Resources>
-                                        <TextBlock>
-                                            <Run Text=" F:" />
-                                            <Run Text="{Binding FailedTestCount, Mode=OneWay}" />
-                                        </TextBlock>
-                                        <TextBlock>
-                                            <Run Text=" I:" />
-                                            <Run Text="{Binding InconclusiveTestCount, Mode=OneWay}" />
-                                        </TextBlock>
-                                        <TextBlock>
-                                            <Run Text=" P:" />
-                                            <Run Text="{Binding PassedTestCount, Mode=OneWay}" />
-                                        </TextBlock>
-                                        <TextBlock>
-                                            <Run Text=" S:" />
-                                            <Run Text="{Binding SkippedTestCount, Mode=OneWay}" />
-                                        </TextBlock>
-                                        <TextBlock>
-                                            <Run Text=" W:" />
-                                            <Run Text="{Binding WarningTestCount, Mode=OneWay}" />
-                                        </TextBlock>
-                                    </StackPanel>
-                                    <Grid Height="4"
-                                          Margin="0 4">
-                                        <ProgressBar IsIndeterminate="True"
-                                                     Visibility="{Binding IsRunning, Converter={StaticResource BoolToVisibilityConverter}}" />
-                                    </Grid>
-                                </DockPanel>
-                                <Button Content="X"
-                                        Command="{Binding DataContext.CloseProjectCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"
-                                        CommandParameter="{Binding}"
-                                        HorizontalAlignment="Right"
-                                        VerticalAlignment="Top"
-                                        IsEnabled="{Binding State, Converter={StaticResource ProjectStateToEnableConverter}}" />
-                            </Grid>
-                        </DataTemplate>
-                    </ListBox.ItemTemplate>
-                </ListBox>
-            </DockPanel>
-        </Border>
-        <Border BorderThickness="1"
-                BorderBrush="AliceBlue">
-            <ContentControl Content="{Binding CurrentViewModel, Mode=OneWay}" />
-        </Border>
-    </DockPanel>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="150" />
+            <ColumnDefinition Width="4" />
+            <ColumnDefinition />
+        </Grid.ColumnDefinitions>
+        <GridSplitter Grid.Column="1"
+                      ResizeBehavior="PreviousAndNext"
+                      ResizeDirection="Columns" />
+        <DockPanel Grid.Column="0">
+            <Button Margin="16"
+                    DockPanel.Dock="Top"
+                    Command="{Binding AddProjectCommand}"
+                    HorizontalAlignment="Center"
+                    Content="Add" />
+            <ListBox ItemsSource="{Binding Projects, Mode=OneWay}"
+                     SelectedItem="{Binding CurrentViewModel}"
+                     Background="Transparent"
+                     BorderThickness="0">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Grid>
+                            <DockPanel>
+                                <Label Content="{Binding Header}"
+                                       FontSize="14"
+                                       Foreground="AliceBlue"
+                                       DockPanel.Dock="Top" />
+                                <TextBlock
+                                    Text="{Binding FilePath, Converter={StaticResource PathToFilenameConverter}}"
+                                    TextTrimming="CharacterEllipsis"
+                                    ToolTip="{Binding FilePath}"
+                                    FontSize="12"
+                                    Foreground="#FFBABABA"
+                                    DockPanel.Dock="Top" />
+                                <TextBlock Text="{Binding State}"
+                                           FontSize="12"
+                                           Foreground="#FFBABABA"
+                                           DockPanel.Dock="Top" />
+                                <StackPanel Orientation="Horizontal"
+                                            DockPanel.Dock="Top">
+                                    <StackPanel.Resources>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Foreground"
+                                                    Value="#f2f2f2" />
+                                            <Setter Property="FontSize"
+                                                    Value="12" />
+                                        </Style>
+                                    </StackPanel.Resources>
+                                    <TextBlock>
+                                        <Run Text=" F:" />
+                                        <Run Text="{Binding FailedTestCount, Mode=OneWay}" />
+                                    </TextBlock>
+                                    <TextBlock>
+                                        <Run Text=" I:" />
+                                        <Run Text="{Binding InconclusiveTestCount, Mode=OneWay}" />
+                                    </TextBlock>
+                                    <TextBlock>
+                                        <Run Text=" P:" />
+                                        <Run Text="{Binding PassedTestCount, Mode=OneWay}" />
+                                    </TextBlock>
+                                    <TextBlock>
+                                        <Run Text=" S:" />
+                                        <Run Text="{Binding SkippedTestCount, Mode=OneWay}" />
+                                    </TextBlock>
+                                    <TextBlock>
+                                        <Run Text=" W:" />
+                                        <Run Text="{Binding WarningTestCount, Mode=OneWay}" />
+                                    </TextBlock>
+                                </StackPanel>
+                                <Grid Height="4"
+                                      Margin="0 4">
+                                    <ProgressBar IsIndeterminate="True"
+                                                 Visibility="{Binding IsRunning, Converter={StaticResource BoolToVisibilityConverter}}" />
+                                </Grid>
+                            </DockPanel>
+                            <Button Content="X"
+                                    Command="{Binding DataContext.CloseProjectCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"
+                                    CommandParameter="{Binding}"
+                                    HorizontalAlignment="Right"
+                                    VerticalAlignment="Top"
+                                    IsEnabled="{Binding State, Converter={StaticResource ProjectStateToEnableConverter}}" />
+                        </Grid>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </DockPanel>
+        <ContentControl Content="{Binding CurrentViewModel, Mode=OneWay}"
+                        Grid.Column="2" />
+
+    </Grid>
 </Window>

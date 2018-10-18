@@ -32,7 +32,6 @@
                 <Setter Property="Foreground"
                         Value="White" />
             </Style>
-
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid>
@@ -78,7 +77,6 @@
                             </Button.Content>
                         </Button>
                     </StackPanel>
-
                 </Grid>
 
                 <Grid Height="4"
@@ -96,46 +94,47 @@
                         </Style>
                     </StackPanel.Resources>
                     <TextBlock>
-                        <Run Text="Failed"/>
-                        <Run Text=" ("/>
-                        <Run Text="{Binding FailedTestCount, Mode=OneWay}"/>
-                        <Run Text=") "/>
+                        <Run Text="Failed" />
+                        <Run Text=" (" />
+                        <Run Text="{Binding FailedTestCount, Mode=OneWay}" />
+                        <Run Text=") " />
                     </TextBlock>
                     <TextBlock>
-                        <Run Text="Inconclusive"/>
-                        <Run Text=" ("/>
-                        <Run Text="{Binding InconclusiveTestCount, Mode=OneWay}"/>
-                        <Run Text=") "/>
+                        <Run Text="Inconclusive" />
+                        <Run Text=" (" />
+                        <Run Text="{Binding InconclusiveTestCount, Mode=OneWay}" />
+                        <Run Text=") " />
                     </TextBlock>
                     <TextBlock>
-                        <Run Text="Passed"/>
-                        <Run Text=" ("/>
-                        <Run Text="{Binding PassedTestCount, Mode=OneWay}"/>
-                        <Run Text=") "/>
+                        <Run Text="Passed" />
+                        <Run Text=" (" />
+                        <Run Text="{Binding PassedTestCount, Mode=OneWay}" />
+                        <Run Text=") " />
                     </TextBlock>
                     <TextBlock>
-                        <Run Text="Skipped"/>
-                        <Run Text=" ("/>
-                        <Run Text="{Binding SkippedTestCount, Mode=OneWay}"/>
-                        <Run Text=") "/>
+                        <Run Text="Skipped" />
+                        <Run Text=" (" />
+                        <Run Text="{Binding SkippedTestCount, Mode=OneWay}" />
+                        <Run Text=") " />
                     </TextBlock>
                     <TextBlock>
-                        <Run Text="Warning"/>
-                        <Run Text=" ("/>
-                        <Run Text="{Binding WarningTestCount, Mode=OneWay}"/>
-                        <Run Text=") "/>
+                        <Run Text="Warning" />
+                        <Run Text=" (" />
+                        <Run Text="{Binding WarningTestCount, Mode=OneWay}" />
+                        <Run Text=") " />
                     </TextBlock>
                 </StackPanel>
             </StackPanel>
             <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="2*"/>
-                    <ColumnDefinition Width="8"/>
-                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="2*" />
+                    <ColumnDefinition Width="4" />
+                    <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
-                
-                <GridSplitter Grid.Column="1" ResizeDirection="Columns" ResizeBehavior="PreviousAndNext"/>
 
+                <GridSplitter Grid.Column="1"
+                              ResizeDirection="Columns"
+                              ResizeBehavior="PreviousAndNext" />
 
                 <controls:TreeListView AllowsColumnReorder="True"
                                        ItemsSource="{Binding Tests.Children}"
@@ -211,7 +210,6 @@
                             </GridViewColumn.CellTemplate>
                         </GridViewColumn>
                     </controls:TreeListView.Columns>
-
                 </controls:TreeListView>
 
                 <TextBox IsReadOnly="True"
@@ -233,10 +231,13 @@
         <Grid Visibility="{Binding IsProjectLoading, Converter={StaticResource ReversedBoolToVisibilityConverter}}">
             <views:OpenProjectView
                 Visibility="{Binding IsProjectLoaded, Converter={StaticResource ReversedBoolToVisibilityConverter}}" />
-            <ContentControl Content="{Binding PackageSettingsViewModel}"
-                            HorizontalAlignment="Right"
-                            VerticalAlignment="Bottom"
-                            Visibility="{Binding IsProjectLoaded, Converter={StaticResource ReversedBoolToVisibilityConverter}}" />
+            <GroupBox Header="Options"
+                      HorizontalAlignment="Right"
+                      VerticalAlignment="Bottom"
+                      Margin="8"
+                      Visibility="{Binding IsProjectLoaded, Converter={StaticResource ReversedBoolToVisibilityConverter}}">
+                <ContentControl Content="{Binding PackageSettingsViewModel}" />
+            </GroupBox>
         </Grid>
     </Grid>
 </UserControl>

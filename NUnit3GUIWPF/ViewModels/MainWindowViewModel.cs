@@ -13,6 +13,7 @@ namespace NUnit3GUIWPF.ViewModels
     [Export(typeof(IMainWindowViewModel))]
     public class MainWindowViewModel : ReactiveObject, IMainWindowViewModel
     {
+        private const string NewProjectName = "Project";
         private const string projectNameFormat = "{0}({1})";
         private readonly IContainerFactory _containerFactory;
         private IProjectViewModel _currentViewModel;
@@ -29,14 +30,6 @@ namespace NUnit3GUIWPF.ViewModels
                 p => CloseProject(p));
 
             InternalAddNewProject();
-        }
-
-        private void InternalAddNewProject()
-        {
-            var viewModel = _containerFactory.CreateProjectViewModel();
-            viewModel.Header = CreateUniqueName("Project", Projects.Select(_ => _.Header).ToList());
-            Projects.Add(viewModel);
-            CurrentViewModel = viewModel;
         }
 
         public ReactiveCommand<Unit, Unit> AddProjectCommand { get; }
@@ -74,6 +67,14 @@ namespace NUnit3GUIWPF.ViewModels
             }
 
             return Unit.Default;
+        }
+
+        private void InternalAddNewProject()
+        {
+            var viewModel = _containerFactory.CreateProjectViewModel();
+            viewModel.Header = Projects.Any(_ => _.Header == NewProjectName) == false ? NewProjectName : CreateUniqueName(NewProjectName, Projects.Select(_ => _.Header).ToList());
+            Projects.Add(viewModel);
+            CurrentViewModel = viewModel;
         }
     }
 }
