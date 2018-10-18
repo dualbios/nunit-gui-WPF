@@ -86,6 +86,46 @@
                     <ProgressBar IsIndeterminate="True"
                                  Visibility="{Binding IsRunning, Converter={StaticResource BoolToVisibilityConverter}}" />
                 </Grid>
+                <StackPanel Orientation="Horizontal">
+                    <StackPanel.Resources>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Foreground"
+                                    Value="#f2f2f2" />
+                            <Setter Property="FontSize"
+                                    Value="12" />
+                        </Style>
+                    </StackPanel.Resources>
+                    <TextBlock>
+                        <Run Text="Failed"/>
+                        <Run Text=" ("/>
+                        <Run Text="{Binding FailedTestCount, Mode=OneWay}"/>
+                        <Run Text=") "/>
+                    </TextBlock>
+                    <TextBlock>
+                        <Run Text="Inconclusive"/>
+                        <Run Text=" ("/>
+                        <Run Text="{Binding InconclusiveTestCount, Mode=OneWay}"/>
+                        <Run Text=") "/>
+                    </TextBlock>
+                    <TextBlock>
+                        <Run Text="Passed"/>
+                        <Run Text=" ("/>
+                        <Run Text="{Binding PassedTestCount, Mode=OneWay}"/>
+                        <Run Text=") "/>
+                    </TextBlock>
+                    <TextBlock>
+                        <Run Text="Skipped"/>
+                        <Run Text=" ("/>
+                        <Run Text="{Binding SkippedTestCount, Mode=OneWay}"/>
+                        <Run Text=") "/>
+                    </TextBlock>
+                    <TextBlock>
+                        <Run Text="Warning"/>
+                        <Run Text=" ("/>
+                        <Run Text="{Binding WarningTestCount, Mode=OneWay}"/>
+                        <Run Text=") "/>
+                    </TextBlock>
+                </StackPanel>
             </StackPanel>
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -157,6 +197,15 @@
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
                                     <TextBlock Text="{Binding Duration, Mode=OneWay}"
+                                               Style="{StaticResource TextBlockStyle}" />
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                        <GridViewColumn Header="Status"
+                                        Width="100">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding TestStatus, Mode=OneWay}"
                                                Style="{StaticResource TextBlockStyle}" />
                                 </DataTemplate>
                             </GridViewColumn.CellTemplate>

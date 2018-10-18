@@ -32,8 +32,8 @@
                         DockPanel.Dock="Right"
                         Margin="4 0"
                         Click="SelectFile_OnClick" />
-                <TextBox x:Name="FileNameTextBox"
-                         Text="{Binding FileName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                <TextBox x:Name="FilePathTextBox"
+                         Text="{Binding FilePath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
             </DockPanel>
             <Button Margin="16"
                     Command="{Binding OpenFileCommand}"

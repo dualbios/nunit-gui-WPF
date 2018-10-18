@@ -36,7 +36,7 @@ namespace NUnit3GUIWPF.Views
             string file = (ofd.ShowDialog(Application.Current.MainWindow) == true) ? ofd.FileName : null;
             if (file != null)
             {
-                FileNameTextBox.Text = file;
+                FilePathTextBox.Text = file;
             }
         }
     }

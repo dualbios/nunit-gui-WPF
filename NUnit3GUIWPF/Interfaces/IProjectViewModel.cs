@@ -2,14 +2,28 @@
 
 namespace NUnit3GUIWPF.Interfaces
 {
-    public interface IProjectViewModel 
+    public interface IProjectViewModel
     {
-        string FileName { get; }
+        int FailedTestCount { get; }
+
+        string FilePath { get; set; }
 
         string Header { get; set; }
 
+        int InconclusiveTestCount { get; }
+
+        bool IsProjectLoaded { get; }
+
+        bool IsProjectLoading { get; }
+
         bool IsRunning { get; }
 
+        int PassedTestCount { get; }
+
+        int SkippedTestCount { get; }
+
         ProjectState State { get; }
+
+        int WarningTestCount { get; }
     }
 }

@@ -24,7 +24,7 @@ namespace NUnit3GUIWPF.ViewModels
     [TypeConverter(typeof(ViewModelToViewConverter<ProjectViewModel, ProjectView>))]
     public class ProjectViewModel : ReactiveObject, IProjectViewModel, ITestEventListener
     {
-        private string _fileName;
+        private string _filePath;
         private string _header;
         private bool _isProjectLoaded;
         private ObservableAsPropertyHelper<bool> _isProjectLoading;
@@ -44,6 +44,7 @@ namespace NUnit3GUIWPF.ViewModels
                 {
                     node.TestAction = TestState.Finished;
                     node.Output = report.InnerText;
+                    node.TestStatus = report.GetStatus();
                     node.Duration = report.ParseDuration();
                 }
             },
@@ -52,6 +53,7 @@ namespace NUnit3GUIWPF.ViewModels
                 {
                     node.TestAction = TestState.Finished;
                     node.Output = report.InnerText;
+                    node.TestStatus = report.GetStatus();
                     node.Duration = report.ParseDuration();
                 }
             },
@@ -61,6 +63,7 @@ namespace NUnit3GUIWPF.ViewModels
                     node.TestAction = TestState.Finished;
                     node.Duration = report.ParseDuration();
                     node.Output = report.InnerText;
+                    node.TestStatus = report.GetStatus();
                     vm.State = ProjectState.Finished;
                     Application.Current.Dispatcher.Invoke(() => { vm.IsRunning = false; });
                 }
@@ -74,7 +77,7 @@ namespace NUnit3GUIWPF.ViewModels
             RunAllTestCommand = ReactiveCommand.CreateFromTask(
                 RunAllTestAsync,
                 this.WhenAny(
-                    vm => vm.FileName,
+                    vm => vm.FilePath,
                     vm => vm.IsRunning,
                     (p1, p2) => !string.IsNullOrEmpty(p1.Value) && !p2.Value));
             StopTestCommand = ReactiveCommand.CreateFromTask(
@@ -86,26 +89,25 @@ namespace NUnit3GUIWPF.ViewModels
                 this.WhenAny(vm => vm.SelectedItem, p => p.Value != null));
 
             OpenFileCommand = ReactiveCommand.CreateFromObservable(
-                () => Observable.StartAsync(ct => LoadFile(FileName, ct))
+                () => Observable.StartAsync(ct => LoadFile(FilePath, ct))
                     .TakeUntil(CancelLoadingProjectCommand),
-                this.WhenAny(vm => vm.FileName, p => !string.IsNullOrEmpty(p.Value)));
+                this.WhenAny(vm => vm.FilePath, p => !string.IsNullOrEmpty(p.Value)));
 
             _isProjectLoading = OpenFileCommand.IsExecuting.ToProperty(this, vm => vm.IsProjectLoading);
 
             CancelLoadingProjectCommand = ReactiveCommand.Create(
                 () => { },
                 OpenFileCommand.IsExecuting);
-
-            
         }
 
         public ReactiveCommand<Unit, Unit> CancelLoadingProjectCommand { get; }
 
+        public int FailedTestCount => flattenTests.Where(_ => _.Type == "TestCase").Count(_ => _.TestStatus == TestStatus.Failed);
 
-        public string FileName
+        public string FilePath
         {
-            get => _fileName;
-            set => this.RaiseAndSetIfChanged(ref _fileName, value);
+            get => _filePath;
+            set => this.RaiseAndSetIfChanged(ref _filePath, value);
         }
 
         public string Header
@@ -113,6 +115,8 @@ namespace NUnit3GUIWPF.ViewModels
             get => _header;
             set => this.RaiseAndSetIfChanged(ref _header, value);
         }
+
+        public int InconclusiveTestCount => flattenTests.Where(_ => _.Type == "TestCase").Count(_ => _.TestStatus == TestStatus.Inconclusive);
 
         public bool IsProjectLoaded
         {
@@ -135,6 +139,8 @@ namespace NUnit3GUIWPF.ViewModels
         [Import]
         public IPackageSettingsViewModel PackageSettingsViewModel { get; private set; }
 
+        public int PassedTestCount => flattenTests.Where(_ => _.Type == "TestCase").Count(_ => _.TestStatus == TestStatus.Passed);
+
         public ReactiveCommand<Unit, Unit> RunAllTestCommand { get; }
 
         public ITestRunner Runner { get; private set; }
@@ -147,6 +153,8 @@ namespace NUnit3GUIWPF.ViewModels
             set => this.RaiseAndSetIfChanged(ref _selectedItem, value);
         }
 
+        public int SkippedTestCount => flattenTests.Where(_ => _.Type == "TestCase").Count(_ => _.TestStatus == TestStatus.Skipped);
+
         public ProjectState State
         {
             get => _state;
@@ -156,6 +164,8 @@ namespace NUnit3GUIWPF.ViewModels
         public ReactiveCommand<Unit, Unit> StopTestCommand { get; }
 
         public TestNode Tests { get; private set; }
+
+        public int WarningTestCount => flattenTests.Where(_ => _.Type == "TestCase").Count(_ => _.TestStatus == TestStatus.Warning);
 
         public void OnTestEvent(string report)
         {
@@ -178,6 +188,12 @@ namespace NUnit3GUIWPF.ViewModels
             {
                 nodeAction(this, testNode, xmlNode);
             }
+
+            this.RaisePropertyChanged(nameof(FailedTestCount));
+            this.RaisePropertyChanged(nameof(InconclusiveTestCount));
+            this.RaisePropertyChanged(nameof(PassedTestCount));
+            this.RaisePropertyChanged(nameof(SkippedTestCount));
+            this.RaisePropertyChanged(nameof(WarningTestCount));
         }
 
         private IEnumerable<TestNode> FlattenTests(TestNode test, CancellationToken ct)
@@ -229,6 +245,12 @@ namespace NUnit3GUIWPF.ViewModels
             }, ct);
 
             this.RaisePropertyChanged(nameof(Tests));
+
+            this.RaisePropertyChanged(nameof(FailedTestCount));
+            this.RaisePropertyChanged(nameof(InconclusiveTestCount));
+            this.RaisePropertyChanged(nameof(PassedTestCount));
+            this.RaisePropertyChanged(nameof(SkippedTestCount));
+            this.RaisePropertyChanged(nameof(WarningTestCount));
 
             return;
         }

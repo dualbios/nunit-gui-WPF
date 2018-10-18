@@ -184,6 +184,7 @@
     <Compile Include="Behaviors\BindableSelectedItemBehavio.cs" />
     <Compile Include="Controls\TreeListView.cs" />
     <Compile Include="Converters\BoolToVisibilityConverter.cs" />
+    <Compile Include="Converters\PathToFilenameConverter.cs" />
     <Compile Include="Converters\ProjectStateToEnableConverter.cs" />
     <Compile Include="Converters\ViewModelToViewConverter.cs" />
     <Compile Include="Factories\ContainerFactory.cs" />

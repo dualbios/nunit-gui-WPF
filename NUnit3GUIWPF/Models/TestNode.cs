@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Xml;
 using NUnit;
 using NUnit.Engine;
@@ -13,6 +12,7 @@ namespace NUnit3GUIWPF.Models
         private double _duration;
         private string _output;
         private TestState _testAction;
+        private TestStatus _testStatus;
 
         public TestNode(XmlNode xmlNode)
         {
@@ -75,6 +75,12 @@ namespace NUnit3GUIWPF.Models
         }
 
         public int TestCount { get; }
+
+        public TestStatus TestStatus
+        {
+            get => _testStatus;
+            set => this.RaiseAndSetIfChanged(ref _testStatus, value);
+        }
 
         public string Type { get; }
 
