@@ -27,7 +27,8 @@
         </ResourceDictionary>
     </Window.Resources>
     <Window.Background>
-        <VisualBrush Opacity="0.1"
+        <VisualBrush Opacity="0.05"
+                     
                      Viewport="0,0,250,330"
                      ViewportUnits="Absolute"
                      TileMode="Tile"
@@ -37,7 +38,7 @@
             </VisualBrush.Visual>
         </VisualBrush>
     </Window.Background>
-    <Grid>
+    <Grid >
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="150" />
             <ColumnDefinition Width="4" />
@@ -64,13 +65,6 @@
                                        FontSize="14"
                                        Foreground="AliceBlue"
                                        DockPanel.Dock="Top" />
-                                <TextBlock
-                                    Text="{Binding FilePath, Converter={StaticResource PathToFilenameConverter}}"
-                                    TextTrimming="CharacterEllipsis"
-                                    ToolTip="{Binding FilePath}"
-                                    FontSize="12"
-                                    Foreground="#FFBABABA"
-                                    DockPanel.Dock="Top" />
                                 <TextBlock Text="{Binding State}"
                                            FontSize="12"
                                            Foreground="#FFBABABA"

@@ -36,7 +36,8 @@
 
     <Canvas x:Key="MainBackground"
             Width="250"
-            Height="30">
+            Height="30"
+            Background="#1E1E1E">
         <Path 
                 Stroke="AliceBlue"
                 StrokeThickness="1"

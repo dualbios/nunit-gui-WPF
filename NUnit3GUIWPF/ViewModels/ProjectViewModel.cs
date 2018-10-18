@@ -10,12 +10,14 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Xml;
 using Microsoft.VisualStudio.Composition;
+using Microsoft.Win32;
 using NUnit.Engine;
 using NUnit3GUIWPF.Converters;
 using NUnit3GUIWPF.Interfaces;
 using NUnit3GUIWPF.Models;
 using NUnit3GUIWPF.Views;
 using ReactiveUI;
+using ReactiveUI.Legacy;
 
 namespace NUnit3GUIWPF.ViewModels
 {
@@ -29,6 +31,7 @@ namespace NUnit3GUIWPF.ViewModels
         private bool _isProjectLoaded;
         private ObservableAsPropertyHelper<bool> _isProjectLoading;
         private bool _isRunning;
+        private string _selectedFilePath;
         private TestNode _selectedItem;
         private ProjectState _state = ProjectState.NotLoaded;
         private ITestEngine _testEngine;
@@ -77,9 +80,8 @@ namespace NUnit3GUIWPF.ViewModels
             RunAllTestCommand = ReactiveCommand.CreateFromTask(
                 RunAllTestAsync,
                 this.WhenAny(
-                    vm => vm.FilePath,
                     vm => vm.IsRunning,
-                    (p1, p2) => !string.IsNullOrEmpty(p1.Value) && !p2.Value));
+                    (p2) =>  !p2.Value));
             StopTestCommand = ReactiveCommand.CreateFromTask(
                 StopTestAsync,
                 this.WhenAny(vm => vm.IsRunning, p => p.Value == true));
@@ -89,26 +91,31 @@ namespace NUnit3GUIWPF.ViewModels
                 this.WhenAny(vm => vm.SelectedItem, p => p.Value != null));
 
             OpenFileCommand = ReactiveCommand.CreateFromObservable(
-                () => Observable.StartAsync(ct => LoadFile(FilePath, ct))
+                () => Observable.StartAsync(ct => LoadFile(FilePathList, ct))
                     .TakeUntil(CancelLoadingProjectCommand),
-                this.WhenAny(vm => vm.FilePath, p => !string.IsNullOrEmpty(p.Value)));
+                    FilePathList.CountChanged.Select(_ => _ > 0));
 
             _isProjectLoading = OpenFileCommand.IsExecuting.ToProperty(this, vm => vm.IsProjectLoading);
 
             CancelLoadingProjectCommand = ReactiveCommand.Create(
                 () => { },
                 OpenFileCommand.IsExecuting);
+
+            AddFileCommand = ReactiveCommand.Create(
+                () => OpenAndAddFile());
+
+            RemoveFileCommand = ReactiveCommand.Create<string>(
+                f => { FilePathList.Remove(f); },
+                this.WhenAny(vm => vm.SelectedFilePath, p => string.IsNullOrEmpty(p.Value) == false));
         }
+
+        public ReactiveCommand<Unit, Unit> AddFileCommand { get; }
 
         public ReactiveCommand<Unit, Unit> CancelLoadingProjectCommand { get; }
 
         public int FailedTestCount => flattenTests.Where(_ => _.Type == "TestCase").Count(_ => _.TestStatus == TestStatus.Failed);
 
-        public string FilePath
-        {
-            get => _filePath;
-            set => this.RaiseAndSetIfChanged(ref _filePath, value);
-        }
+        public ReactiveList<string> FilePathList { get; } = new ReactiveList<string>();
 
         public string Header
         {
@@ -141,11 +148,19 @@ namespace NUnit3GUIWPF.ViewModels
 
         public int PassedTestCount => flattenTests.Where(_ => _.Type == "TestCase").Count(_ => _.TestStatus == TestStatus.Passed);
 
+        public ReactiveCommand<string, Unit> RemoveFileCommand { get; }
+
         public ReactiveCommand<Unit, Unit> RunAllTestCommand { get; }
 
         public ITestRunner Runner { get; private set; }
 
         public ReactiveCommand<Unit, Unit> RunSelectedTestCommand { get; }
+
+        public string SelectedFilePath
+        {
+            get => _selectedFilePath;
+            set => this.RaiseAndSetIfChanged(ref _selectedFilePath, value);
+        }
 
         public TestNode SelectedItem
         {
@@ -208,14 +223,14 @@ namespace NUnit3GUIWPF.ViewModels
             yield break;
         }
 
-        private async Task LoadFile(string file, CancellationToken ct)
+        private async Task LoadFile(IEnumerable<string> files, CancellationToken ct)
         {
             State = ProjectState.Loading;
             await Task.Run(() =>
             {
                 try
                 {
-                    var package = new TestPackage(file);
+                    var package = new TestPackage(files.ToList());
                     foreach (var entry in PackageSettingsViewModel.GetSettings()
                         .Where(p => p.Value != null)
                         .Where(s => (s.Value is string) == false || string.Equals("Default", s.Value as string, StringComparison.InvariantCultureIgnoreCase) == false))
@@ -253,6 +268,19 @@ namespace NUnit3GUIWPF.ViewModels
             this.RaisePropertyChanged(nameof(WarningTestCount));
 
             return;
+        }
+
+        private void OpenAndAddFile()
+        {
+            OpenFileDialog ofd = new OpenFileDialog()
+            {
+                CheckFileExists = true,
+                DefaultExt = "*.dll"
+            };
+            if (ofd.ShowDialog(Application.Current.MainWindow) == true)
+            {
+                FilePathList.Add(ofd.FileName);
+            }
         }
 
         private Task RunAllTestAsync(CancellationToken arg)

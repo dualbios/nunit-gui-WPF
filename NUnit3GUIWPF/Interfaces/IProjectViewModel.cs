@@ -6,8 +6,6 @@ namespace NUnit3GUIWPF.Interfaces
     {
         int FailedTestCount { get; }
 
-        string FilePath { get; set; }
-
         string Header { get; set; }
 
         int InconclusiveTestCount { get; }
