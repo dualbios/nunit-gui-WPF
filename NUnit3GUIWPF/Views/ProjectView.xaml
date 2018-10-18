@@ -214,6 +214,7 @@
 
                 <TextBox IsReadOnly="True"
                          Grid.Column="2"
+                         Background="#3E3E42"
                          Text="{Binding SelectedItem.Output, Mode=OneWay}" />
             </Grid>
         </DockPanel>

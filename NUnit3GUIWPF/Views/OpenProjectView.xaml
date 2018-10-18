@@ -24,17 +24,17 @@
     <Grid>
         <StackPanel Orientation="Vertical"
                     HorizontalAlignment="Stretch"
-                    VerticalAlignment="Center">
-            <DockPanel LastChildFill="True"
-                       Margin="32">
-                <Button Content="..."
-                        Width="32"
-                        DockPanel.Dock="Right"
-                        Margin="4 0"
-                        Click="SelectFile_OnClick" />
-                <TextBox x:Name="FilePathTextBox"
-                         Text="{Binding FilePath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-            </DockPanel>
+                    VerticalAlignment="Center"
+                    Margin="32">
+            <ListBox x:Name="FileList"
+                ItemsSource="{Binding FilePathList}"
+                     SelectedItem="{Binding SelectedFilePath}"
+                     MinHeight="150">
+            </ListBox>
+            <StackPanel Orientation="Horizontal">
+                <Button Content="+" Command="{Binding AddFileCommand}" CommandParameter="{Binding Text, ElementName=FilePathTextBox}"/>
+                <Button Content="-" Command="{Binding RemoveFileCommand}" CommandParameter="{Binding SelectedItem, ElementName=FileList}"/>
+            </StackPanel>
             <Button Margin="16"
                     Command="{Binding OpenFileCommand}"
                     HorizontalAlignment="Center">
