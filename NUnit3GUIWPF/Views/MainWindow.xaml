@@ -38,25 +38,18 @@
             </VisualBrush.Visual>
         </VisualBrush>
     </Window.Background>
-    <Grid >
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="150" />
-            <ColumnDefinition Width="4" />
-            <ColumnDefinition />
-        </Grid.ColumnDefinitions>
-        <GridSplitter Grid.Column="1"
-                      ResizeBehavior="PreviousAndNext"
-                      ResizeDirection="Columns" />
-        <DockPanel Grid.Column="0">
-            <Button Margin="16"
-                    DockPanel.Dock="Top"
-                    Command="{Binding AddProjectCommand}"
-                    HorizontalAlignment="Center"
-                    Content="Add" />
+    <DockPanel LastChildFill="True" >
+        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal">
             <ListBox ItemsSource="{Binding Projects, Mode=OneWay}"
                      SelectedItem="{Binding CurrentViewModel}"
                      Background="Transparent"
-                     BorderThickness="0">
+                     BorderThickness="0"
+                     >
+                <ListBox.ItemsPanel>
+                    <ItemsPanelTemplate>
+                            <VirtualizingStackPanel IsItemsHost="True" Orientation="Horizontal"/>
+                    </ItemsPanelTemplate>
+                </ListBox.ItemsPanel>
                 <ListBox.ItemTemplate>
                     <DataTemplate>
                         <Grid>
@@ -116,9 +109,14 @@
                     </DataTemplate>
                 </ListBox.ItemTemplate>
             </ListBox>
-        </DockPanel>
+            <Button Margin="16"
+                    DockPanel.Dock="Top"
+                    Command="{Binding AddProjectCommand}"
+                    HorizontalAlignment="Center"
+                    Content="Add" />
+        </StackPanel>
         <ContentControl Content="{Binding CurrentViewModel, Mode=OneWay}"
                         Grid.Column="2" />
 
-    </Grid>
+    </DockPanel>
 </Window>
