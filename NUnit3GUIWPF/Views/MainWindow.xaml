@@ -6,7 +6,8 @@
         xmlns:converters="clr-namespace:NUnit3GUIWPF.Converters"
         xmlns:local="clr-namespace:NUnit3GUIWPF"
         mc:Ignorable="d"
-        Title="MainWindow"
+        Title="NUnit test GUI"
+        Style="{StaticResource MainWindowStyle}"
         Height="450"
         Width="800"
         x:Name="MainWindow2">
