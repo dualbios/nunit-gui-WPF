@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Input;
 using DesktopBridge;
 using Microsoft.VisualStudio.Composition;
 using NUnit3GUIWPF.Interfaces;

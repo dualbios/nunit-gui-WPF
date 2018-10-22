@@ -9,6 +9,7 @@
              xmlns:behaviours="clr-namespace:NUnit3GUIWPF.Behaviors"
              xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
              xmlns:views="clr-namespace:NUnit3GUIWPF.Views"
+             xmlns:models="clr-namespace:NUnit3GUIWPF.Models"
              xmlns:converters1="clr-namespace:NUnit3GUIWPF.Converters"
              mc:Ignorable="d"
              d:DesignHeight="450"
@@ -23,6 +24,7 @@
                 <ResourceDictionary Source="../Assets/ControlStyles.xaml" />
                 <ResourceDictionary Source="../Assets/Icons.xaml" />
             </ResourceDictionary.MergedDictionaries>
+            <converters:EnumToBoolConverter x:Key="EnumToBoolConverter" />
             <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
             <converters:BoolToVisibilityConverter x:Key="ReversedBoolToVisibilityConverter"
                                                   IsReversed="True" />
@@ -46,7 +48,7 @@
                                 Style="{StaticResource ProjectToolButtonStyle}"
                                 Margin="0 0 4 0">
                             <Button.Content>
-                                <StackPanel Orientation="Vertical">
+                                <StackPanel Orientation="Horizontal">
                                     <ContentControl Content="{StaticResource RunAllIcon}"
                                                     Style="{StaticResource IconContentControlStyle}" />
                                     <Label Content="Run All"
@@ -57,7 +59,7 @@
                         <Button Command="{Binding RunSelectedTestCommand}"
                                 Style="{StaticResource ProjectToolButtonStyle}">
                             <Button.Content>
-                                <StackPanel Orientation="Vertical">
+                                <StackPanel Orientation="Horizontal">
                                     <ContentControl Content="{StaticResource RunSelectedIcon}"
                                                     Style="{StaticResource IconContentControlStyle}" />
                                     <Label Content="Run Selected"
@@ -68,7 +70,7 @@
                         <Button Command="{Binding StopTestCommand}"
                                 Style="{StaticResource ProjectToolButtonStyle}">
                             <Button.Content>
-                                <StackPanel Orientation="Vertical">
+                                <StackPanel Orientation="Horizontal">
                                     <ContentControl Content="{StaticResource StopIcon}"
                                                     Style="{StaticResource IconContentControlStyle}" />
                                     <Label Content="Stop"
@@ -128,18 +130,22 @@
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="2*" />
-                    <ColumnDefinition Width="4" />
+                    <ColumnDefinition Width="16" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
 
                 <GridSplitter Grid.Column="1"
+                              Margin="4 0"
                               ResizeDirection="Columns"
                               ResizeBehavior="PreviousAndNext" />
 
                 <controls:TreeListView AllowsColumnReorder="True"
                                        ItemsSource="{Binding Tests.Children}"
                                        Foreground="White"
-                                       x:Name="TestTreeView">
+                                       x:Name="TestTreeView"
+                                       BorderBrush="#FFb9b9b9"
+                                       BorderThickness="1"
+                                       Margin="0">
                     <controls:TreeListView.Resources>
                         <Style TargetType="TextBlock"
                                x:Key="TextBlockStyle">
@@ -147,6 +153,70 @@
                                     Value="#f2f2f2" />
                             <Setter Property="FontSize"
                                     Value="14" />
+                        </Style>
+                        <Style TargetType="TextBlock"
+                               BasedOn="{StaticResource TextBlockStyle}"
+                               x:Key="RunStateTextBlockStyle">
+
+                            <Style.Triggers>
+                                <!--RunState-->
+                                <DataTrigger
+                                    Binding="{Binding RunState, Converter={StaticResource EnumToBoolConverter}, ConverterParameter={x:Static models:RunState.Ignored }}"
+                                    Value="true">
+                                    <Setter Property="Foreground"
+                                            Value="Gray" />
+                                </DataTrigger>
+                                <DataTrigger
+                                    Binding="{Binding RunState, Converter={StaticResource EnumToBoolConverter}, ConverterParameter={x:Static models:RunState.NotRunnable }}"
+                                    Value="true">
+                                    <Setter Property="Foreground"
+                                            Value="Gray" />
+                                </DataTrigger>
+                                <DataTrigger
+                                    Binding="{Binding RunState, Converter={StaticResource EnumToBoolConverter}, ConverterParameter={x:Static models:RunState.Skipped }}"
+                                    Value="true">
+                                    <Setter Property="Foreground"
+                                            Value="Gray" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+
+                        <Style TargetType="TextBlock"
+                               BasedOn="{StaticResource TextBlockStyle}"
+                               x:Key="TestStatusTextBlockStyle">
+                            <Style.Triggers>
+                                <!--TestStatus-->
+                                <DataTrigger
+                                    Binding="{Binding TestStatus, Converter={StaticResource EnumToBoolConverter}, ConverterParameter={x:Static models:TestStatus.Skipped }}"
+                                    Value="true">
+                                    <Setter Property="Foreground"
+                                            Value="Gray" />
+                                </DataTrigger>
+                                <DataTrigger
+                                    Binding="{Binding TestStatus, Converter={StaticResource EnumToBoolConverter}, ConverterParameter={x:Static models:TestStatus.Failed }}"
+                                    Value="true">
+                                    <Setter Property="Foreground"
+                                            Value="DarkRed" />
+                                </DataTrigger>
+                                <!--<DataTrigger
+                                    Binding="{Binding TestStatus, Converter={StaticResource EnumToBoolConverter}, ConverterParameter={x:Static models:TestStatus.Inconclusive }}"
+                                    Value="true">
+                                    <Setter Property="Foreground"
+                                            Value="Yellow" />
+                                </DataTrigger>-->
+                                <DataTrigger
+                                    Binding="{Binding TestStatus, Converter={StaticResource EnumToBoolConverter}, ConverterParameter={x:Static models:TestStatus.Passed }}"
+                                    Value="true">
+                                    <Setter Property="Foreground"
+                                            Value="Green" />
+                                </DataTrigger>
+                                <DataTrigger
+                                    Binding="{Binding TestStatus, Converter={StaticResource EnumToBoolConverter}, ConverterParameter={x:Static models:TestStatus.Warning }}"
+                                    Value="true">
+                                    <Setter Property="Foreground"
+                                            Value="Chocolate" />
+                                </DataTrigger>
+                            </Style.Triggers>
                         </Style>
                     </controls:TreeListView.Resources>
                     <i:Interaction.Behaviors>
@@ -162,7 +232,7 @@
                                 <DataTemplate>
                                     <StackPanel Orientation="Horizontal">
                                         <controls:TreeListViewExpander />
-                                        <TextBlock Style="{StaticResource TextBlockStyle}">
+                                        <TextBlock Style="{StaticResource RunStateTextBlockStyle}">
                                             <Run Text="[" />
                                             <Run Text="{Binding Id, Mode=OneWay}" />
                                             <Run Text="] " />
@@ -177,7 +247,7 @@
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
                                     <TextBlock Text="{Binding RunState, Mode=OneWay}"
-                                               Style="{StaticResource TextBlockStyle}" />
+                                               Style="{StaticResource RunStateTextBlockStyle}" />
                                 </DataTemplate>
                             </GridViewColumn.CellTemplate>
                         </GridViewColumn>
@@ -186,7 +256,7 @@
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
                                     <TextBlock Text="{Binding TestAction, Mode=OneWay}"
-                                               Style="{StaticResource TextBlockStyle}" />
+                                               Style="{StaticResource RunStateTextBlockStyle}" />
                                 </DataTemplate>
                             </GridViewColumn.CellTemplate>
                         </GridViewColumn>
@@ -196,7 +266,7 @@
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
                                     <TextBlock Text="{Binding Duration, Mode=OneWay}"
-                                               Style="{StaticResource TextBlockStyle}" />
+                                               Style="{StaticResource RunStateTextBlockStyle}" />
                                 </DataTemplate>
                             </GridViewColumn.CellTemplate>
                         </GridViewColumn>
@@ -205,7 +275,7 @@
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
                                     <TextBlock Text="{Binding TestStatus, Mode=OneWay}"
-                                               Style="{StaticResource TextBlockStyle}" />
+                                               Style="{StaticResource TestStatusTextBlockStyle}" />
                                 </DataTemplate>
                             </GridViewColumn.CellTemplate>
                         </GridViewColumn>
