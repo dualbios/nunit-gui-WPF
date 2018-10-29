@@ -7,21 +7,29 @@
              mc:Ignorable="d"
              d:DesignHeight="450"
              d:DesignWidth="800">
-    <StackPanel>
+    <StackPanel Orientation="Horizontal" Margin="8">
+        <HeaderedContentControl Header="Run as x86">
         <CheckBox IsChecked="{Binding PackageSettngs.IsRunAsX86}"
                   Content="Run as x86" />
-        <ComboBox ItemsSource="{Binding ProcessModels}"
+        </HeaderedContentControl>
+        <HeaderedContentControl Header="Process Models">
+            <ListBox ItemsSource="{Binding ProcessModels}"
                   SelectedItem="{Binding PackageSettngs.ProcessModel}" />
-        <ComboBox ItemsSource="{Binding DomainUsages}"
+        </HeaderedContentControl>
+        <HeaderedContentControl Header="Domain Usages">
+                <ListBox ItemsSource="{Binding DomainUsages}"
                   SelectedItem="{Binding PackageSettngs.DomainUsage}" />
-        <ComboBox ItemsSource="{Binding Runtimes}"
+        </HeaderedContentControl>
+        <HeaderedContentControl Header="Runtimes">
+                    <ListBox ItemsSource="{Binding Runtimes}"
                   SelectedValue="{Binding PackageSettngs.RuntimeFramework}"
                   SelectedValuePath="Id">
-            <ComboBox.ItemTemplate>
+            <ListBox.ItemTemplate>
                 <DataTemplate>
                     <TextBlock Text="{Binding DisplayName}" />
                 </DataTemplate>
-            </ComboBox.ItemTemplate>
-        </ComboBox>
+            </ListBox.ItemTemplate>
+        </ListBox>
+        </HeaderedContentControl>
     </StackPanel>
 </UserControl>

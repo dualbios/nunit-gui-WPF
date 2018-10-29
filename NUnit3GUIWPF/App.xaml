@@ -5,11 +5,12 @@
         <ResourceDictionary>
 
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="../Assets/Icons.xaml" />
+                <ResourceDictionary Source="Assets/Icons.xaml" />
 
-                <ResourceDictionary Source="../Themes/MetroDark/MetroDark.MSControls.Core.Implicit.xaml" />
-                <ResourceDictionary Source="../Themes/MetroDark/MetroDark.MSControls.Toolkit.Implicit.xaml" />
+                <ResourceDictionary Source="Assets/ControlStyles.xaml" />
             </ResourceDictionary.MergedDictionaries>
+
+           
 
             <SolidColorBrush x:Key="BackgroundColor"
                              Color="Transparent" />
@@ -17,9 +18,11 @@
                    BasedOn="{StaticResource {x:Type Button}}"
                    TargetType="Button">
                 <Setter Property="Width"
-                        Value="45" />
+                        Value="34" />
                 <Setter Property="Height"
-                        Value="29" />
+                        Value="34" />                
+                <Setter Property="Background"
+                        Value="Transparent" />
             </Style>
             <Style x:Key="MainWindowStyle"
                    TargetType="{x:Type Window}">
@@ -47,11 +50,13 @@
 
                                     <!-- Titlebar  -->
                                     <Grid DockPanel.Dock="Top">
-                                        <Rectangle VerticalAlignment="Stretch"
-                                                   HorizontalAlignment="Stretch"
-                                                   Fill="#006C8E"
-                                                   IsHitTestVisible="True"
-                                                   x:Name="TitlebarControl" />
+                                        <Border VerticalAlignment="Stretch"
+                                                HorizontalAlignment="Stretch"
+                                                Background="{TemplateBinding Background}" 
+                                                x:Name="TitlebarControl" 
+                                                IsHitTestVisible="True" 
+                                                BorderThickness="0 0 0 2"
+                                                BorderBrush="#a4adbb"/>
 
                                         <DockPanel LastChildFill="True"
                                                    Margin="4 2">
@@ -69,26 +74,26 @@
                                                         Orientation="Horizontal">
                                                 <Button
                                                     Command="{Binding Source={x:Static SystemCommands.MinimizeWindowCommand}}"
-                                                    Content="mini"
+                                                    Content="{DynamicResource MinimizeIcon}"
                                                     WindowChrome.IsHitTestVisibleInChrome="true"
                                                     Style="{DynamicResource SystemButton}"
                                                     x:Name="MinimizeButton" />
                                                 <Grid Margin="1,0,1,0">
                                                     <Button
                                                         Command="{Binding Source={x:Static SystemCommands.RestoreWindowCommand}}"
-                                                        Content="Res"
+                                                        Content="{DynamicResource RestoreIcon}"
                                                         Style="{DynamicResource SystemButton}"
                                                         WindowChrome.IsHitTestVisibleInChrome="true"
                                                         Visibility="Collapsed"
                                                         x:Name="RestoreButton" />
                                                     <Button
                                                         Command="{Binding Source={x:Static SystemCommands.MaximizeWindowCommand}}"
-                                                        Content="Max"
+                                                        Content="{DynamicResource FullScreenIcon}"
                                                         Style="{DynamicResource SystemButton}"
                                                         WindowChrome.IsHitTestVisibleInChrome="true"
                                                         x:Name="MaximizeButton" />
                                                 </Grid>
-                                                <Button Content="Clos"
+                                                <Button Content="{DynamicResource CloseIcon}"
                                                         Style="{DynamicResource SystemButton}"
                                                         WindowChrome.IsHitTestVisibleInChrome="true"
                                                         Command="{Binding Source={x:Static SystemCommands.CloseWindowCommand}}" />

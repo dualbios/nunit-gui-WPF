@@ -13,40 +13,50 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="../Assets/Icons.xaml" />
 
-                <ResourceDictionary Source="../Themes/MetroDark/MetroDark.MSControls.Core.Implicit.xaml" />
-                <ResourceDictionary Source="../Themes/MetroDark/MetroDark.MSControls.Toolkit.Implicit.xaml" />
             </ResourceDictionary.MergedDictionaries>
             <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
             <converters:BoolToVisibilityConverter x:Key="ReversedBoolToVisibilityConverter"
                                                   IsReversed="True" />
+
+            <Style TargetType="Button" x:Key="OpenButtonStyle" 
+                   BasedOn="{StaticResource {x:Type Button}}">
+                <Setter Property="Width" Value="126"/>
+                <Setter Property="Height" Value="126"/>
+                <Setter Property="Margin" Value="16"/>
+            </Style>
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid>
-        <StackPanel Orientation="Vertical"
-                    HorizontalAlignment="Stretch"
-                    VerticalAlignment="Center"
-                    Margin="32">
-            <ListBox x:Name="FileList"
-                ItemsSource="{Binding FilePathList}"
-                     SelectedItem="{Binding SelectedFilePath}"
-                     MinHeight="150">
-            </ListBox>
-            <StackPanel Orientation="Horizontal">
-                <Button Content="+" Command="{Binding AddFileCommand}" CommandParameter="{Binding Text, ElementName=FilePathTextBox}"/>
-                <Button Content="-" Command="{Binding RemoveFileCommand}" CommandParameter="{Binding SelectedItem, ElementName=FileList}"/>
-            </StackPanel>
-            <Button Margin="16"
-                    Command="{Binding OpenFileCommand}"
-                    HorizontalAlignment="Center">
+        <StackPanel Orientation="Horizontal"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center">
+            <Button Command="{Binding OpenFileCommand}"
+                    HorizontalAlignment="Center"
+                    Style="{DynamicResource OpenButtonStyle}">
                 <Button.Content>
                     <StackPanel Orientation="Vertical">
-                        <ContentControl Content="{StaticResource OpenIcon}"
-                                        Width="64"
-                                        Height="64"
-                                        Margin="4"
-                                        Foreground="DarkBlue" />
-                        <Label Content="Open"
-                               HorizontalContentAlignment="Center" />
+                        <ContentControl Content="{StaticResource OpenLocalyIcon}"
+                                        Width="75"
+                                        Height="65"
+                                        Margin="4" 
+                                        HorizontalAlignment="Center"/>
+                        <TextBlock Text="Open"
+                               HorizontalAlignment="Center" />
+                    </StackPanel>
+                </Button.Content>
+            </Button>
+            <Button Command="{Binding OpenRecentCommand}"
+                    HorizontalAlignment="Center"
+                    Style="{DynamicResource OpenButtonStyle}">
+                <Button.Content>
+                    <StackPanel Orientation="Vertical">
+                        <ContentControl Content="{StaticResource OpenRecentIcon}"
+                                        Width="75"
+                                        Height="65"
+                                        Margin="4" 
+                                        HorizontalAlignment="Center"/>
+                        <TextBlock Text="Open"
+                               HorizontalAlignment="Center" />
                     </StackPanel>
                 </Button.Content>
             </Button>
