@@ -26,15 +26,19 @@ namespace NUnit3GUIWPF.ViewModels
     [TypeConverter(typeof(ViewModelToViewConverter<ProjectViewModel, ProjectView>))]
     public class ProjectViewModel : ReactiveObject, IProjectViewModel, ITestEventListener
     {
+        private readonly IFileDialogFactory _fileDialogFactory;
+        private int _completedTestsCount;
         private string _filePath;
         private string _header;
         private bool _isProjectLoaded;
         private ObservableAsPropertyHelper<bool> _isProjectLoading;
         private bool _isRunning;
+        private int _ranTestsCount;
         private string _selectedFilePath;
         private TestNode _selectedItem;
         private ProjectState _state = ProjectState.NotLoaded;
         private ITestEngine _testEngine;
+        private double _testsProgress;
         private IEnumerable<TestNode> flattenTests = new List<TestNode>();
 
         private IDictionary<string, Action<ProjectViewModel, TestNode, XmlNode>> reportActions = new Dictionary<string, Action<ProjectViewModel, TestNode, XmlNode>>()
@@ -49,6 +53,7 @@ namespace NUnit3GUIWPF.ViewModels
                     node.Output = report.InnerText;
                     node.TestStatus = report.GetStatus();
                     node.Duration = report.ParseDuration();
+                    vm.CompletedTestsCount++;
                 }
             },
             {
@@ -73,15 +78,20 @@ namespace NUnit3GUIWPF.ViewModels
             },
         };
 
+        private TestPackage testPackage = null;
+
         [ImportingConstructor]
-        public ProjectViewModel(IUnitTestEngine engine, IExportProvider provider)
+        public ProjectViewModel(IUnitTestEngine engine,
+            IExportProvider provider,
+            IFileDialogFactory fileDialogFactory)
         {
+            _fileDialogFactory = fileDialogFactory;
             _testEngine = engine.TestEngine;
             RunAllTestCommand = ReactiveCommand.CreateFromTask(
                 RunAllTestAsync,
                 this.WhenAny(
                     vm => vm.IsRunning,
-                    (p2) =>  !p2.Value));
+                    (p2) => !p2.Value));
             StopTestCommand = ReactiveCommand.CreateFromTask(
                 StopTestAsync,
                 this.WhenAny(vm => vm.IsRunning, p => p.Value == true));
@@ -91,9 +101,8 @@ namespace NUnit3GUIWPF.ViewModels
                 this.WhenAny(vm => vm.SelectedItem, p => p.Value != null));
 
             OpenFileCommand = ReactiveCommand.CreateFromObservable(
-                () => Observable.StartAsync(ct => LoadFile(FilePathList, ct))
-                    .TakeUntil(CancelLoadingProjectCommand),
-                    FilePathList.CountChanged.Select(_ => _ > 0));
+                () => Observable.StartAsync(ct => SelectFileAndload(ct))
+                    .TakeUntil(CancelLoadingProjectCommand));
 
             _isProjectLoading = OpenFileCommand.IsExecuting.ToProperty(this, vm => vm.IsProjectLoading);
 
@@ -107,11 +116,30 @@ namespace NUnit3GUIWPF.ViewModels
             RemoveFileCommand = ReactiveCommand.Create<string>(
                 f => { FilePathList.Remove(f); },
                 this.WhenAny(vm => vm.SelectedFilePath, p => string.IsNullOrEmpty(p.Value) == false));
+
+            this.WhenAnyValue(vm => vm.CompletedTestsCount).Subscribe(_ =>
+            {
+                if (RanTestsCount == 0)
+                {
+                    TestsProgress = 0;
+                }
+                else
+                {
+                    var value = (double)CompletedTestsCount / (double)RanTestsCount * 100.0;
+                    TestsProgress = value < 100 ? value : 100.0;
+                }
+            });
         }
 
         public ReactiveCommand<Unit, Unit> AddFileCommand { get; }
 
         public ReactiveCommand<Unit, Unit> CancelLoadingProjectCommand { get; }
+
+        public int CompletedTestsCount
+        {
+            get => _completedTestsCount;
+            set => this.RaiseAndSetIfChanged(ref _completedTestsCount, value);
+        }
 
         public int FailedTestCount => flattenTests.Where(_ => _.Type == "TestCase").Count(_ => _.TestStatus == TestStatus.Failed);
 
@@ -148,6 +176,12 @@ namespace NUnit3GUIWPF.ViewModels
 
         public int PassedTestCount => flattenTests.Where(_ => _.Type == "TestCase").Count(_ => _.TestStatus == TestStatus.Passed);
 
+        public int RanTestsCount
+        {
+            get => _ranTestsCount;
+            set => this.RaiseAndSetIfChanged(ref _ranTestsCount, value);
+        }
+
         public ReactiveCommand<string, Unit> RemoveFileCommand { get; }
 
         public ReactiveCommand<Unit, Unit> RunAllTestCommand { get; }
@@ -179,6 +213,12 @@ namespace NUnit3GUIWPF.ViewModels
         public ReactiveCommand<Unit, Unit> StopTestCommand { get; }
 
         public TestNode Tests { get; private set; }
+
+        public double TestsProgress
+        {
+            get => _testsProgress;
+            set => this.RaiseAndSetIfChanged(ref _testsProgress, value);
+        }
 
         public int WarningTestCount => flattenTests.Where(_ => _.Type == "TestCase").Count(_ => _.TestStatus == TestStatus.Warning);
 
@@ -230,17 +270,17 @@ namespace NUnit3GUIWPF.ViewModels
             {
                 try
                 {
-                    var package = new TestPackage(files.ToList());
+                    testPackage = new TestPackage(files.ToList());
                     foreach (var entry in PackageSettingsViewModel.GetSettings()
                         .Where(p => p.Value != null)
                         .Where(s => (s.Value is string) == false || string.Equals("Default", s.Value as string, StringComparison.InvariantCultureIgnoreCase) == false))
                     {
-                        package.AddSetting(entry.Key, entry.Value);
+                        testPackage.AddSetting(entry.Key, entry.Value);
                     }
 
                     ct.ThrowIfCancellationRequested();
 
-                    Runner = _testEngine.GetRunner(package);
+                    Runner = _testEngine.GetRunner(testPackage);
                     ct.ThrowIfCancellationRequested();
 
                     XmlNode node = Runner.Explore(TestFilter.Empty);
@@ -286,6 +326,9 @@ namespace NUnit3GUIWPF.ViewModels
         private Task RunAllTestAsync(CancellationToken arg)
         {
             State = ProjectState.Started;
+            TestsProgress = 0;
+            CompletedTestsCount = 0;
+            RanTestsCount = flattenTests.Count(_ => _.Type == "TestCase");
             Runner.RunAsync(this, TestFilter.Empty);
             IsRunning = true;
             return Task.CompletedTask;
@@ -294,8 +337,24 @@ namespace NUnit3GUIWPF.ViewModels
         private Task RunSelectedTestAsync(CancellationToken arg)
         {
             State = ProjectState.Started;
+            TestsProgress = 0;
+            CompletedTestsCount = 0;
+            RanTestsCount = FlattenTests(SelectedItem, CancellationToken.None).Where(_ => _.Type == "TestCase").Count();
             Runner.RunAsync(this, SelectedItem.GetTestFilter());
             IsRunning = true;
+            return Task.CompletedTask;
+        }
+
+        private Task SelectFileAndload(CancellationToken ct)
+        {
+            IOpenFileDialog ofd = _fileDialogFactory.CreateOpenDialog();
+            if (ofd.ShowDialog())
+            {
+                FilePathList.Clear();
+                FilePathList.AddRange(ofd.FileNames);
+                return LoadFile(FilePathList, ct);
+            }
+
             return Task.CompletedTask;
         }
 
