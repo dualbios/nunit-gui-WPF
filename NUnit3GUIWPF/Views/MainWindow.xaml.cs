@@ -12,8 +12,6 @@ namespace NUnit3GUIWPF.Views
         private FrameworkElement _maximizeButton;
         private FrameworkElement _minimiseButton;
         private FrameworkElement _restoreButton;
-        private bool isDragging = false;
-        private FrameworkElement titleElement;
         private FrameworkElement titleBar;
 
         public MainWindow()

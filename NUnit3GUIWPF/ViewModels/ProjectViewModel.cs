@@ -28,7 +28,6 @@ namespace NUnit3GUIWPF.ViewModels
     {
         private readonly IFileDialogFactory _fileDialogFactory;
         private int _completedTestsCount;
-        private string _filePath;
         private string _header;
         private bool _isProjectLoaded;
         private ObservableAsPropertyHelper<bool> _isProjectLoading;
@@ -143,7 +142,9 @@ namespace NUnit3GUIWPF.ViewModels
 
         public int FailedTestCount => flattenTests.Where(_ => _.Type == "TestCase").Count(_ => _.TestStatus == TestStatus.Failed);
 
+#pragma warning disable CS0618
         public ReactiveList<string> FilePathList { get; } = new ReactiveList<string>();
+#pragma warning restore CS0618
 
         public string Header
         {
@@ -289,7 +290,7 @@ namespace NUnit3GUIWPF.ViewModels
 
                     IsProjectLoaded = true;
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     IsProjectLoaded = false;
                 }
