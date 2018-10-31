@@ -125,7 +125,7 @@
                             <ProgressBar IsIndeterminate="False"
                                          Value="{Binding TestsProgress}" />
                         </Grid>
-                        <TextBlock Text="Time: 00:00"
+                        <TextBlock Text="{Binding TestTimePass, StringFormat={}{0:ss\\:fff}}"
                                    Margin="24 0"
                                    Grid.Column="2"
                                    Foreground="{DynamicResource White1Brush}" />

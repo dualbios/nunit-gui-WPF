@@ -4,11 +4,13 @@ using System.ComponentModel;
 using System.ComponentModel.Composition;
 using System.Linq;
 using System.Reactive;
+using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Threading;
 using System.Xml;
 using Microsoft.VisualStudio.Composition;
 using Microsoft.Win32;
@@ -73,12 +75,14 @@ namespace NUnit3GUIWPF.ViewModels
                     node.Output = report.InnerText;
                     node.TestStatus = report.GetStatus();
                     vm.State = ProjectState.Finished;
+                    vm.TestTimePass = TimeSpan.FromSeconds(node.Duration);
                     Application.Current.Dispatcher.Invoke(() => { vm.IsRunning = false; });
                 }
             },
         };
 
         private string _errorMessage;
+        private TimeSpan _testTimePass;
 
         private TestPackage TestPackage { get; set; } = null;
 
@@ -139,6 +143,21 @@ namespace NUnit3GUIWPF.ViewModels
                     TestsProgress = value < 100 ? value : 100.0;
                 }
             });
+
+            Observable
+                .Interval(TimeSpan.FromSeconds(1), DispatcherScheduler.Current)
+                .Where(_=>this.IsRunning)
+                .Subscribe(
+                    x =>
+                    {
+                        TestTimePass = TimeSpan.FromMilliseconds(x);
+                    });
+        }
+
+        public TimeSpan TestTimePass
+        {
+            get => _testTimePass;
+            set => this.RaiseAndSetIfChanged(ref _testTimePass , value);
         }
 
         public ReactiveCommand<Unit, Unit> AddFileCommand { get; }
@@ -176,7 +195,14 @@ namespace NUnit3GUIWPF.ViewModels
         public bool IsRunning
         {
             get { return _isRunning; }
-            private set { this.RaiseAndSetIfChanged(ref _isRunning, value); }
+            private set
+            {
+                this.RaiseAndSetIfChanged(ref _isRunning, value);
+                if (value)
+                {
+                    TestTimePass = TimeSpan.Zero;
+                }
+            }
         }
 
         public ReactiveCommand<Unit, Unit> LoadProjectCommand { get; }
@@ -353,6 +379,7 @@ namespace NUnit3GUIWPF.ViewModels
 
         private Task RunAllTestAsync(CancellationToken arg)
         {
+            
             State = ProjectState.Started;
             TestsProgress = 0;
             CompletedTestsCount = 0;
