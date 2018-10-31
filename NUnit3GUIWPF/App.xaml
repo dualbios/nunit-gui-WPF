@@ -18,9 +18,11 @@
                    BasedOn="{StaticResource {x:Type Button}}"
                    TargetType="Button">
                 <Setter Property="Width"
-                        Value="34" />
+                        Value="24" />
                 <Setter Property="Height"
-                        Value="34" />                
+                        Value="24" />                
+                <Setter Property="Margin"
+                        Value="4 0" />                
                 <Setter Property="Background"
                         Value="Transparent" />
             </Style>
@@ -59,7 +61,7 @@
                                                 BorderBrush="#a4adbb"/>
 
                                         <DockPanel LastChildFill="True"
-                                                   Margin="4 2">
+                                                   Margin="4 8">
                                             <!--<ContentControl ContentTemplate="{StaticResource Logo}"
                                             HorizontalAlignment="Left"
                                             Width="20"

@@ -27,19 +27,22 @@
         </ResourceDictionary>
     </Window.Resources>
     <Window.Background>
-        <SolidColorBrush Color="{DynamicResource Blue1Color}"/>
+        <SolidColorBrush Color="{DynamicResource Blue1Color}" />
     </Window.Background>
-    <DockPanel LastChildFill="True" >
-        <Border DockPanel.Dock="Top" BorderThickness="0 0 0 1" BorderBrush="{DynamicResource White1Brush}">
+    <DockPanel LastChildFill="True">
+        <Border DockPanel.Dock="Top"
+                BorderThickness="0 0 0 1"
+                BorderBrush="{DynamicResource White1Brush}">
             <StackPanel Orientation="Horizontal">
                 <ListBox ItemsSource="{Binding Projects, Mode=OneWay}"
                          SelectedItem="{Binding CurrentViewModel}"
                          Background="Transparent"
                          BorderThickness="0"
-                         >
+                         Margin="0 2">
                     <ListBox.ItemsPanel>
                         <ItemsPanelTemplate>
-                                <VirtualizingStackPanel IsItemsHost="True" Orientation="Horizontal"/>
+                            <VirtualizingStackPanel IsItemsHost="True"
+                                                    Orientation="Horizontal" />
                         </ItemsPanelTemplate>
                     </ListBox.ItemsPanel>
                     <ListBox.ItemTemplate>
@@ -50,9 +53,9 @@
                                 <Grid Height="4"
                                       DockPanel.Dock="Bottom"
                                       Margin="0">
-                                    <ProgressBar IsIndeterminate="False" 
+                                    <ProgressBar IsIndeterminate="False"
                                                  Value="{Binding TestsProgress}"
-                                                 Visibility="{Binding IsRunning, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                                 Visibility="{Binding IsRunning, Converter={StaticResource BoolToVisibilityConverter}}" />
                                 </Grid>
 
                                 <DockPanel>
@@ -75,6 +78,25 @@
                             </DockPanel>
                         </DataTemplate>
                     </ListBox.ItemTemplate>
+                    <ListBox.ItemContainerStyle>
+                        <Style TargetType="ListBoxItem">
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="ListBoxItem">
+                                        <Border x:Name="Bd" Background="{DynamicResource Blue1Brush}">
+                                            <ContentPresenter Margin="4" />
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsSelected"
+                                                     Value="True" >
+                                                <Setter Property="Background" TargetName="Bd" Value="{DynamicResource Blue2Brush}"/>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </ListBox.ItemContainerStyle>
                 </ListBox>
                 <Button Command="{Binding AddProjectCommand}"
                         Margin="4 0"

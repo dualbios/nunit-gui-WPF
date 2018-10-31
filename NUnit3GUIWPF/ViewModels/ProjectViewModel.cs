@@ -78,6 +78,8 @@ namespace NUnit3GUIWPF.ViewModels
             },
         };
 
+        private string _errorMessage;
+
         private TestPackage TestPackage { get; set; } = null;
 
         [ImportingConstructor]
@@ -116,6 +118,14 @@ namespace NUnit3GUIWPF.ViewModels
             RemoveFileCommand = ReactiveCommand.Create<string>(
                 f => { FilePathList.Remove(f); },
                 this.WhenAny(vm => vm.SelectedFilePath, p => string.IsNullOrEmpty(p.Value) == false));
+
+            CloseLoadingErrorCommand = ReactiveCommand.CreateFromTask(
+                () =>
+                {
+                    ErrorMessage = null;
+                    return Task.CompletedTask;
+                },
+                this.WhenAny(vm => vm.ErrorMessage, p => string.IsNullOrEmpty(p.Value) == false));
 
             this.WhenAnyValue(vm => vm.CompletedTestsCount).Subscribe(_ =>
             {
@@ -191,6 +201,7 @@ namespace NUnit3GUIWPF.ViewModels
         public ITestRunner Runner { get; private set; }
 
         public ReactiveCommand<Unit, Unit> RunSelectedTestCommand { get; }
+        public ReactiveCommand<Unit, Unit> CloseLoadingErrorCommand { get; }
 
         public string SelectedFilePath
         {
@@ -287,6 +298,7 @@ namespace NUnit3GUIWPF.ViewModels
                 }
                 catch (Exception e)
                 {
+                    Application.Current.Dispatcher.Invoke(() => ErrorMessage = e.Message);
                     IsProjectLoaded = false;
                 }
                 finally
@@ -306,6 +318,12 @@ namespace NUnit3GUIWPF.ViewModels
             return;
         }
 
+        public string ErrorMessage
+        {
+            get => _errorMessage;
+            private set => this.RaiseAndSetIfChanged(ref _errorMessage, value);
+        }
+
         private void SetSettings(TestPackage testPackage, IDictionary<string, object> settings)
         {
             foreach (KeyValuePair<string, object> setting in settings)
@@ -315,7 +333,7 @@ namespace NUnit3GUIWPF.ViewModels
                     testPackage.Settings.Remove(setting.Key);
                 }
 
-                if(string.Equals("Default", setting.Value.ToString(), StringComparison.OrdinalIgnoreCase)==false)
+                if (string.Equals("Default", setting.Value.ToString(), StringComparison.OrdinalIgnoreCase) == false)
                     testPackage.AddSetting(setting.Key, setting.Value.ToString());
             }
         }

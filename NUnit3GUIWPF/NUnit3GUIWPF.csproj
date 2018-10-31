@@ -173,12 +173,14 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Behaviors\BindableSelectedItemBehavio.cs" />
+    <Compile Include="Controls\ExtendedGridSplitter.cs" />
     <Compile Include="Controls\OptionsButtonControl.xaml.cs">
       <DependentUpon>OptionsButtonControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Controls\TreeListView.cs" />
     <Compile Include="Converters\BoolToVisibilityConverter.cs" />
     <Compile Include="Converters\EnumToBoolConverter.cs" />
+    <Compile Include="Converters\NullToVisibilityConverter.cs" />
     <Compile Include="Converters\PathToFilenameConverter.cs" />
     <Compile Include="Converters\ProjectStateToEnableConverter.cs" />
     <Compile Include="Converters\ViewModelToViewConverter.cs" />
