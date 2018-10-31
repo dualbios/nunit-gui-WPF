@@ -8,49 +8,144 @@
              d:DesignHeight="450"
              d:DesignWidth="800"
              Foreground="{DynamicResource Blue2Brush}">
+    <UserControl.Resources>
+        <Style x:Key="OptionItemHeaderedContentControlStyle"
+               TargetType="HeaderedContentControl"
+               BasedOn="{StaticResource {x:Type HeaderedContentControl}}">
+            <Setter Property="Width"
+                    Value="100" />
+            <Setter Property="Margin"
+                    Value="2 0" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="HeaderedContentControl">
+                        <StackPanel Orientation="Vertical">
+                            <Border BorderThickness="0 0 0 1"
+                                    BorderBrush="{DynamicResource White1Brush}">
+                                <ContentControl Content="{TemplateBinding Header}"
+                                                Foreground="{DynamicResource White1Brush}"
+                                                Margin="2 0" />
+                            </Border>
+                            <ContentControl Content="{TemplateBinding Content}" />
+                        </StackPanel>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="OptionItemListBoxItemStyle"
+               TargetType="ListBoxItem"
+               BasedOn="{StaticResource {x:Type ListBoxItem}}">
+            <Style.Resources>
+                <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}"
+                                 Color="Transparent" />
+            </Style.Resources>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ListBoxItem">
+                        <DockPanel LastChildFill="True">
+                            <RadioButton IsChecked="{TemplateBinding IsSelected}"
+                                         DockPanel.Dock="Left" />
+                            <ContentPresenter Content="{TemplateBinding Content}" />
+                        </DockPanel>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsSelected"
+                         Value="True">
+                    <Setter Property="Foreground"
+                            Value="{DynamicResource Blue2Brush}" />
+                    <Setter Property="FontWeight"
+                            Value="Bold" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        <Style TargetType="ListBox"
+               BasedOn="{StaticResource {x:Type ListBox}}"
+               x:Key="OptionItemListBoxStyle">
+            <Setter Property="Background"
+                    Value="Transparent" />
+            <Setter Property="ItemContainerStyle" 
+                    Value="{DynamicResource OptionItemListBoxItemStyle}"/>
+            <Setter Property="Foreground"
+                    Value="{DynamicResource White1Brush}" />
+
+        </Style>
+    </UserControl.Resources>
     <Grid>
         <ToggleButton x:Name="TogglePopupButton"
                       Content="{DynamicResource OptionsIcon}"
-                      Background="{DynamicResource Blue3Brush}"
+                      Background="Transparent"
                       Foreground="{DynamicResource White2Brush}"
                       HorizontalAlignment="Left"
-                      Width="32"
-                      Height="32"
+                      Width="24"
+                      Height="24"
                       VerticalAlignment="Bottom"
-                      Margin="8" />
+                      Margin="8"
+                      Padding="4"
+                      BorderThickness="0" />
         <Popup x:Name="ToggledPopup"
                StaysOpen="False"
-               IsOpen="{Binding IsChecked, ElementName=TogglePopupButton, Mode=TwoWay}">
-            <Border Background="{DynamicResource White2Brush}"
-                    BorderThickness="1"
-                    BorderBrush="Black">
-                <StackPanel Orientation="Horizontal"
-                            Margin="8">
-                    <HeaderedContentControl Header="Run as x86">
-                        <CheckBox IsChecked="{Binding PackageSettngs.IsRunAsX86}"
-                                  Content="Run as x86" />
-                    </HeaderedContentControl>
-                    <HeaderedContentControl Header="Process Models">
-                        <ListBox ItemsSource="{Binding ProcessModels}"
-                                 SelectedItem="{Binding PackageSettngs.ProcessModel}" />
-                    </HeaderedContentControl>
-                    <HeaderedContentControl Header="Domain Usages">
-                        <ListBox ItemsSource="{Binding DomainUsages}"
-                                 SelectedItem="{Binding PackageSettngs.DomainUsage}" />
-                    </HeaderedContentControl>
-                    <HeaderedContentControl Header="Runtimes">
-                        <ListBox ItemsSource="{Binding Runtimes}"
-                                 SelectedValue="{Binding PackageSettngs.RuntimeFramework}"
-                                 SelectedValuePath="Id">
-                            <ListBox.ItemTemplate>
-                                <DataTemplate>
-                                    <TextBlock Text="{Binding DisplayName}" />
-                                </DataTemplate>
-                            </ListBox.ItemTemplate>
-                        </ListBox>
-                    </HeaderedContentControl>
-                </StackPanel>
-            </Border>
+               TextElement.Foreground="{DynamicResource Blue1Brush}"
+               IsOpen="{Binding IsChecked, ElementName=TogglePopupButton, Mode=TwoWay}"
+               VerticalOffset="0"
+               HorizontalOffset="0"
+               Placement="Right"
+               PlacementTarget="{Binding ElementName=TogglePopupButton}">
+            <HeaderedContentControl>
+                <HeaderedContentControl.Header>
+                    <TextBlock Text="Options"
+                               Background="{DynamicResource White2Brush}"
+                               Foreground="{DynamicResource Blue1Brush}"
+                               Padding="12 8"
+                               FontWeight="Bold" />
+                </HeaderedContentControl.Header>
+                <Border Background="{DynamicResource White2Brush}"
+                        BorderThickness="0"
+                        BorderBrush="Black">
+                    <StackPanel Orientation="Horizontal"
+                                Margin="8 0">
+                        <HeaderedContentControl Style="{DynamicResource OptionItemHeaderedContentControlStyle}"
+                                                Header="Run as x86">
+                            <CheckBox IsChecked="{Binding PackageSettngs.IsRunAsX86}"
+                                      Content="Run as x86" >
+                                <CheckBox.Style>
+                                    <Style TargetType="CheckBox" BasedOn="{StaticResource {x:Type CheckBox}}">
+                                        <Setter Property="Foreground" Value="{DynamicResource White1Brush}"/>
+                                        <Style.Triggers>
+                                            <Trigger Property="IsChecked" Value="True">
+                                                <Setter Property="FontWeight" Value="Bold"/>
+                                                <Setter Property="Foreground" Value="{DynamicResource Blue1Brush}"/>
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </CheckBox.Style>
+                            </CheckBox>
+                        </HeaderedContentControl>
+                        <HeaderedContentControl Style="{DynamicResource OptionItemHeaderedContentControlStyle}"
+                                                Header="Process Models">
+                            <ListBox ItemsSource="{Binding ProcessModels}"
+                                     SelectedItem="{Binding PackageSettngs.ProcessModel}"
+                                     Style="{DynamicResource OptionItemListBoxStyle}" />
+                        </HeaderedContentControl>
+                        <HeaderedContentControl Style="{DynamicResource OptionItemHeaderedContentControlStyle}"
+                                                Header="Domain Usages">
+                            <ListBox ItemsSource="{Binding DomainUsages}"
+                                     SelectedItem="{Binding PackageSettngs.DomainUsage}"
+                                     Style="{DynamicResource OptionItemListBoxStyle}" />
+                        </HeaderedContentControl>
+                        <HeaderedContentControl Style="{DynamicResource OptionItemHeaderedContentControlStyle}"
+                                                Header="Runtimes">
+                            <ListBox ItemsSource="{Binding Runtimes}"
+                                     SelectedItem="{Binding PackageSettngs.RuntimeFramework}"
+                                     
+                                     Style="{DynamicResource OptionItemListBoxStyle}">
+
+                            </ListBox>
+                        </HeaderedContentControl>
+                    </StackPanel>
+                </Border>
+            </HeaderedContentControl>
         </Popup>
     </Grid>
 </UserControl>

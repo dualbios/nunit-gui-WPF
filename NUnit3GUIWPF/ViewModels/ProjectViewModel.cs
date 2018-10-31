@@ -8,6 +8,7 @@ using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Input;
 using System.Xml;
 using Microsoft.VisualStudio.Composition;
 using Microsoft.Win32;
@@ -77,7 +78,7 @@ namespace NUnit3GUIWPF.ViewModels
             },
         };
 
-        private TestPackage testPackage = null;
+        private TestPackage TestPackage { get; set; } = null;
 
         [ImportingConstructor]
         public ProjectViewModel(IUnitTestEngine engine,
@@ -124,7 +125,7 @@ namespace NUnit3GUIWPF.ViewModels
                 }
                 else
                 {
-                    var value = (double)CompletedTestsCount / (double)RanTestsCount * 100.0;
+                    var value = (double) CompletedTestsCount / (double) RanTestsCount * 100.0;
                     TestsProgress = value < 100 ? value : 100.0;
                 }
             });
@@ -271,17 +272,11 @@ namespace NUnit3GUIWPF.ViewModels
             {
                 try
                 {
-                    testPackage = new TestPackage(files.ToList());
-                    foreach (var entry in PackageSettingsViewModel.GetSettings()
-                        .Where(p => p.Value != null)
-                        .Where(s => (s.Value is string) == false || string.Equals("Default", s.Value as string, StringComparison.InvariantCultureIgnoreCase) == false))
-                    {
-                        testPackage.AddSetting(entry.Key, entry.Value);
-                    }
-
+                    TestPackage = new TestPackage(files.ToList());
+                    SetSettings(TestPackage, PackageSettingsViewModel.GetSettings());
                     ct.ThrowIfCancellationRequested();
 
-                    Runner = _testEngine.GetRunner(testPackage);
+                    Runner = _testEngine.GetRunner(TestPackage);
                     ct.ThrowIfCancellationRequested();
 
                     XmlNode node = Runner.Explore(TestFilter.Empty);
@@ -290,7 +285,7 @@ namespace NUnit3GUIWPF.ViewModels
 
                     IsProjectLoaded = true;
                 }
-                catch (Exception)
+                catch (Exception e)
                 {
                     IsProjectLoaded = false;
                 }
@@ -309,6 +304,20 @@ namespace NUnit3GUIWPF.ViewModels
             this.RaisePropertyChanged(nameof(WarningTestCount));
 
             return;
+        }
+
+        private void SetSettings(TestPackage testPackage, IDictionary<string, object> settings)
+        {
+            foreach (KeyValuePair<string, object> setting in settings)
+            {
+                if (testPackage.Settings.ContainsKey(setting.Key))
+                {
+                    testPackage.Settings.Remove(setting.Key);
+                }
+
+                if(string.Equals("Default", setting.Value.ToString(), StringComparison.OrdinalIgnoreCase)==false)
+                    testPackage.AddSetting(setting.Key, setting.Value.ToString());
+            }
         }
 
         private void OpenAndAddFile()
@@ -330,6 +339,7 @@ namespace NUnit3GUIWPF.ViewModels
             TestsProgress = 0;
             CompletedTestsCount = 0;
             RanTestsCount = flattenTests.Count(_ => _.Type == "TestCase");
+            SetSettings(TestPackage, PackageSettingsViewModel.GetSettings());
             Runner.RunAsync(this, TestFilter.Empty);
             IsRunning = true;
             return Task.CompletedTask;
@@ -341,6 +351,7 @@ namespace NUnit3GUIWPF.ViewModels
             TestsProgress = 0;
             CompletedTestsCount = 0;
             RanTestsCount = FlattenTests(SelectedItem, CancellationToken.None).Where(_ => _.Type == "TestCase").Count();
+            SetSettings(TestPackage, PackageSettingsViewModel.GetSettings());
             Runner.RunAsync(this, SelectedItem.GetTestFilter());
             IsRunning = true;
             return Task.CompletedTask;

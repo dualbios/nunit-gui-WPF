@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using NUnit.Engine;
 using ReactiveUI;
 
 namespace NUnit3GUIWPF.Models
@@ -7,7 +8,7 @@ namespace NUnit3GUIWPF.Models
     {
         private string _domainUsage;
         private bool _isRunAsX86;
-        private string _runtimeFramework;
+        private IRuntimeFramework _runtimeFramework;
         private string _selectedProcessModel;
         private IDictionary<string, object> settings = new Dictionary<string, object>();
 
@@ -29,7 +30,7 @@ namespace NUnit3GUIWPF.Models
             set => this.RaiseAndSetIfChanged(ref _selectedProcessModel, value);
         }
 
-        public string RuntimeFramework
+        public IRuntimeFramework RuntimeFramework
         {
             get => _runtimeFramework;
             set => this.RaiseAndSetIfChanged(ref _runtimeFramework, value);

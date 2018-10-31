@@ -25,6 +25,11 @@ namespace NUnit3GUIWPF.ViewModels
             Runtimes = new[] {new DefaultRuntimeFramework()}
                 .Concat(engine.TestEngine.Services.GetService<IAvailableRuntimes>().AvailableRuntimes)
                 .ToList();
+
+            PackageSettngs.DomainUsage = "Default";
+            PackageSettngs.IsRunAsX86 = false;
+            PackageSettngs.ProcessModel = "Default";
+            PackageSettngs.RuntimeFramework = Runtimes.FirstOrDefault();
         }
 
         public IEnumerable<string> DomainUsages => new List<string>()
@@ -56,7 +61,7 @@ namespace NUnit3GUIWPF.ViewModels
 
             settings.Add(EnginePackageSettings.ProcessModel, PackageSettngs.ProcessModel);
             settings.Add(EnginePackageSettings.DomainUsage, PackageSettngs.DomainUsage);
-            settings.Add(EnginePackageSettings.RuntimeFramework, PackageSettngs.RuntimeFramework);
+            settings.Add(EnginePackageSettings.RuntimeFramework, PackageSettngs.RuntimeFramework.Id);
 
             return settings;
         }

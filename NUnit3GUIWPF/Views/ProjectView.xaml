@@ -127,29 +127,39 @@
                 </Grid>
             </Border>
 
-            <Grid DockPanel.Dock="Left">
-                <StackPanel Orientation="Vertical"
-                            HorizontalAlignment="Left">
-                    <StackPanel.Resources>
+            <Grid DockPanel.Dock="Left" Width="42">
+                <DockPanel LastChildFill="False">
+                    <DockPanel.Resources>
                         <Style TargetType="Button"
                                BasedOn="{StaticResource ProjectToolButtonStyle}" />
-                    </StackPanel.Resources>
+                        <Style TargetType="StackPanel"
+                               x:Key="ButtonGroupStackPanelStyle">
+                            <Setter Property="Margin" Value="0 0 0 12"/>
+                        </Style>
+                    </DockPanel.Resources>
 
-                    <Button Command="{Binding RunAllTestCommand}"
-                            Content="{StaticResource RunAllIcon}" />
-                    <Button Command="{Binding RunSelectedTestCommand}"
-                            Content="{StaticResource RunSelectedIcon}" />
-                    <Button Command="{Binding StopTestCommand}"
-                            Content="{StaticResource StopIcon}" />
+                    <StackPanel Style="{DynamicResource ButtonGroupStackPanelStyle}"
+                                DockPanel.Dock="Top">
+                        <Button Command="{Binding RunAllTestCommand}"
+                                Content="{StaticResource RunAllIcon}" />
+                        <Button Command="{Binding RunSelectedTestCommand}"
+                                Content="{StaticResource RunSelectedIcon}" />
+                        <Button Command="{Binding StopTestCommand}"
+                                Content="{StaticResource StopIcon}" />
+                    </StackPanel>
 
-                    <Button Click="ExpandAllnodes"
-                            Content="{StaticResource ExpandAllIcon}" />
-                    <Button Click="CollapseAllNodes"
-                            Content="{StaticResource CollapceAllIcon}" />
+                    <controls:OptionsButtonControl DataContext="{Binding PackageSettingsViewModel}" 
+                                                   DockPanel.Dock="Bottom"/>
 
-                    <controls:OptionsButtonControl DataContext="{Binding PackageSettingsViewModel}" />
+                    <StackPanel Style="{DynamicResource ButtonGroupStackPanelStyle}"
+                                DockPanel.Dock="Bottom">
+                        <Button Click="ExpandAllnodes"
+                                Content="{StaticResource ExpandAllIcon}" />
+                        <Button Click="CollapseAllNodes"
+                                Content="{StaticResource CollapceAllIcon}" />
+                    </StackPanel>
 
-                </StackPanel>
+                </DockPanel>
             </Grid>
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -257,10 +267,10 @@
                                                     x:Name="HeaderBorder"
                                                     Background="Transparent"
                                                     />
-                                            <Border x:Name="HeaderHoverBorder" Margin="-9 0 9 0"/>
+                                            <Border x:Name="HeaderHoverBorder" Margin="-7 0 7 0"/>
                                             <TextBlock x:Name="ContentHeader"
                                                            Text="{TemplateBinding Content}"
-                                                           Padding="0"
+                                                           Padding="0" Margin="-7 0 7 0"
                                                        VerticalAlignment="Center"
                                                            Width="{TemplateBinding Width}"
                                                            TextAlignment="Center" />
@@ -268,7 +278,7 @@
                                                    BorderThickness="0"
                                                    x:Name="PART_HeaderGripper" 
                                                    HorizontalAlignment="Right"  
-                                                   Margin="-9,0, 0, 0">
+                                                   Margin="-7,0, 0, 0">
                                                 <Thumb.Style>
                                                     <Style TargetType="Thumb">
                                                         <Setter Property="Width"
