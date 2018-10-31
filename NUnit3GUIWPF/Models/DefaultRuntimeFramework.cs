@@ -14,5 +14,10 @@ namespace NUnit3GUIWPF.Models
         public string Id { get; } = "Default";
 
         public string Profile { get; } = string.Empty;
+
+        public override string ToString()
+        {
+            return DisplayName;
+        }
     }
 }
