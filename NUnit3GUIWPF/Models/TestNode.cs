@@ -24,6 +24,7 @@ namespace NUnit3GUIWPF.Models
             Type = IsSuite ? GetAttribute("type") : "TestCase";
             TestCount = IsSuite ? GetAttribute("testcasecount", 0) : 1;
             RunState = Xml.GetRunState();
+            Output = xmlNode.OuterXml;
         }
 
         public TestNode(string xmlText) : this(XmlHelper.CreateXmlNode(xmlText))

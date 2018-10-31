@@ -1,5 +1,6 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 
 namespace NUnit3GUIWPF.Views
 {
@@ -40,6 +41,11 @@ namespace NUnit3GUIWPF.Views
         private void ExpandAllnodes(object sender, RoutedEventArgs e)
         {
             ExpandAll(TestTreeView, true);
+        }
+
+        private void Gridsplitter_OnMouseUp(object sender, MouseButtonEventArgs e)
+        {
+            ResultPanelColumn.Width = new GridLength(400);
         }
     }
 }

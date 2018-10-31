@@ -21,6 +21,9 @@
                 <ResourceDictionary Source="../Assets/ControlStyles.xaml" />
                 <ResourceDictionary Source="../Assets/Icons.xaml" />
             </ResourceDictionary.MergedDictionaries>
+            <converters:NullToVisibilityConverter x:Key="ReversedNullToVisibilityConverter"
+                                                  IsReversed="True" />
+            <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
             <converters:EnumToBoolConverter x:Key="EnumToBoolConverter" />
             <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
             <converters:BoolToVisibilityConverter x:Key="ReversedBoolToVisibilityConverter"
@@ -34,387 +37,420 @@
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid>
-        <DockPanel LastChildFill="True"
-                   Visibility="{Binding IsProjectLoaded, Converter={StaticResource BoolToVisibilityConverter}}"
-                   d:IsHidden="True">
+        <Grid Visibility="{Binding ErrorMessage, Converter={StaticResource ReversedNullToVisibilityConverter}}">
+            <DockPanel LastChildFill="True"
+                       Visibility="{Binding IsProjectLoaded, Converter={StaticResource BoolToVisibilityConverter}}"
+                       d:IsHidden="True">
 
-            <Border DockPanel.Dock="Top"
-                    BorderThickness="0 1 0 1"
-                    BorderBrush="{DynamicResource White1Brush}">
-                <Grid Margin="12">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="310" />
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="Auto" />
-                    </Grid.ColumnDefinitions>
-                    <StackPanel Orientation="Horizontal"
-                                Grid.Column="0"
-                                HorizontalAlignment="Center"
-                                VerticalAlignment="Center">
-                        <StackPanel.Resources>
-                            <Style TargetType="TextBlock">
-                                <Setter Property="Foreground"
-                                        Value="#f2f2f2" />
-                                <Setter Property="FontSize"
-                                        Value="12" />
+                <Border DockPanel.Dock="Top"
+                        BorderThickness="0 1 0 1"
+                        BorderBrush="{DynamicResource White1Brush}">
+                    <Grid Margin="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="310" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Orientation="Horizontal"
+                                    Grid.Column="0"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center">
+                            <StackPanel.Resources>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Foreground"
+                                            Value="#f2f2f2" />
+                                    <Setter Property="FontSize"
+                                            Value="12" />
+                                </Style>
+                                <Style x:Key="FileContentControlStyle"
+                                       BasedOn="{StaticResource {x:Type ContentControl}}"
+                                       TargetType="ContentControl">
+                                    <Setter Property="Width"
+                                            Value="14" />
+                                    <Setter Property="Height"
+                                            Value="14" />
+                                    <Setter Property="Margin"
+                                            Value="4 0" />
+                                </Style>
+                                <Style x:Key="FileCountHeaderedControlStyle"
+                                       BasedOn="{StaticResource HorisontalHeaderedContentControlStyle}"
+                                       TargetType="HeaderedContentControl">
+                                    <Setter Property="Margin"
+                                            Value="4 0 24 0" />
+                                </Style>
+                            </StackPanel.Resources>
+                            <HeaderedContentControl Content="{Binding PassedTestCount, Mode=OneWay}"
+                                                    Style="{StaticResource FileCountHeaderedControlStyle}">
+                                <HeaderedContentControl.Header>
+                                    <ContentControl Style="{DynamicResource FileContentControlStyle}"
+                                                    Content="{DynamicResource CheckMarkIcon}" />
+                                </HeaderedContentControl.Header>
+                            </HeaderedContentControl>
+
+                            <HeaderedContentControl Content="{Binding FailedTestCount, Mode=OneWay}"
+                                                    Style="{StaticResource FileCountHeaderedControlStyle}">
+                                <HeaderedContentControl.Header>
+                                    <ContentControl Style="{DynamicResource FileContentControlStyle}"
+                                                    Content="{DynamicResource RemoveMarkIcon}" />
+                                </HeaderedContentControl.Header>
+                            </HeaderedContentControl>
+
+                            <HeaderedContentControl Content="{Binding SkippedTestCount, Mode=OneWay}"
+                                                    Style="{StaticResource FileCountHeaderedControlStyle}">
+                                <HeaderedContentControl.Header>
+                                    <ContentControl Style="{DynamicResource FileContentControlStyle}"
+                                                    Content="{DynamicResource BlindIcon}" />
+                                </HeaderedContentControl.Header>
+                            </HeaderedContentControl>
+
+                            <HeaderedContentControl Content="{Binding InconclusiveTestCount, Mode=OneWay}"
+                                                    Style="{StaticResource FileCountHeaderedControlStyle}">
+                                <HeaderedContentControl.Header>
+                                    <ContentControl Style="{DynamicResource FileContentControlStyle}"
+                                                    Content="{DynamicResource QuestionMarkIcon}" />
+                                </HeaderedContentControl.Header>
+                            </HeaderedContentControl>
+
+                            <HeaderedContentControl Content="{Binding WarningTestCount, Mode=OneWay}"
+                                                    Style="{StaticResource FileCountHeaderedControlStyle}">
+                                <HeaderedContentControl.Header>
+                                    <ContentControl Style="{DynamicResource FileContentControlStyle}"
+                                                    Content="Warning" />
+                                </HeaderedContentControl.Header>
+                            </HeaderedContentControl>
+                        </StackPanel>
+                        <Grid Height="20"
+                              Grid.Column="1"
+                              HorizontalAlignment="Stretch">
+                            <ProgressBar IsIndeterminate="False"
+                                         Value="{Binding TestsProgress}" />
+                        </Grid>
+                        <TextBlock Text="Time: 00:00"
+                                   Margin="24 0"
+                                   Grid.Column="2"
+                                   Foreground="{DynamicResource White1Brush}" />
+                    </Grid>
+                </Border>
+
+                <Grid DockPanel.Dock="Left"
+                      Width="42">
+                    <DockPanel LastChildFill="False">
+                        <DockPanel.Resources>
+                            <Style TargetType="Button"
+                                   BasedOn="{StaticResource ProjectToolButtonStyle}" />
+                            <Style TargetType="StackPanel"
+                                   x:Key="ButtonGroupStackPanelStyle">
+                                <Setter Property="Margin"
+                                        Value="0 0 0 12" />
                             </Style>
-                            <Style x:Key="FileContentControlStyle"
-                                   BasedOn="{StaticResource {x:Type ContentControl}}"
-                                   TargetType="ContentControl">
-                                <Setter Property="Width"
-                                        Value="14" />
-                                <Setter Property="Height"
-                                        Value="14" />
+                        </DockPanel.Resources>
+
+                        <StackPanel Style="{DynamicResource ButtonGroupStackPanelStyle}"
+                                    DockPanel.Dock="Top">
+                            <Button Command="{Binding RunAllTestCommand}"
+                                    Content="{StaticResource RunAllIcon}" />
+                            <Button Command="{Binding RunSelectedTestCommand}"
+                                    Content="{StaticResource RunSelectedIcon}" />
+                            <Button Command="{Binding StopTestCommand}"
+                                    Content="{StaticResource StopIcon}" />
+                        </StackPanel>
+
+                        <controls:OptionsButtonControl DataContext="{Binding PackageSettingsViewModel}"
+                                                       DockPanel.Dock="Bottom" />
+
+                        <StackPanel Style="{DynamicResource ButtonGroupStackPanelStyle}"
+                                    DockPanel.Dock="Bottom">
+                            <Button Click="ExpandAllnodes"
+                                    Content="{StaticResource ExpandAllIcon}" />
+                            <Button Click="CollapseAllNodes"
+                                    Content="{StaticResource CollapceAllIcon}" />
+                        </StackPanel>
+                    </DockPanel>
+                </Grid>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="2*" />
+                        <ColumnDefinition Width="12" />
+                        <ColumnDefinition Width="*"
+                                          x:Name="ResultPanelColumn" />
+                    </Grid.ColumnDefinitions>
+
+                    <controls:ExtendedGridSplitter VerticalAlignment="Stretch"
+                                                   HorizontalAlignment="Stretch"
+                                                   ResizeBehavior="PreviousAndNext"
+                                                   ResizeDirection="Columns"
+                                                   Grid.Column="1"
+                                                   Background="{DynamicResource Blue3Brush}">
+
+                        <GridSplitter.Template>
+                            <ControlTemplate TargetType="{x:Type GridSplitter}">
+                                <Grid>
+                                    <Button Content=">" />
+                                    <Rectangle Fill="{TemplateBinding Background}" />
+                                </Grid>
+                            </ControlTemplate>
+                        </GridSplitter.Template>
+                    </controls:ExtendedGridSplitter>
+
+                    <controls:TreeListView AllowsColumnReorder="False"
+                                           ItemsSource="{Binding Tests.Children}"
+                                           Foreground="White"
+                                           x:Name="TestTreeView"
+                                           Background="{DynamicResource Blue2Brush}"
+                                           BorderBrush="Transparent"
+                                           BorderThickness="0"
+                                           Margin="0">
+                        <controls:TreeListView.Resources>
+                            <Style TargetType="TextBlock"
+                                   x:Key="TextBlockStyle">
+                                <Setter Property="TextAlignment"
+                                        Value="Right" />
                                 <Setter Property="Margin"
                                         Value="4 0" />
+                                <Setter Property="Foreground"
+                                        Value="{DynamicResource White2Brush}" />
                             </Style>
-                            <Style x:Key="FileCountHeaderedControlStyle"
-                                   BasedOn="{StaticResource HorisontalHeaderedContentControlStyle}"
-                                   TargetType="HeaderedContentControl">
-                                <Setter Property="Margin"
-                                        Value="4 0 24 0" />
+
+                            <Style TargetType="TextBlock"
+                                   BasedOn="{StaticResource TextBlockStyle}"
+                                   x:Key="TestStatusTextBlockStyle">
+                                <Style.Triggers>
+                                    <!--TestStatus-->
+                                    <DataTrigger
+                                        Binding="{Binding TestStatus, Converter={StaticResource EnumToBoolConverter}, ConverterParameter={x:Static models:TestStatus.Skipped }}"
+                                        Value="true">
+                                        <Setter Property="Foreground"
+                                                Value="Gray" />
+                                    </DataTrigger>
+                                    <DataTrigger
+                                        Binding="{Binding TestStatus, Converter={StaticResource EnumToBoolConverter}, ConverterParameter={x:Static models:TestStatus.Failed }}"
+                                        Value="true">
+                                        <Setter Property="Foreground"
+                                                Value="DarkRed" />
+                                    </DataTrigger>
+                                    <!--<DataTrigger
+                                        Binding="{Binding TestStatus, Converter={StaticResource EnumToBoolConverter}, ConverterParameter={x:Static models:TestStatus.Inconclusive }}"
+                                        Value="true">
+                                        <Setter Property="Foreground"
+                                                Value="Yellow" />
+                                    </DataTrigger>-->
+                                    <DataTrigger
+                                        Binding="{Binding TestStatus, Converter={StaticResource EnumToBoolConverter}, ConverterParameter={x:Static models:TestStatus.Passed }}"
+                                        Value="true">
+                                        <Setter Property="Foreground"
+                                                Value="Green" />
+                                    </DataTrigger>
+                                    <DataTrigger
+                                        Binding="{Binding TestStatus, Converter={StaticResource EnumToBoolConverter}, ConverterParameter={x:Static models:TestStatus.Warning }}"
+                                        Value="true">
+                                        <Setter Property="Foreground"
+                                                Value="Chocolate" />
+                                    </DataTrigger>
+                                </Style.Triggers>
                             </Style>
-                        </StackPanel.Resources>
-                        <HeaderedContentControl Content="{Binding PassedTestCount, Mode=OneWay}"
-                                                Style="{StaticResource FileCountHeaderedControlStyle}">
-                            <HeaderedContentControl.Header>
-                                <ContentControl Style="{DynamicResource FileContentControlStyle}"
-                                                Content="{DynamicResource CheckMarkIcon}" />
-                            </HeaderedContentControl.Header>
-                        </HeaderedContentControl>
-
-                        <HeaderedContentControl Content="{Binding FailedTestCount, Mode=OneWay}"
-                                                Style="{StaticResource FileCountHeaderedControlStyle}">
-                            <HeaderedContentControl.Header>
-                                <ContentControl Style="{DynamicResource FileContentControlStyle}"
-                                                Content="{DynamicResource RemoveMarkIcon}" />
-                            </HeaderedContentControl.Header>
-                        </HeaderedContentControl>
-
-                        <HeaderedContentControl Content="{Binding SkippedTestCount, Mode=OneWay}"
-                                                Style="{StaticResource FileCountHeaderedControlStyle}">
-                            <HeaderedContentControl.Header>
-                                <ContentControl Style="{DynamicResource FileContentControlStyle}"
-                                                Content="{DynamicResource BlindIcon}" />
-                            </HeaderedContentControl.Header>
-                        </HeaderedContentControl>
-
-                        <HeaderedContentControl Content="{Binding InconclusiveTestCount, Mode=OneWay}"
-                                                Style="{StaticResource FileCountHeaderedControlStyle}">
-                            <HeaderedContentControl.Header>
-                                <ContentControl Style="{DynamicResource FileContentControlStyle}"
-                                                Content="{DynamicResource QuestionMarkIcon}" />
-                            </HeaderedContentControl.Header>
-                        </HeaderedContentControl>
-
-                        <HeaderedContentControl Content="{Binding WarningTestCount, Mode=OneWay}"
-                                                Style="{StaticResource FileCountHeaderedControlStyle}">
-                            <HeaderedContentControl.Header>
-                                <ContentControl Style="{DynamicResource FileContentControlStyle}"
-                                                Content="Warning" />
-                            </HeaderedContentControl.Header>
-                        </HeaderedContentControl>
-                    </StackPanel>
-                    <Grid Height="20"
-                          Grid.Column="1"
-                          HorizontalAlignment="Stretch">
-                        <ProgressBar IsIndeterminate="False" Value="{Binding TestsProgress}" />
-                    </Grid>
-                    <TextBlock Text="Time: 00:00"
-                               Margin="24 0"
-                               Grid.Column="2"
-                               Foreground="{DynamicResource White1Brush}"/>
-                </Grid>
-            </Border>
-
-            <Grid DockPanel.Dock="Left" Width="42">
-                <DockPanel LastChildFill="False">
-                    <DockPanel.Resources>
-                        <Style TargetType="Button"
-                               BasedOn="{StaticResource ProjectToolButtonStyle}" />
-                        <Style TargetType="StackPanel"
-                               x:Key="ButtonGroupStackPanelStyle">
-                            <Setter Property="Margin" Value="0 0 0 12"/>
-                        </Style>
-                    </DockPanel.Resources>
-
-                    <StackPanel Style="{DynamicResource ButtonGroupStackPanelStyle}"
-                                DockPanel.Dock="Top">
-                        <Button Command="{Binding RunAllTestCommand}"
-                                Content="{StaticResource RunAllIcon}" />
-                        <Button Command="{Binding RunSelectedTestCommand}"
-                                Content="{StaticResource RunSelectedIcon}" />
-                        <Button Command="{Binding StopTestCommand}"
-                                Content="{StaticResource StopIcon}" />
-                    </StackPanel>
-
-                    <controls:OptionsButtonControl DataContext="{Binding PackageSettingsViewModel}" 
-                                                   DockPanel.Dock="Bottom"/>
-
-                    <StackPanel Style="{DynamicResource ButtonGroupStackPanelStyle}"
-                                DockPanel.Dock="Bottom">
-                        <Button Click="ExpandAllnodes"
-                                Content="{StaticResource ExpandAllIcon}" />
-                        <Button Click="CollapseAllNodes"
-                                Content="{StaticResource CollapceAllIcon}" />
-                    </StackPanel>
-
-                </DockPanel>
-            </Grid>
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="2*" />
-                    <ColumnDefinition Width="8" />
-                    <ColumnDefinition Width="*" />
-                </Grid.ColumnDefinitions>
-
-                <GridSplitter Grid.Column="1"
-                              HorizontalAlignment="Stretch"
-                              ResizeDirection="Columns"
-                              ResizeBehavior="PreviousAndNext" />
-
-                <controls:TreeListView AllowsColumnReorder="False"
-                                       ItemsSource="{Binding Tests.Children}"
-                                       Foreground="White"
-                                       x:Name="TestTreeView"
-                                       Background="{DynamicResource Blue2Brush}"
-                                       BorderBrush="Transparent"
-                                       BorderThickness="0"
-                                       Margin="0">
-                    <controls:TreeListView.Resources>
-                        <Style TargetType="TextBlock"
-                               x:Key="TextBlockStyle">
-                            <Setter Property="Foreground"
-                                    Value="#f2f2f2" />
-                            <Setter Property="FontSize"
-                                    Value="14" />
-                        </Style>
-                        <Style TargetType="TextBlock"
-                               BasedOn="{StaticResource TextBlockStyle}"
-                               x:Key="RunStateTextBlockStyle">
-                            <Setter Property="HorizontalAlignment" Value="Stretch"/>
-                            <Style.Triggers>
-                                <!--RunState-->
-                                <DataTrigger
-                                    Binding="{Binding RunState, Converter={StaticResource EnumToBoolConverter}, ConverterParameter={x:Static models:RunState.Ignored }}"
-                                    Value="true">
-                                    <Setter Property="Foreground"
-                                            Value="Gray" />
-                                </DataTrigger>
-                                <DataTrigger
-                                    Binding="{Binding RunState, Converter={StaticResource EnumToBoolConverter}, ConverterParameter={x:Static models:RunState.NotRunnable }}"
-                                    Value="true">
-                                    <Setter Property="Foreground"
-                                            Value="Gray" />
-                                </DataTrigger>
-                                <DataTrigger
-                                    Binding="{Binding RunState, Converter={StaticResource EnumToBoolConverter}, ConverterParameter={x:Static models:RunState.Skipped }}"
-                                    Value="true">
-                                    <Setter Property="Foreground"
-                                            Value="Gray" />
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-
-                        <Style TargetType="TextBlock"
-                               BasedOn="{StaticResource TextBlockStyle}"
-                               x:Key="TestStatusTextBlockStyle">
-                            <Style.Triggers>
-                                <!--TestStatus-->
-                                <DataTrigger
-                                    Binding="{Binding TestStatus, Converter={StaticResource EnumToBoolConverter}, ConverterParameter={x:Static models:TestStatus.Skipped }}"
-                                    Value="true">
-                                    <Setter Property="Foreground"
-                                            Value="Gray" />
-                                </DataTrigger>
-                                <DataTrigger
-                                    Binding="{Binding TestStatus, Converter={StaticResource EnumToBoolConverter}, ConverterParameter={x:Static models:TestStatus.Failed }}"
-                                    Value="true">
-                                    <Setter Property="Foreground"
-                                            Value="DarkRed" />
-                                </DataTrigger>
-                                <!--<DataTrigger
-                                    Binding="{Binding TestStatus, Converter={StaticResource EnumToBoolConverter}, ConverterParameter={x:Static models:TestStatus.Inconclusive }}"
-                                    Value="true">
-                                    <Setter Property="Foreground"
-                                            Value="Yellow" />
-                                </DataTrigger>-->
-                                <DataTrigger
-                                    Binding="{Binding TestStatus, Converter={StaticResource EnumToBoolConverter}, ConverterParameter={x:Static models:TestStatus.Passed }}"
-                                    Value="true">
-                                    <Setter Property="Foreground"
-                                            Value="Green" />
-                                </DataTrigger>
-                                <DataTrigger
-                                    Binding="{Binding TestStatus, Converter={StaticResource EnumToBoolConverter}, ConverterParameter={x:Static models:TestStatus.Warning }}"
-                                    Value="true">
-                                    <Setter Property="Foreground"
-                                            Value="Chocolate" />
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                        <Style TargetType="{x:Type GridViewColumnHeader}">
-                            <Setter Property="Template">
-                                <Setter.Value>
-                                    <ControlTemplate TargetType="{x:Type GridViewColumnHeader}">
-                                        <Grid>
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*" />
-                                                <ColumnDefinition Width="1" />
-                                            </Grid.ColumnDefinitions>
-                                            <Border BorderThickness="0,0,0,1"
-                                                    BorderBrush="{DynamicResource White1Brush}"
-                                                    x:Name="HeaderBorder"
-                                                    Background="Transparent"
-                                                    />
-                                            <Border x:Name="HeaderHoverBorder" Margin="-7 0 7 0"/>
-                                            <TextBlock x:Name="ContentHeader"
+                            <Style TargetType="{x:Type GridViewColumnHeader}">
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="{x:Type GridViewColumnHeader}">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="1" />
+                                                </Grid.ColumnDefinitions>
+                                                <Border BorderThickness="0,0,0,1"
+                                                        BorderBrush="{DynamicResource White1Brush}"
+                                                        x:Name="HeaderBorder"
+                                                        Background="Transparent" />
+                                                <Border x:Name="HeaderHoverBorder"
+                                                        Margin="-7 0 7 0" />
+                                                <TextBlock x:Name="ContentHeader"
                                                            Text="{TemplateBinding Content}"
-                                                           Padding="0" Margin="-7 0 7 0"
-                                                       VerticalAlignment="Center"
+                                                           Padding="0"
+                                                           Margin="-7 0 7 0"
+                                                           VerticalAlignment="Center"
                                                            Width="{TemplateBinding Width}"
                                                            TextAlignment="Center" />
-                                            <Thumb Grid.Column="1" 
-                                                   BorderThickness="0"
-                                                   x:Name="PART_HeaderGripper" 
-                                                   HorizontalAlignment="Right"  
-                                                   Margin="-7,0, 0, 0">
-                                                <Thumb.Style>
-                                                    <Style TargetType="Thumb">
+                                                <Thumb Grid.Column="1"
+                                                       BorderThickness="0"
+                                                       x:Name="PART_HeaderGripper"
+                                                       HorizontalAlignment="Right"
+                                                       Margin="-7,0, 0, 0">
+                                                    <Thumb.Style>
+                                                        <Style TargetType="Thumb">
+                                                            <Setter Property="Width"
+                                                                    Value="18" />
+                                                            <Setter Property="Background"
+                                                                    Value="White" />
+                                                            <Setter Property="Template">
+                                                                <Setter.Value>
+                                                                    <ControlTemplate TargetType="{x:Type Thumb}">
+                                                                        <Border Padding="{TemplateBinding Padding}"
+                                                                                Background="Transparent">
+                                                                            <Rectangle HorizontalAlignment="Center"
+                                                                                       Width="3"
+                                                                                       Fill="{TemplateBinding Background}" />
+                                                                        </Border>
+                                                                    </ControlTemplate>
+                                                                </Setter.Value>
+                                                            </Setter>
+                                                        </Style>
+                                                    </Thumb.Style>
+                                                </Thumb>
+                                            </Grid>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsMouseOver"
+                                                         Value="True">
+                                                    <Setter Property="Background"
+                                                            TargetName="HeaderHoverBorder"
+                                                            Value="{DynamicResource White2Brush}" />
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                                <Setter Property="OverridesDefaultStyle"
+                                        Value="True" />
+                            </Style>
+                            <Style TargetType="{x:Type GridViewHeaderRowPresenter}">
+                                <Setter Property="Height"
+                                        Value="24" />
+                            </Style>
+                        </controls:TreeListView.Resources>
+                        <i:Interaction.Behaviors>
+                            <behaviours:BindableSelectedItemBehavior SelectedItem="{Binding SelectedItem, Mode=TwoWay}" />
+                        </i:Interaction.Behaviors>
+                        <controls:TreeListView.ItemTemplate>
+                            <HierarchicalDataTemplate ItemsSource="{Binding Children}" />
+                        </controls:TreeListView.ItemTemplate>
+                        <controls:TreeListView.Columns>
+                            <GridViewColumn Width="450"
+                                            Header="Name">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal">
+                                            <controls:TreeListViewExpander />
+                                            <ContentControl DataContext="{Binding TestStatus}">
+                                                <ContentControl.Style>
+                                                    <Style TargetType="ContentControl">
+                                                        <Setter Property="Content"
+                                                                Value="?" />
                                                         <Setter Property="Width"
-                                                                Value="18" />
-                                                        <Setter Property="Background"
-                                                                Value="White" />
-                                                        <Setter Property="Template">
-                                                            <Setter.Value>
-                                                                <ControlTemplate TargetType="{x:Type Thumb}">
-                                                                    <Border Padding="{TemplateBinding Padding}"
-                                                                            Background="Transparent">
-                                                                        <Rectangle HorizontalAlignment="Center"
-                                                                                   Width="3"
-                                                                                   Fill="{TemplateBinding Background}" />
-                                                                    </Border>
-                                                                </ControlTemplate>
-                                                            </Setter.Value>
-                                                        </Setter>
+                                                                Value="14" />
+                                                        <Setter Property="Height"
+                                                                Value="14" />
+                                                        <Setter Property="Margin"
+                                                                Value="4 0" />
+                                                        <Setter Property="Padding"
+                                                                Value="0" />
+                                                        <Style.Triggers>
+                                                            <!--TestStatus-->
+                                                            <DataTrigger
+                                                                Binding="{Binding  Converter={StaticResource EnumToBoolConverter}, ConverterParameter={x:Static models:TestStatus.Skipped }}"
+                                                                Value="true">
+                                                                <Setter Property="Content"
+                                                                        Value="{DynamicResource BlindIcon}" />
+                                                            </DataTrigger>
+                                                            <DataTrigger
+                                                                Binding="{Binding  Converter={StaticResource EnumToBoolConverter}, ConverterParameter={x:Static models:TestStatus.Failed }}"
+                                                                Value="true">
+                                                                <Setter Property="Content"
+                                                                        Value="{DynamicResource RemoveMarkIcon}" />
+                                                            </DataTrigger>
+                                                            <DataTrigger
+                                                                Binding="{Binding  Converter={StaticResource EnumToBoolConverter}, ConverterParameter={x:Static models:TestStatus.Passed }}"
+                                                                Value="true">
+                                                                <Setter Property="Content"
+                                                                        Value="{DynamicResource CheckMarkIcon}" />
+                                                            </DataTrigger>
+                                                            <DataTrigger
+                                                                Binding="{Binding  Converter={StaticResource EnumToBoolConverter}, ConverterParameter={x:Static models:TestStatus.Warning }}"
+                                                                Value="true">
+                                                                <Setter Property="Content"
+                                                                        Value="{DynamicResource QuestionMarkIcon}" />
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
                                                     </Style>
-                                                </Thumb.Style>
-                                            </Thumb>
-                                        </Grid>
-                                        <ControlTemplate.Triggers>
-                                            <Trigger Property="IsMouseOver"
-                                                     Value="True">
-                                                <Setter Property="Background"
-                                                        TargetName="HeaderHoverBorder"
-                                                        Value="{DynamicResource White2Brush}" />
-                                            </Trigger>
-                                        </ControlTemplate.Triggers>
-                                    </ControlTemplate>
-                                </Setter.Value>
-                            </Setter>
-                            <Setter Property="OverridesDefaultStyle"
-                                    Value="True" />
+                                                </ContentControl.Style>
+                                            </ContentControl>
+                                            <TextBlock Style="{StaticResource TextBlockStyle}"
+                                                       Text="{Binding Name, Mode=OneWay}" />
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
 
-                        </Style>
-                        <Style TargetType="{x:Type GridViewHeaderRowPresenter}">
-                            <Setter Property="Height" Value="24"/>
-                        </Style>
-                    </controls:TreeListView.Resources>
-                    <i:Interaction.Behaviors>
-                        <behaviours:BindableSelectedItemBehavior SelectedItem="{Binding SelectedItem, Mode=TwoWay}" />
-                    </i:Interaction.Behaviors>
-                    <controls:TreeListView.ItemTemplate>
-                        <HierarchicalDataTemplate ItemsSource="{Binding Children}" />
-                    </controls:TreeListView.ItemTemplate>
-                    <controls:TreeListView.Columns>
-                        <GridViewColumn Width="200"
-                                        Header="Name">
-                            <GridViewColumn.CellTemplate>
-                                <DataTemplate>
-                                    <StackPanel Orientation="Horizontal">
-                                        <controls:TreeListViewExpander />
-                                        <TextBlock Style="{StaticResource RunStateTextBlockStyle}">
-                                            <Run Text="[" />
-                                            <Run Text="{Binding Id, Mode=OneWay}" />
-                                            <Run Text="] " />
-                                            <Run Text="{Binding Name, Mode=OneWay}" />
-                                        </TextBlock>
-                                    </StackPanel>
-                                </DataTemplate>
-                            </GridViewColumn.CellTemplate>
-                        </GridViewColumn>
-                        <GridViewColumn Header="State"
-                                        Width="100">
-                            <GridViewColumn.CellTemplate>
-                                <DataTemplate>
-                                    <TextBlock Text="{Binding RunState, Mode=OneWay}"
-                                               Style="{StaticResource RunStateTextBlockStyle}" />
-                                </DataTemplate>
-                            </GridViewColumn.CellTemplate>
-                        </GridViewColumn>
-                        <GridViewColumn Header="Action"
-                                        Width="100">
-                            <GridViewColumn.CellTemplate>
-                                <DataTemplate>
-                                    <TextBlock Text="{Binding TestAction, Mode=OneWay}"
-                                               Style="{StaticResource RunStateTextBlockStyle}" />
-                                </DataTemplate>
-                            </GridViewColumn.CellTemplate>
-                        </GridViewColumn>
+                            <GridViewColumn Header="Duration"
+                                            Width="100">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Duration, Mode=OneWay, StringFormat={}{0:N5}}"
+                                                   Style="{StaticResource TextBlockStyle}" />
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                            <GridViewColumn Header="Test action"
+                                            Width="100">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding TestAction, Mode=OneWay}"
+                                                   Style="{StaticResource TextBlockStyle}" />
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                        </controls:TreeListView.Columns>
+                    </controls:TreeListView>
 
-                        <GridViewColumn Header="Duration"
-                                        Width="100">
-                            <GridViewColumn.CellTemplate>
-                                <DataTemplate>
-                                    <TextBlock Text="{Binding Duration, Mode=OneWay}"
-                                               Style="{StaticResource RunStateTextBlockStyle}" />
-                                </DataTemplate>
-                            </GridViewColumn.CellTemplate>
-                        </GridViewColumn>
-                        <GridViewColumn Header="Status"
-                                        Width="100">
-                            <GridViewColumn.CellTemplate>
-                                <DataTemplate>
-                                    <TextBlock Text="{Binding TestStatus, Mode=OneWay}"
-                                               Style="{StaticResource TestStatusTextBlockStyle}" />
-                                </DataTemplate>
-                            </GridViewColumn.CellTemplate>
-                        </GridViewColumn>
-                    </controls:TreeListView.Columns>
-                </controls:TreeListView>
-
-                <TextBox IsReadOnly="True"
-                         Grid.Column="2"
-                         Background="{DynamicResource Blue3Brush}"
-                         Foreground="{DynamicResource White2Brush}"
-                         BorderThickness="0"
-                         Text="{Binding SelectedItem.Output, Mode=OneWay}" />
-            </Grid>
-        </DockPanel>
-        <StackPanel Orientation="Vertical"
-                    HorizontalAlignment="Center"
-                    VerticalAlignment="Center"
-                    Visibility="{Binding IsProjectLoading, Converter={StaticResource BoolToVisibilityConverter}}">
-            <Label Content="Loading project ..."
-                   Foreground="AliceBlue"
-                   HorizontalContentAlignment="Center"
-                   HorizontalAlignment="Center" />
-            <ProgressBar Width="231"
-                         Height="23"
-                         IsIndeterminate="True"
-                         Margin="8" />
-            <Button Content="Cancel"
-                    Width="126"
-                    Height="126"
-                    Margin="16"
-                    Command="{Binding CancelLoadingProjectCommand}" />
-        </StackPanel>
-        <Grid Visibility="{Binding IsProjectLoading, Converter={StaticResource ReversedBoolToVisibilityConverter}}">
+                    <TextBox IsReadOnly="True"
+                             Grid.Column="2"
+                             Background="{DynamicResource Blue3Brush}"
+                             Foreground="{DynamicResource White2Brush}"
+                             BorderThickness="0"
+                             Text="{Binding SelectedItem.Output, Mode=OneWay}"
+                             TextWrapping="Wrap"/>
+                </Grid>
+            </DockPanel>
+            <StackPanel Orientation="Vertical"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        Visibility="{Binding IsProjectLoading, Converter={StaticResource BoolToVisibilityConverter}}">
+                <Label Content="Loading project ..."
+                       Foreground="AliceBlue"
+                       HorizontalContentAlignment="Center"
+                       HorizontalAlignment="Center" />
+                <ProgressBar Width="231"
+                             Height="23"
+                             IsIndeterminate="True"
+                             Margin="8" />
+                <Button Content="Cancel"
+                        Width="126"
+                        Height="32"
+                        Margin="16"
+                        Command="{Binding CancelLoadingProjectCommand}" />
+            </StackPanel>
+            <Grid Visibility="{Binding IsProjectLoading, Converter={StaticResource ReversedBoolToVisibilityConverter}}">
             <views:OpenProjectView
                 Visibility="{Binding IsProjectLoaded, Converter={StaticResource ReversedBoolToVisibilityConverter}}" />
             <Grid Visibility="{Binding IsProjectLoaded, Converter={StaticResource ReversedBoolToVisibilityConverter}}">
                 <controls:OptionsButtonControl DataContext="{Binding PackageSettingsViewModel}" />
             </Grid>
+        </Grid>
+        </Grid>
+        <Grid Visibility="{Binding ErrorMessage, Converter={StaticResource NullToVisibilityConverter}}">
+            <StackPanel Orientation="Vertical" 
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center">
+                <TextBox Text="{Binding ErrorMessage, Mode=OneWay}"
+                         IsReadOnly="True"
+                         Width="350"
+                         BorderThickness="0 0 0 1"
+                         Foreground="{DynamicResource White1Brush}"
+                         Background="{DynamicResource Blue1Brush}"/>
+                <Button Content="Close"
+                        Width="126"
+                        Height="32"
+                        Margin="16"
+                        Command="{Binding CloseLoadingErrorCommand}" />
+            </StackPanel>
         </Grid>
     </Grid>
 </UserControl>
