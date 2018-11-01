@@ -123,8 +123,9 @@
                         <Grid Height="20"
                               Grid.Column="1"
                               HorizontalAlignment="Stretch">
-                            <ProgressBar IsIndeterminate="False"
-                                         Value="{Binding TestsProgress}" />
+                            <controls:TestProgress ItemsSource="{Binding TestProgress}"/>
+                            <!--<ProgressBar IsIndeterminate="False"
+                                         Value="{Binding TestsProgress}" />-->
                         </Grid>
                         <TextBlock Text="{Binding TestTimePass, StringFormat={}{0:ss\\:fff}}"
                                    Margin="24 0"

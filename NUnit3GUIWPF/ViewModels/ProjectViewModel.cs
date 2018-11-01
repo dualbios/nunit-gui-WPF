@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.ComponentModel.Composition;
 using System.Linq;
@@ -146,18 +147,17 @@ namespace NUnit3GUIWPF.ViewModels
 
             Observable
                 .Interval(TimeSpan.FromMilliseconds(250), DispatcherScheduler.Current)
-                .Where(_=>this.IsRunning)
+                .Where(_ => this.IsRunning)
                 .Subscribe(
-                    x =>
-                    {
-                        TestTimePass += TimeSpan.FromMilliseconds(x);
-                    });
+                    x => { TestTimePass += TimeSpan.FromMilliseconds(x); });
+
+            TestProgress = new ObservableCollection<TestProgressItem>(new[] {new TestProgressItem() {Name = "1111"}, new TestProgressItem() {Name = "222"},});
         }
 
         public TimeSpan TestTimePass
         {
             get => _testTimePass;
-            set => this.RaiseAndSetIfChanged(ref _testTimePass , value);
+            set => this.RaiseAndSetIfChanged(ref _testTimePass, value);
         }
 
         public ReactiveCommand<Unit, Unit> AddFileCommand { get; }
@@ -379,7 +379,6 @@ namespace NUnit3GUIWPF.ViewModels
 
         private Task RunAllTestAsync(CancellationToken arg)
         {
-            
             State = ProjectState.Started;
             TestsProgress = 0;
             CompletedTestsCount = 0;
@@ -421,5 +420,12 @@ namespace NUnit3GUIWPF.ViewModels
             IsRunning = false;
             return Task.CompletedTask;
         }
+
+        public ObservableCollection<TestProgressItem> TestProgress { get; }
+    }
+
+    public class TestProgressItem
+    {
+        public string Name { get; set; }
     }
 }

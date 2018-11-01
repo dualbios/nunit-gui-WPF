@@ -177,6 +177,9 @@
     <Compile Include="Controls\OptionsButtonControl.xaml.cs">
       <DependentUpon>OptionsButtonControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\TestProgress.xaml.cs">
+      <DependentUpon>TestProgress.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\TreeListView.cs" />
     <Compile Include="Converters\BoolToVisibilityConverter.cs" />
     <Compile Include="Converters\EnumToBoolConverter.cs" />
@@ -225,6 +228,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Controls\OptionsButtonControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\TestProgress.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
