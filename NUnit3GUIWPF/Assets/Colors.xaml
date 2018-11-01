@@ -2,13 +2,14 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <Color x:Key="White1Color" >#ffffff</Color>
     <Color x:Key="White2Color" >#a4adbb</Color>
-    
+
     <Color x:Key="Blue1Color" >#091a35</Color>
     <Color x:Key="Blue2Color" >#192f53</Color>
-    <Color x:Key="Blue3Color" >#1c3660</Color> 
+    <Color x:Key="Blue3Color" >#1c3660</Color>
 
     <Color x:Key="RedColor" >#d80027</Color>
     <Color x:Key="GreenColor" >#5cbd5c</Color>
+
 
     <SolidColorBrush Color="{DynamicResource White1Color}" x:Key="White1Brush" />
     <SolidColorBrush Color="{DynamicResource White2Color}" x:Key="White2Brush" />
@@ -19,7 +20,27 @@
 
     <SolidColorBrush Color="{DynamicResource RedColor}" x:Key="RedBrush" />
     <SolidColorBrush Color="{DynamicResource GreenColor}" x:Key="GreenBrush" />
-    
-    
+
+    <Color x:Key="1BlueColor">#0168e5</Color>
+    <Color x:Key="2WhiteColor">#ffffff</Color>
+    <Color x:Key="3GreeColor">#29cc29</Color>
+    <Color x:Key="4GrayColor">#a4adbb</Color>
+    <Color x:Key="5BlueColor">#192f53</Color>
+    <Color x:Key="6GrayColor">#575a60</Color>
+    <Color x:Key="7BlueColor">#091a35</Color>
+    <Color x:Key="8RedColor">#d80027</Color>
+    <Color x:Key="9RedColor">#e75d76</Color>
+    <Color x:Key="10RedColor">#87143a</Color>
+
+    <SolidColorBrush Color="{DynamicResource 1BlueColor}" x:Key="1BlueColorBrush" />
+    <SolidColorBrush Color="{DynamicResource 2WhiteColor}" x:Key="2WhiteColorBrush" />
+    <SolidColorBrush Color="{DynamicResource 3GreeColor}" x:Key="3GreeColorBrush" />
+    <SolidColorBrush Color="{DynamicResource 4GrayColor}" x:Key="4GrayColorBrush" />
+    <SolidColorBrush Color="{DynamicResource 5BlueColor}" x:Key="5BlueColorBrush" />
+    <SolidColorBrush Color="{DynamicResource 6GrayColor}" x:Key="6GrayColorBrush" />
+    <SolidColorBrush Color="{DynamicResource 7BlueColor}" x:Key="7BlueColorBrush" />
+    <SolidColorBrush Color="{DynamicResource 8RedColor}" x:Key="8RedColorBrush" />
+    <SolidColorBrush Color="{DynamicResource 9RedColor}" x:Key="9RedColorBrush" />
+    <SolidColorBrush Color="{DynamicResource 10RedColor}" x:Key="10RedColorBrush" />
 
 </ResourceDictionary>
