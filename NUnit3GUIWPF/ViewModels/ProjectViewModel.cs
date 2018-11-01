@@ -104,7 +104,10 @@ namespace NUnit3GUIWPF.ViewModels
 
             RunSelectedTestCommand = ReactiveCommand.CreateFromTask(
                 RunSelectedTestAsync,
-                this.WhenAny(vm => vm.SelectedItem, p => p.Value != null));
+                Observable.CombineLatest(
+                    this.WhenAny(vm => vm.SelectedItem, p => p.Value != null),
+                    this.WhenAny(vm => vm.IsRunning, p => p.Value == false),
+                    (p1, p2)=> p1&& p2));
 
             OpenFileCommand = ReactiveCommand.CreateFromObservable(
                 () => Observable.StartAsync(ct => SelectFileAndload(ct))
