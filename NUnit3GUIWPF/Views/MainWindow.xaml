@@ -31,14 +31,15 @@
     </Window.Background>
     <DockPanel LastChildFill="True">
         <Border DockPanel.Dock="Top"
-                BorderThickness="0 0 0 1"
+                BorderThickness="0 0 0 0"
                 BorderBrush="{DynamicResource White1Brush}">
             <StackPanel Orientation="Horizontal">
                 <ListBox ItemsSource="{Binding Projects, Mode=OneWay}"
                          SelectedItem="{Binding CurrentViewModel}"
                          Background="Transparent"
                          BorderThickness="0"
-                         Margin="0 2">
+                         Margin="0 2"
+                         ItemContainerStyle="{StaticResource ProjectItemStyle}">
                     <ListBox.ItemsPanel>
                         <ItemsPanelTemplate>
                             <VirtualizingStackPanel IsItemsHost="True"
@@ -60,43 +61,22 @@
 
                                 <DockPanel>
                                     <Button Content="{DynamicResource CloseIcon}"
-                                            Width="10"
-                                            Height="10"
-                                            Background="Transparent"
+                                            Width="12"
+                                            Height="12"
                                             DockPanel.Dock="Right"
                                             Command="{Binding DataContext.CloseProjectCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"
                                             CommandParameter="{Binding}"
                                             HorizontalAlignment="Right"
                                             VerticalAlignment="Center"
                                             IsEnabled="{Binding State, Converter={StaticResource ProjectStateToEnableConverter}}" />
-                                    <TextBlock Text="{Binding Header}"
-                                               FontSize="12"
-                                               Foreground="AliceBlue" />
+                                    <TextBlock Text="{Binding Header}" />
 
                                 </DockPanel>
 
                             </DockPanel>
                         </DataTemplate>
                     </ListBox.ItemTemplate>
-                    <ListBox.ItemContainerStyle>
-                        <Style TargetType="ListBoxItem">
-                            <Setter Property="Template">
-                                <Setter.Value>
-                                    <ControlTemplate TargetType="ListBoxItem">
-                                        <Border x:Name="Bd" Background="{DynamicResource Blue1Brush}">
-                                            <ContentPresenter Margin="4" />
-                                        </Border>
-                                        <ControlTemplate.Triggers>
-                                            <Trigger Property="IsSelected"
-                                                     Value="True" >
-                                                <Setter Property="Background" TargetName="Bd" Value="{DynamicResource Blue2Brush}"/>
-                                            </Trigger>
-                                        </ControlTemplate.Triggers>
-                                    </ControlTemplate>
-                                </Setter.Value>
-                            </Setter>
-                        </Style>
-                    </ListBox.ItemContainerStyle>
+
                 </ListBox>
                 <Button Command="{Binding AddProjectCommand}"
                         Margin="4 0"

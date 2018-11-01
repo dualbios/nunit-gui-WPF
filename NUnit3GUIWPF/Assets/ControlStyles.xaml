@@ -5,12 +5,89 @@
 
     <Style TargetType="Button"
            BasedOn="{StaticResource {x:Type Button}}">
+        <Setter Property="OverridesDefaultStyle"
+                Value="true" />
         <Setter Property="Background"
-                Value="{DynamicResource Blue3Brush}" />
+                Value="Transparent" />
         <Setter Property="Foreground"
-                Value="{DynamicResource White2Brush}" />
+                Value="{DynamicResource 4GrayColorBrush}" />
         <Setter Property="BorderThickness"
                 Value="0" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type Button}">
+                    <Border Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}">
+                        <ContentPresenter x:Name="PART_Content"
+                                          Margin="{TemplateBinding Padding}"
+                                          VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                          HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                          TextElement.Foreground="{TemplateBinding Foreground}" />
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Style.Triggers>
+
+            <Trigger Property="IsMouseOver"
+                     Value="True">
+                <Setter Property="Background"
+                        Value="{DynamicResource 5BlueColorBrush}" />
+            </Trigger>
+            <Trigger Property="IsPressed"
+                     Value="True">
+                <Setter Property="Foreground"
+                        Value="{DynamicResource 2WhiteColorBrush}" />
+                <Setter Property="Background"
+                        Value="{DynamicResource 4GrayColorBrush}" />
+            </Trigger>
+            <Trigger Property="IsEnabled"
+                     Value="False">
+                <Setter Property="Foreground"
+                        Value="{DynamicResource 5BlueColorBrush}" />
+                <Setter Property="Background"
+                        Value="Transparent" />
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style x:Key="ProjectItemStyle"
+           TargetType="ListBoxItem"
+           BasedOn="{StaticResource {x:Type ListBoxItem}}">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Foreground" Value="{DynamicResource 4GrayColorBrush}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ListBoxItem">
+                    <Border x:Name="Bd"
+                            Background="{TemplateBinding Background}">
+                        <ContentPresenter Margin="4" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver"
+                                 Value="True">
+                            <Setter Property="Background"
+                                    Value="{DynamicResource 5BlueColorBrush}" />
+                        </Trigger>
+                        <Trigger Property="IsSelected"
+                                 Value="True">
+                            <Setter Property="Foreground"
+                                    Value="{DynamicResource 2WhiteColorBrush}" />
+                            <Setter Property="Background"
+                                    Value="{DynamicResource 4GrayColorBrush}" />
+                        </Trigger>
+                        <Trigger Property="IsEnabled"
+                                 Value="False">
+                            <Setter Property="Foreground"
+                                    Value="{DynamicResource 5BlueColorBrush}" />
+                            <Setter Property="Background"
+                                    Value="Transparent" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
     </Style>
 
     <Style x:Key="ProjectToolButtonStyle"
@@ -22,8 +99,6 @@
                 Value="24" />
         <Setter Property="Width"
                 Value="24" />
-        <Setter Property="Background"
-                Value="Transparent" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
@@ -37,14 +112,6 @@
                                         HorizontalAlignment="Center"
                                         VerticalAlignment="Center" />
                     </Border>
-                    <ControlTemplate.Triggers>
-                        <Trigger Property="IsMouseOver" Value="True">
-                            <Setter Property="Background" Value="{DynamicResource White1Brush}"/>
-                        </Trigger>
-                        <Trigger Property="IsPressed" Value="True">
-                            <Setter Property="Background" Value="White"/>
-                        </Trigger>
-                    </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
@@ -53,6 +120,7 @@
     <Style TargetType="HeaderedContentControl"
            BasedOn="{StaticResource {x:Type HeaderedContentControl}}"
            x:Key="HorisontalHeaderedContentControlStyle">
+        <Setter Property="Foreground" Value="{DynamicResource 4GrayColorBrush}"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="HeaderedContentControl">
@@ -65,5 +133,65 @@
             </Setter.Value>
         </Setter>
     </Style>
+
+    <Style TargetType="ToggleButton" BasedOn="{StaticResource {x:Type ToggleButton}}">
+        <Setter Property="OverridesDefaultStyle"
+                Value="true" />
+        <Setter Property="Background"
+                Value="Transparent" />
+        <Setter Property="Foreground"
+                Value="{DynamicResource 4GrayColorBrush}" />
+        <Setter Property="BorderThickness"
+                Value="0" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type ToggleButton}">
+                    <Border Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}">
+                        <ContentPresenter x:Name="PART_Content"
+                                          Margin="{TemplateBinding Padding}"
+                                          VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                          HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                          TextElement.Foreground="{TemplateBinding Foreground}" />
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Style.Triggers>
+
+            <Trigger Property="IsMouseOver"
+                     Value="True">
+                <Setter Property="Background"
+                        Value="{DynamicResource 5BlueColorBrush}" />
+            </Trigger>
+            <Trigger Property="IsPressed"
+                     Value="True">
+                <Setter Property="Foreground"
+                        Value="{DynamicResource 2WhiteColorBrush}" />
+                <Setter Property="Background"
+                        Value="{DynamicResource 4GrayColorBrush}" />
+            </Trigger>
+            <Trigger Property="IsEnabled"
+                     Value="False">
+                <Setter Property="Foreground"
+                        Value="{DynamicResource 5BlueColorBrush}" />
+                <Setter Property="Background"
+                        Value="Transparent" />
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style x:Key="CommandButtonStyle"
+           TargetType="Button"
+           BasedOn="{StaticResource {x:Type Button}}">
+        <Setter Property="Width"
+                Value="24" />
+        <Setter Property="Height"
+                Value="24" />        
+        <Setter Property="Padding"
+                Value="4" />
+    </Style>
+
 
 </ResourceDictionary>

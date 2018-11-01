@@ -20,8 +20,8 @@
 
             <Style TargetType="Button" x:Key="OpenButtonStyle" 
                    BasedOn="{StaticResource {x:Type Button}}">
-                <Setter Property="Width" Value="126"/>
-                <Setter Property="Height" Value="126"/>
+                <Setter Property="Width" Value="100"/>
+                <Setter Property="Height" Value="100"/>
                 <Setter Property="Margin" Value="16"/>
             </Style>
         </ResourceDictionary>
@@ -36,8 +36,8 @@
                 <Button.Content>
                     <StackPanel Orientation="Vertical">
                         <ContentControl Content="{StaticResource OpenLocalyIcon}"
-                                        Width="75"
-                                        Height="65"
+                                        Width="55"
+                                        Height="45"
                                         Margin="4" 
                                         HorizontalAlignment="Center"/>
                         <TextBlock Text="Open"
@@ -47,6 +47,7 @@
             </Button>
             <Button Command="{Binding OpenRecentCommand}"
                     HorizontalAlignment="Center"
+                    IsEnabled="false"
                     Style="{DynamicResource OpenButtonStyle}">
                 <Button.Content>
                     <StackPanel Orientation="Vertical">

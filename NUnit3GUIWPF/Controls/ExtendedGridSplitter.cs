@@ -1,12 +1,17 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Media;
 
 namespace NUnit3GUIWPF.Controls
 {
     public class ExtendedGridSplitter : GridSplitter
     {
+        public static readonly DependencyProperty CollapsedControlTemplateProperty = DependencyProperty.Register(
+            nameof(CollapsedControlTemplate), typeof(ControlTemplate), typeof(ExtendedGridSplitter), new PropertyMetadata(default(ControlTemplate)));
+
+        public static readonly DependencyProperty ExpandedControlTemplateProperty = DependencyProperty.Register(
+            nameof(ExpandedControlTemplate), typeof(ControlTemplate), typeof(ExtendedGridSplitter), new PropertyMetadata(default(ControlTemplate)));
+
         private ColumnDefinition columnDefinition;
         private GridLength prevColumnWidth = new GridLength(1, GridUnitType.Star);
 
@@ -14,21 +19,38 @@ namespace NUnit3GUIWPF.Controls
         {
             MouseDoubleClick += ExtendedGridSplitter_MouseDoubleClick;
             DragCompleted += ExtendedGridSplitter_DragCompleted;
-
         }
 
-        private void ExtendedGridSplitter_DragCompleted(object sender, System.Windows.Controls.Primitives.DragCompletedEventArgs e)
+        public ControlTemplate CollapsedControlTemplate
         {
-            if (columnDefinition.Width.Value == 0)
-            {
-                //this.Background = new SolidColorBrush(Colors.Red);
-            }
+            get { return (ControlTemplate) GetValue(CollapsedControlTemplateProperty); }
+            set { SetValue(CollapsedControlTemplateProperty, value); }
+        }
+
+        public ControlTemplate ExpandedControlTemplate
+        {
+            get { return (ControlTemplate) GetValue(ExpandedControlTemplateProperty); }
+            set { SetValue(ExpandedControlTemplateProperty, value); }
         }
 
         public override void OnApplyTemplate()
         {
             int columnIndex = Grid.GetColumn(this);
             columnDefinition = (Parent as Grid).ColumnDefinitions[columnIndex + 1];
+
+            SetTemplate(columnDefinition.Width.Value);
+        }
+
+        
+
+        private void ExtendedGridSplitter_DragCompleted(object sender, System.Windows.Controls.Primitives.DragCompletedEventArgs e)
+        {
+            SetTemplate(columnDefinition.Width.Value);
+        }
+
+        private void SetTemplate(double widthValue)
+        {
+            this.Template = widthValue== 0 ? CollapsedControlTemplate : ExpandedControlTemplate;
         }
 
         private void ExtendedGridSplitter_MouseDoubleClick(object sender, MouseButtonEventArgs e)
