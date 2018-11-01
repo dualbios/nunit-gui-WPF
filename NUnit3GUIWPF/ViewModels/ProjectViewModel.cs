@@ -145,12 +145,12 @@ namespace NUnit3GUIWPF.ViewModels
             });
 
             Observable
-                .Interval(TimeSpan.FromSeconds(1), DispatcherScheduler.Current)
+                .Interval(TimeSpan.FromMilliseconds(250), DispatcherScheduler.Current)
                 .Where(_=>this.IsRunning)
                 .Subscribe(
                     x =>
                     {
-                        TestTimePass = TimeSpan.FromMilliseconds(x);
+                        TestTimePass += TimeSpan.FromMilliseconds(x);
                     });
         }
 
