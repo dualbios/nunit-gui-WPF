@@ -45,7 +45,7 @@
             <Style x:Key="MainWindowStyle"
                    TargetType="{x:Type Window}">
                 <Setter Property="Background"
-                        Value="{x:Static SystemColors.WindowBrush}" />
+                        Value="{DynamicResource 7BlueColorBrush}" />
                 <Setter Property="OverridesDefaultStyle"
                         Value="True" />
                 <Setter Property="WindowChrome.WindowChrome">
@@ -73,7 +73,7 @@
                                                 Background="{TemplateBinding Background}"
                                                 x:Name="TitlebarControl"
                                                 IsHitTestVisible="True"
-                                                BorderThickness="0 0 0 2"
+                                                BorderThickness="0 0 0 1"
                                                 BorderBrush="#a4adbb" />
 
                                         <DockPanel LastChildFill="True"
@@ -93,7 +93,7 @@
                                                         WindowChrome.IsHitTestVisibleInChrome="true"
                                                         Orientation="Horizontal">
                                                 <Button Content="About"
-                                                        Command="{Binding AboutCommand}"
+                                                        Click="About_OnClick"
                                                         Padding="8 0"
                                                         Width="Auto" />
                                                 <Separator />
@@ -164,6 +164,93 @@
                                             TargetName="MainGrid" />
                                 </Trigger>
                             </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+            <Style x:Key="DialogWindowStyle"
+                   TargetType="{x:Type Window}">
+                <Setter Property="Background"
+                        Value="{DynamicResource 5BlueColorBrush}" />
+                <Setter Property="OverridesDefaultStyle"
+                        Value="True" />
+                <Setter Property="WindowChrome.WindowChrome">
+                    <Setter.Value>
+                        <WindowChrome CornerRadius="0"
+                                      GlassFrameThickness="1"
+                                      UseAeroCaptionButtons="False"
+                                      NonClientFrameEdges="None"
+                                      CaptionHeight="1" />
+                    </Setter.Value>
+                </Setter>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="{x:Type Window}">
+                            <Border BorderThickness="0"
+                                    BorderBrush="#5C7790">
+                                <DockPanel Background="{StaticResource BackgroundColor}"
+                                           x:Name="MainGrid"
+                                           LastChildFill="True">
+
+                                    <!-- Titlebar  -->
+                                    <Grid DockPanel.Dock="Top">
+                                        <Border VerticalAlignment="Stretch"
+                                                HorizontalAlignment="Stretch"
+                                                Background="{TemplateBinding Background}"
+                                                x:Name="TitlebarControl"
+                                                IsHitTestVisible="True"
+                                                BorderThickness="0 0 0 1"
+                                                BorderBrush="#a4adbb" />
+
+                                        <DockPanel LastChildFill="True"
+                                                   Margin="4">
+
+
+                                            <!-- system buttons-->
+                                            <StackPanel DockPanel.Dock="Right"
+                                                        HorizontalAlignment="Right"
+                                                        VerticalAlignment="Top"
+                                                        WindowChrome.IsHitTestVisibleInChrome="true"
+                                                        Orientation="Horizontal">
+
+                                                <Button Content="{DynamicResource CloseIcon}"
+                                                        WindowChrome.IsHitTestVisibleInChrome="true"
+                                                        Command="{Binding Source={x:Static SystemCommands.CloseWindowCommand}}" >
+                                                    <Button.Style>
+                                                        <Style TargetType="Button" BasedOn="{StaticResource SystemButton}">
+                                                            <Style.Triggers>
+                                                                <Trigger Property="IsMouseOver" Value="True">
+                                                                    <Setter Property="Background" Value="{DynamicResource 8RedColorBrush}"/>
+                                                                </Trigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </Button.Style>
+                                                </Button>
+                                            </StackPanel>
+
+                                            <TextBlock VerticalAlignment="Center"
+                                                       FontSize="12"
+                                                       Foreground="White"
+                                                       Grid.Row="0"
+                                                       IsHitTestVisible="False"
+                                                       Text="{TemplateBinding Title}"
+                                                       TextTrimming="CharacterEllipsis"
+                                                       TextWrapping="NoWrap"
+                                                       Margin="8 0"
+                                                       ToolTip="{TemplateBinding Title}" />
+                                        </DockPanel>
+                                    </Grid>
+
+                                    <!-- Main area -->
+                                    <Border Background="{TemplateBinding Background}"
+                                            BorderThickness="0"
+                                            x:Name="MainBorder">
+                                        <ContentPresenter Content="{TemplateBinding Content}"
+                                                          ContentStringFormat="{TemplateBinding ContentStringFormat}"
+                                                          ContentTemplate="{TemplateBinding ContentTemplate}" />
+                                    </Border>
+                                </DockPanel>
+                            </Border>
                         </ControlTemplate>
                     </Setter.Value>
                 </Setter>

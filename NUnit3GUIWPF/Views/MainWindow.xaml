@@ -1,4 +1,5 @@
-﻿<Window x:Class="NUnit3GUIWPF.Views.MainWindow"
+﻿<controls:BaseWindow    
+    xmlns:controls="clr-namespace:NUnit3GUIWPF.Controls" x:Class="NUnit3GUIWPF.Views.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -6,7 +7,7 @@
         xmlns:converters="clr-namespace:NUnit3GUIWPF.Converters"
         xmlns:local="clr-namespace:NUnit3GUIWPF"
         mc:Ignorable="d"
-        Title="NUnit test GUI"
+        Title="NUnit Test Runner"
         Style="{StaticResource MainWindowStyle}"
         Height="600"
         Width="1024"
@@ -26,9 +27,6 @@
                                                   IsReversed="True" />
         </ResourceDictionary>
     </Window.Resources>
-    <Window.Background>
-        <SolidColorBrush Color="{DynamicResource Blue1Color}" />
-    </Window.Background>
     <DockPanel LastChildFill="True">
         <Border DockPanel.Dock="Top"
                 BorderThickness="0 0 0 0"
@@ -70,13 +68,10 @@
                                             VerticalAlignment="Center"
                                             IsEnabled="{Binding State, Converter={StaticResource ProjectStateToEnableConverter}}" />
                                     <TextBlock Text="{Binding Header}" />
-
                                 </DockPanel>
-
                             </DockPanel>
                         </DataTemplate>
                     </ListBox.ItemTemplate>
-
                 </ListBox>
                 <Button Command="{Binding AddProjectCommand}"
                         Margin="4 0"
@@ -89,6 +84,5 @@
         </Border>
         <ContentControl Content="{Binding CurrentViewModel, Mode=OneWay}"
                         Grid.Column="2" />
-
     </DockPanel>
-</Window>
+</controls:BaseWindow>
