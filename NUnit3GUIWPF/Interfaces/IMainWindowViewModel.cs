@@ -2,5 +2,6 @@
 {
     public interface IMainWindowViewModel
     {
+        void ShowAbout();
     }
 }

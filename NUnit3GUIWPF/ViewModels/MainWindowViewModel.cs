@@ -6,6 +6,7 @@ using System.Reactive;
 using System.Reactive.Linq;
 using Microsoft.VisualStudio.Composition;
 using NUnit3GUIWPF.Interfaces;
+using NUnit3GUIWPF.Views;
 using ReactiveUI;
 
 namespace NUnit3GUIWPF.ViewModels
@@ -75,6 +76,11 @@ namespace NUnit3GUIWPF.ViewModels
             viewModel.Header = Projects.Any(_ => _.Header == NewProjectName) == false ? NewProjectName : CreateUniqueName(NewProjectName, Projects.Select(_ => _.Header).ToList());
             Projects.Add(viewModel);
             CurrentViewModel = viewModel;
+        }
+
+        public void ShowAbout()
+        {
+            
         }
     }
 }

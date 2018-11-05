@@ -1,0 +1,28 @@
+﻿<controls:BaseWindow xmlns:controls="clr-namespace:NUnit3GUIWPF.Controls"
+                     x:Class="NUnit3GUIWPF.Views.AboutWindow"
+                     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                     xmlns:local="clr-namespace:NUnit3GUIWPF.Views"
+                     mc:Ignorable="d"
+                     Title="About"
+                     Height="400"
+                     Width="300"
+                     WindowStartupLocation="CenterOwner"
+                     Style="{StaticResource DialogWindowStyle}">
+    <DockPanel LastChildFill="True">
+        <Border DockPanel.Dock="Bottom"
+                BorderThickness="0 1 0 0"
+                BorderBrush="{DynamicResource 6GrayColorBrush}">
+            <Button Content="Ok"
+                    Margin="8"
+                    Width="65"
+                    Height="24"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Center"
+                    Click="Ok_OnClick" />
+        </Border>
+        <Grid/>
+    </DockPanel>
+</controls:BaseWindow>

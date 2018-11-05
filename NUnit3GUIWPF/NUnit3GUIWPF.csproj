@@ -173,6 +173,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Behaviors\BindableSelectedItemBehavio.cs" />
+    <Compile Include="Controls\BaseWindow.cs" />
     <Compile Include="Controls\ExtendedGridSplitter.cs" />
     <Compile Include="Controls\OptionsButtonControl.xaml.cs">
       <DependentUpon>OptionsButtonControl.xaml</DependentUpon>
@@ -203,6 +204,9 @@
     <Compile Include="Models\UnitTestEngine.cs" />
     <Compile Include="Utils\OpenFileDialog.cs" />
     <Compile Include="ViewModels\PackageSettingsViewModel.cs" />
+    <Compile Include="Views\AboutWindow.xaml.cs">
+      <DependentUpon>AboutWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\OpenProjectView.xaml.cs">
       <DependentUpon>OpenProjectView.xaml</DependentUpon>
     </Compile>
@@ -229,6 +233,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Controls\TreeListViewResources.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\AboutWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

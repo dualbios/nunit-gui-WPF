@@ -6,7 +6,6 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Input;
 using DesktopBridge;
 using Microsoft.VisualStudio.Composition;
 using NUnit3GUIWPF.Interfaces;
@@ -42,6 +41,11 @@ namespace NUnit3GUIWPF
 
             this.MainWindow = new MainWindow() { DataContext = mainWindowViewModel };
             this.MainWindow.Show();
+        }
+
+        private void About_OnClick(object sender, RoutedEventArgs e)
+        {
+            new AboutWindow { Owner = this.MainWindow }.ShowDialog();
         }
 
         private async Task<ExportProvider> Compose(object parentInstance)
