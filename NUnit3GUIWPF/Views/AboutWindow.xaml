@@ -23,6 +23,25 @@
                     VerticalAlignment="Center"
                     Click="Ok_OnClick" />
         </Border>
-        <Grid/>
+        <Grid Margin="8">
+            <StackPanel>
+                <TextBlock Text="NUnit Test Runner"
+                           Foreground="{DynamicResource 4GrayColorBrush}"
+                           FontSize="24"
+                           HorizontalAlignment="Stretch"
+                           TextAlignment="Center"
+                           Margin="0 16" />
+                <ContentControl Content="{StaticResource MainIcon}"
+                                VerticalAlignment="Top"
+                                HorizontalAlignment="Center"
+                                Width="128"
+                                Height="128" />
+            </StackPanel>
+            <TextBlock Foreground="{DynamicResource 4GrayColorBrush}"
+                       VerticalAlignment="Bottom">
+                <Run Text="Version: " />
+                <Run x:Name="VersionText" />
+            </TextBlock>
+        </Grid>
     </DockPanel>
 </controls:BaseWindow>
