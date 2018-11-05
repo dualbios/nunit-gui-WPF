@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System.Reflection;
+using System.Windows;
 using NUnit3GUIWPF.Controls;
 
 namespace NUnit3GUIWPF.Views
@@ -11,6 +12,8 @@ namespace NUnit3GUIWPF.Views
         public AboutWindow()
         {
             InitializeComponent();
+
+            VersionText.Text = Assembly.GetExecutingAssembly().GetName().Version.ToString();
         }
 
         private void Ok_OnClick(object sender, RoutedEventArgs e)
