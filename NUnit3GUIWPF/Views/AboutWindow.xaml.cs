@@ -1,5 +1,7 @@
-﻿using System.Reflection;
+﻿using System.Diagnostics;
+using System.Reflection;
 using System.Windows;
+using System.Windows.Navigation;
 using NUnit3GUIWPF.Controls;
 
 namespace NUnit3GUIWPF.Views
@@ -16,9 +18,10 @@ namespace NUnit3GUIWPF.Views
             VersionText.Text = Assembly.GetExecutingAssembly().GetName().Version.ToString();
         }
 
-        private void Ok_OnClick(object sender, RoutedEventArgs e)
+        private void Hyperlink_RequestNavigate(object sender, RequestNavigateEventArgs e)
         {
-            this.Close();
+            Process.Start(new ProcessStartInfo(e.Uri.AbsoluteUri));
+            e.Handled = true;
         }
     }
 }
