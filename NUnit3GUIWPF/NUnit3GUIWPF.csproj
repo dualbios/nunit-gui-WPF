@@ -39,6 +39,9 @@
   <PropertyGroup>
     <ApplicationIcon>main_ico.ico</ApplicationIcon>
   </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject>NUnit3GUIWPF.Utils.App</StartupObject>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
@@ -92,7 +95,11 @@
     <Compile Include="Models\TestNodeExtensions.cs" />
     <Compile Include="Models\TestState.cs" />
     <Compile Include="Models\UnitTestEngine.cs" />
+    <Compile Include="Utils\App.cs" />
+    <Compile Include="Utils\DispatcherHelper.cs" />
+    <Compile Include="Utils\MessageListener.cs" />
     <Compile Include="Utils\OpenFileDialog.cs" />
+    <Compile Include="Utils\Splasher.cs" />
     <Compile Include="ViewModels\PackageSettingsViewModel.cs" />
     <Compile Include="Views\AboutWindow.xaml.cs">
       <DependentUpon>AboutWindow.xaml</DependentUpon>
@@ -105,6 +112,9 @@
     </Compile>
     <Compile Include="Views\ProjectView.xaml.cs">
       <DependentUpon>ProjectView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\SplashScreenWindow.xaml.cs">
+      <DependentUpon>SplashScreenWindow.xaml</DependentUpon>
     </Compile>
     <Page Include="Assets\Colors.xaml">
       <SubType>Designer</SubType>
@@ -156,6 +166,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Views\ProjectView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\SplashScreenWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -304,6 +318,9 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="main_ico.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <SplashScreen Include="MainSplashScreen.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
