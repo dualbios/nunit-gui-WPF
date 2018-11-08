@@ -48,7 +48,7 @@
         <StackPanel Margin="0 32 0 0">
             <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="120" />
+                    <ColumnDefinition Width="Auto" />
                     <ColumnDefinition />
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
@@ -59,6 +59,7 @@
                            Grid.Column="0"
                            Grid.Row="0" />
                 <TextBlock Text="Kostiantyn Usenko"
+                           TextAlignment="Right"
                            Margin="16 0"
                            FontWeight="Bold"
                            Grid.Column="1"
@@ -67,6 +68,7 @@
                            Grid.Column="0"
                            Grid.Row="1" />
                 <TextBlock Text="Ira Sukanets"
+                           TextAlignment="Right"
                            Margin="16 0"
                            FontWeight="Bold"
                            Grid.Column="1"
