@@ -13,7 +13,8 @@
              xmlns:converters1="clr-namespace:NUnit3GUIWPF.Converters"
              mc:Ignorable="d"
              d:DesignHeight="450"
-             d:DesignWidth="800">
+             d:DesignWidth="800"
+             x:Name="ProjectControl">
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -77,7 +78,7 @@
                                                     Style="{StaticResource FileCountHeaderedControlStyle}">
                                 <HeaderedContentControl.Header>
                                     <ContentControl Style="{DynamicResource FileContentControlStyle}"
-                                                    Content="All" />
+                                                    Content="{DynamicResource AllTestsIcon}" />
                                 </HeaderedContentControl.Header>
                             </HeaderedContentControl>
                             <HeaderedContentControl Content="{Binding PassedTestCount, Mode=OneWay}"
@@ -116,7 +117,7 @@
                                                     Style="{StaticResource FileCountHeaderedControlStyle}">
                                 <HeaderedContentControl.Header>
                                     <ContentControl Style="{DynamicResource FileContentControlStyle}"
-                                                    Content="Warning" />
+                                                    Content="{DynamicResource WarningIcon}" />
                                 </HeaderedContentControl.Header>
                             </HeaderedContentControl>
                         </StackPanel>
@@ -225,6 +226,12 @@
                                            BorderBrush="Transparent"
                                            BorderThickness="0"
                                            Margin="0">
+                        <controls:TreeListView.ContextMenu>
+                            <ContextMenu DataContext="{Binding ElementName=ProjectControl}">
+                                <MenuItem Header="Run selected" Command="{Binding RunAllTestCommand}"/>
+                                <MenuItem Header="Run all" Command="{Binding RunSelectedTestCommand}"/>
+                            </ContextMenu>
+                        </controls:TreeListView.ContextMenu>
                         <controls:TreeListView.Resources>
                             <Style TargetType="TextBlock"
                                    x:Key="TextBlockStyle">
@@ -317,11 +324,36 @@
                                     <DataTemplate>
                                         <StackPanel Orientation="Horizontal">
                                             <controls:TreeListViewExpander />
+                                            <ContentControl DataContext="{Binding TestAction}">
+                                                <ContentControl.Style>
+                                                    <Style TargetType="ContentControl">
+                                                        <Setter Property="Content"
+                                                                Value="" />
+                                                        <Setter Property="Width"
+                                                                Value="14" />
+                                                        <Setter Property="Height"
+                                                                Value="14" />
+                                                        <Setter Property="Margin"
+                                                                Value="4 0" />
+                                                        <Setter Property="Padding"
+                                                                Value="0" />
+                                                        <Style.Triggers>
+                                                            <!--TestStatus-->
+                                                            <DataTrigger
+                                                                Binding="{Binding  Converter={StaticResource EnumToBoolConverter}, ConverterParameter={x:Static models:TestState.Starting}}"
+                                                                Value="true">
+                                                                <Setter Property="Content"
+                                                                        Value="{DynamicResource WaitIcon}" />
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </ContentControl.Style>
+                                            </ContentControl>
                                             <ContentControl DataContext="{Binding TestStatus}">
                                                 <ContentControl.Style>
                                                     <Style TargetType="ContentControl">
                                                         <Setter Property="Content"
-                                                                Value="?" />
+                                                                Value="" />
                                                         <Setter Property="Width"
                                                                 Value="14" />
                                                         <Setter Property="Height"
@@ -354,7 +386,7 @@
                                                                 Binding="{Binding  Converter={StaticResource EnumToBoolConverter}, ConverterParameter={x:Static models:TestStatus.Warning }}"
                                                                 Value="true">
                                                                 <Setter Property="Content"
-                                                                        Value="{DynamicResource QuestionMarkIcon}" />
+                                                                        Value="{DynamicResource WarningIcon}" />
                                                             </DataTrigger>
                                                             <DataTrigger
                                                                 Binding="{Binding TestStatus, Converter={StaticResource EnumToBoolConverter}, ConverterParameter={x:Static models:TestStatus.Inconclusive }}"

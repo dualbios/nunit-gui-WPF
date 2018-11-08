@@ -45,9 +45,21 @@ namespace NUnit3GUIWPF.ViewModels
 
         private IDictionary<string, Action<ProjectViewModel, TestNode, XmlNode>> reportActions = new Dictionary<string, Action<ProjectViewModel, TestNode, XmlNode>>()
         {
-            {"start-test", (vm, node, report) => { node.TestAction = TestState.Starting; }},
-            {"start-suite", (vm, node, report) => { node.TestAction = TestState.Starting; }},
-            {"start-run", (vm, node, report) => { node.TestAction = TestState.Starting; }},
+            {"start-test", (vm, node, report) =>
+            {
+                node.TestAction = TestState.Starting;
+                node.Output = string.Empty;
+            }},
+            {"start-suite", (vm, node, report) =>
+            {
+                node.TestAction = TestState.Starting;
+                node.Output = string.Empty;
+            }},
+            {"start-run", (vm, node, report) =>
+            {
+                node.TestAction = TestState.Starting;
+                node.Output = string.Empty;
+            }},
             {
                 "test-case", (vm, node, report) =>
                 {
