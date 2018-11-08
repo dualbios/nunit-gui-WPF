@@ -305,5 +305,8 @@
   <ItemGroup>
     <Resource Include="main_ico.ico" />
   </ItemGroup>
+  <ItemGroup>
+    <SplashScreen Include="MainSplashScreen.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
