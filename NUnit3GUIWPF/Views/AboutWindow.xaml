@@ -9,39 +9,84 @@
                      Title="About"
                      Height="400"
                      Width="300"
+                     FontSize="14"
+                     ShowInTaskbar="False"
                      WindowStartupLocation="CenterOwner"
                      Style="{StaticResource DialogWindowStyle}">
-    <DockPanel LastChildFill="True">
-        <Border DockPanel.Dock="Bottom"
-                BorderThickness="0 1 0 0"
-                BorderBrush="{DynamicResource 6GrayColorBrush}">
-            <Button Content="Ok"
-                    Margin="8"
-                    Width="65"
-                    Height="24"
-                    HorizontalAlignment="Right"
-                    VerticalAlignment="Center"
-                    Click="Ok_OnClick" />
-        </Border>
-        <Grid Margin="8">
-            <StackPanel>
-                <TextBlock Text="NUnit Test Runner"
-                           Foreground="{DynamicResource 4GrayColorBrush}"
-                           FontSize="24"
-                           HorizontalAlignment="Stretch"
-                           TextAlignment="Center"
-                           Margin="0 16" />
+    <Window.Resources>
+        <Style TargetType="TextBlock">
+            <Setter Property="Foreground"
+                    Value="{DynamicResource 4GrayColorBrush}" />
+        </Style>
+    </Window.Resources>
+    <Grid Margin="8">
+        <StackPanel>
+            <StackPanel Orientation="Horizontal">
                 <ContentControl Content="{StaticResource MainIcon}"
                                 VerticalAlignment="Top"
                                 HorizontalAlignment="Center"
-                                Width="128"
-                                Height="128" />
+                                Width="64"
+                                Height="64" />
+                <TextBlock Text="NUnit Test Runner"
+                           FontSize="24"
+                           HorizontalAlignment="Stretch"
+                           TextAlignment="Center"
+                           Margin="16"
+                           VerticalAlignment="Top" />
             </StackPanel>
-            <TextBlock Foreground="{DynamicResource 4GrayColorBrush}"
-                       VerticalAlignment="Bottom">
-                <Run Text="Version: " />
-                <Run x:Name="VersionText" />
-            </TextBlock>
-        </Grid>
-    </DockPanel>
+            <StackPanel Margin="0 32 0 0">
+                <TextBlock>
+                    <Hyperlink NavigateUri="https://github.com/dualbios/nunit-gui-WPF" RequestNavigate="Hyperlink_RequestNavigate">
+                        GitHub project link
+                    </Hyperlink>
+                </TextBlock>
+                <TextBlock VerticalAlignment="Bottom">
+                    <Run Text="Version: " />
+                    <Run x:Name="VersionText" />
+                </TextBlock>
+            </StackPanel>
+        <StackPanel Margin="0 32 0 0">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="120" />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition />
+                    <RowDefinition />
+                </Grid.RowDefinitions>
+                <TextBlock Text="Development by: "
+                           Grid.Column="0"
+                           Grid.Row="0" />
+                <TextBlock Text="Kostiantyn Usenko"
+                           Margin="16 0"
+                           FontWeight="Bold"
+                           Grid.Column="1"
+                           Grid.Row="0" />
+                <TextBlock Text="UI design: "
+                           Grid.Column="0"
+                           Grid.Row="1" />
+                <TextBlock Text="Ira Sukanets"
+                           Margin="16 0"
+                           FontWeight="Bold"
+                           Grid.Column="1"
+                           Grid.Row="1" />
+            </Grid>
+
+        </StackPanel>
+
+        </StackPanel>
+
+        <TextBlock HorizontalAlignment="Left"
+                   VerticalAlignment="Bottom">
+            <Run Text="Copyright: " />
+            <Run Text="&#x0040;2018"
+                 FontWeight="Bold" />
+        </TextBlock>
+        <ContentControl Content="{DynamicResource NUnitLogo}"
+                        Width="91"
+                        Height="32"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Bottom" />
+    </Grid>
 </controls:BaseWindow>
