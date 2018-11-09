@@ -1,0 +1,1 @@
+nuget pack -build -Properties Configuration=release

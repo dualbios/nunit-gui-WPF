@@ -44,7 +44,6 @@
 
 # Kernel Module Compile Results
 *.mod*
-*.cmd
 .tmp_versions/
 modules.order
 Module.symvers
@@ -59,6 +58,7 @@ NUnit3Gui.UnitTest/obj/
 .vs/
 NUnit3GUIWPF/obj/
 NUnit3GUIWPF/bin/
-NUnit3GUIWPF.sln.DotSettings.user
 Test4Test/bin/
 Test4Test/obj/
+NUnit3GUIWPF/NUnit3GUIWPF*.nupkg
+*.user

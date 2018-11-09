@@ -20,6 +20,13 @@ namespace Test4Test
         }
 
         [Test]
+        public async Task TestMethodAsync2()
+        {
+            await Task.Delay(3321);
+            Assert.True(true);
+        }
+
+        [Test]
         [Ignore("test reason")]
         public void TestMethod2()
         {

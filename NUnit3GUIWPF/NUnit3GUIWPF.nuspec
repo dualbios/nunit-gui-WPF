@@ -1,0 +1,113 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>$id$</id>
+    <version>$version$</version>
+    <title>Nunit Test Runner</title>
+    <authors>Kostiantin Usenko, Ira Sukanets</authors>
+    <owners>Kostiantin Usenko</owners>
+    <licenseUrl>https://github.com/dualbios/nunit-gui-WPF/blob/master/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/dualbios/nunit-gui-WPF</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>GUI for NUnit3 tests runner</description>
+    <releaseNotes>First release</releaseNotes>
+    <copyright>Copyright 2018</copyright>
+    <tags>NUnit3 Tests Runner Wpf</tags>
+
+    <dependencies>
+      <dependency id="System.Runtime.InteropServices.RuntimeInformation" version="4.0.0" />
+      <dependency id="DesktopBridge.Helpers" version="1.1.0" />
+      <dependency id="DynamicData" version="6.6.1.2507" />
+      <dependency id="Expression.Blend.Sdk.WPF" version="1.0.1" />
+      <dependency id="Microsoft.VisualStudio.Composition" version="15.8.98" />
+      <dependency id="Microsoft.VisualStudio.Composition.NetFxAttributes" version="15.8.98" />
+      <dependency id="Microsoft.VisualStudio.Validation" version="15.3.58" />
+      <dependency id="NUnit" version="3.11.0" />
+      <dependency id="NUnit.Engine" version="3.9.0" />
+      <dependency id="NUnit.Engine.Api" version="3.9.0" />
+      <dependency id="ReactiveUI" version="9.1.1" />
+      <dependency id="ReactiveUI.WPF" version="9.1.1" />
+      <dependency id="Splat" version="5.0.2" />
+      <dependency id="System.Collections.Immutable" version="1.5.0" />
+      <dependency id="System.ComponentModel.Composition" version="4.5.0" />
+      <dependency id="System.Composition" version="1.2.0" />
+      <dependency id="System.Composition.AttributedModel" version="1.2.0" />
+      <dependency id="System.Composition.Convention" version="1.2.0" />
+      <dependency id="System.Composition.Hosting" version="1.2.0" />
+      <dependency id="System.Composition.Runtime" version="1.2.0" />
+      <dependency id="System.Composition.TypedParts" version="1.2.0" />
+      <dependency id="System.Drawing.Primitives" version="4.3.0" />
+      <dependency id="System.Reactive" version="4.1.2" />
+      <dependency id="System.Reactive.Compatibility" version="4.1.2" />
+      <dependency id="System.Reactive.Core" version="4.1.2" />
+      <dependency id="System.Reactive.Experimental" version="4.1.2" />
+      <dependency id="System.Reactive.Interfaces" version="4.1.2" />
+      <dependency id="System.Reactive.Linq" version="4.1.2" />
+      <dependency id="System.Reactive.PlatformServices" version="4.1.2" />
+      <dependency id="System.Reactive.Providers" version="4.1.2" />
+      <dependency id="System.Reactive.Runtime.Remoting" version="4.1.2" />
+      <dependency id="System.Reactive.Windows.Forms" version="4.1.2" />
+      <dependency id="System.Reactive.Windows.Threading" version="4.1.2" />
+      <dependency id="System.Reflection.Emit" version="4.3.0" />
+      <dependency id="System.Reflection.Metadata" version="1.6.0" />
+      <dependency id="System.Threading.Tasks.Dataflow" version="4.9.0" />
+      <dependency id="System.ValueTuple" version="4.5.0" />
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="LICENSE" target="LICENSE" />
+    <file src="bin\$configuration$\nunit-agent.exe" target="tools\" />
+    <file src="bin\$configuration$\nunit-agent-x86.exe" target="tools\" />
+    <file src="bin\$configuration$\DesktopBridge.Helpers.dll" target="tools\" />
+    <file src="bin\$configuration$\DynamicData.dll" target="tools\" />
+    <file src="bin\$configuration$\Microsoft.Expression.Interactions.dll" target="tools\" />
+    <file src="bin\$configuration$\Microsoft.VisualStudio.Composition.dll" target="tools\" />
+    <file src="bin\$configuration$\Microsoft.VisualStudio.Composition.NetFxAttributes.dll" target="tools\" />
+    <file src="bin\$configuration$\Microsoft.VisualStudio.Validation.dll" target="tools\" />
+    <file src="bin\$configuration$\Mono.Cecil.dll" target="tools\" />
+    <file src="bin\$configuration$\nunit.engine.dll" target="tools\" />
+    <file src="bin\$configuration$\nunit.engine.api.dll" target="tools\" />
+    <file src="bin\$configuration$\nunit.framework.dll" target="tools\" />
+    <file src="bin\$configuration$\nunit.framework.pdb" target="tools\" />
+    <file src="bin\$configuration$\NUnit3GUIWPF.exe" target="tools\" />
+    <file src="bin\$configuration$\NUnit3GUIWPF.exe.config" target="tools\" />
+    <file src="bin\$configuration$\ReactiveUI.dll" target="tools\" />
+    <file src="bin\$configuration$\ReactiveUI.WPF.dll" target="tools\" />
+    <file src="bin\$configuration$\Splat.dll" target="tools\" />
+    <file src="bin\$configuration$\System.Collections.Immutable.dll" target="tools\" />
+    <file src="bin\$configuration$\System.Composition.AttributedModel.dll" target="tools\" />
+    <file src="bin\$configuration$\System.Composition.Convention.dll" target="tools\" />
+    <file src="bin\$configuration$\System.Composition.Hosting.dll" target="tools\" />
+    <file src="bin\$configuration$\System.Composition.Runtime.dll" target="tools\" />
+    <file src="bin\$configuration$\System.Composition.TypedParts.dll" target="tools\" />
+    <file src="bin\$configuration$\System.Data.Common.dll" target="tools\" />
+    <file src="bin\$configuration$\System.Diagnostics.StackTrace.dll" target="tools\" />
+    <file src="bin\$configuration$\System.Diagnostics.Tracing.dll" target="tools\" />
+    <file src="bin\$configuration$\System.Globalization.Extensions.dll" target="tools\" />
+    <file src="bin\$configuration$\System.IO.Compression.dll" target="tools\" />
+    <file src="bin\$configuration$\System.Net.Http.dll" target="tools\" />
+    <file src="bin\$configuration$\System.Net.Sockets.dll" target="tools\" />
+    <file src="bin\$configuration$\System.Reactive.dll" target="tools\" />
+    <file src="bin\$configuration$\System.Reactive.Core.dll" target="tools\" />
+    <file src="bin\$configuration$\System.Reactive.Experimental.dll" target="tools\" />
+    <file src="bin\$configuration$\System.Reactive.Interfaces.dll" target="tools\" />
+    <file src="bin\$configuration$\System.Reactive.Linq.dll" target="tools\" />
+    <file src="bin\$configuration$\System.Reactive.PlatformServices.dll" target="tools\" />
+    <file src="bin\$configuration$\System.Reactive.Providers.dll" target="tools\" />
+    <file src="bin\$configuration$\System.Reactive.Runtime.Remoting.dll" target="tools\" />
+    <file src="bin\$configuration$\System.Reactive.Windows.Forms.dll" target="tools\" />
+    <file src="bin\$configuration$\System.Reactive.Windows.Threading.dll" target="tools\" />
+    <file src="bin\$configuration$\System.Reflection.Metadata.dll" target="tools\" />
+    <file src="bin\$configuration$\System.Runtime.CompilerServices.Unsafe.dll" target="tools\" />
+    <file src="bin\$configuration$\System.Runtime.Serialization.Primitives.dll" target="tools\" />
+    <file src="bin\$configuration$\System.Security.Cryptography.Algorithms.dll" target="tools\" />
+    <file src="bin\$configuration$\System.Security.SecureString.dll" target="tools\" />
+    <file src="bin\$configuration$\System.Threading.Overlapped.dll" target="tools\" />
+    <file src="bin\$configuration$\System.Threading.Tasks.Dataflow.dll" target="tools\" />
+    <file src="bin\$configuration$\System.Threading.Tasks.Extensions.dll" target="tools\" />
+    <file src="bin\$configuration$\System.ValueTuple.dll" target="tools\" />
+    <file src="bin\$configuration$\System.Windows.Interactivity.dll" target="tools\" />
+    <file src="bin\$configuration$\System.Xml.XPath.XDocument.dll" target="tools\" />
+    
+  </files>
+</package>
