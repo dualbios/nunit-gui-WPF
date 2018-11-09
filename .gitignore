@@ -62,3 +62,4 @@ Test4Test/bin/
 Test4Test/obj/
 NUnit3GUIWPF/NUnit3GUIWPF*.nupkg
 *.user
+*.zip
