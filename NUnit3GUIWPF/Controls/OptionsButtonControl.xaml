@@ -4,11 +4,16 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:NUnit3GUIWPF.Controls"
+             xmlns:converters="clr-namespace:NUnit3GUIWPF.Converters"
              mc:Ignorable="d"
              d:DesignHeight="450"
              d:DesignWidth="800"
              Foreground="{DynamicResource Blue2Brush}">
     <UserControl.Resources>
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+        <converters:BoolToVisibilityConverter x:Key="ReversedBoolToVisibilityConverter"
+                                              IsReversed="True" />
+
         <Style x:Key="OptionItemHeaderedContentControlStyle"
                TargetType="HeaderedContentControl"
                BasedOn="{StaticResource {x:Type HeaderedContentControl}}">
@@ -65,18 +70,15 @@
                x:Key="OptionItemListBoxStyle">
             <Setter Property="Background"
                     Value="Transparent" />
-            <Setter Property="ItemContainerStyle" 
-                    Value="{DynamicResource OptionItemListBoxItemStyle}"/>
+            <Setter Property="ItemContainerStyle"
+                    Value="{DynamicResource OptionItemListBoxItemStyle}" />
             <Setter Property="Foreground"
                     Value="{DynamicResource White1Brush}" />
-
         </Style>
     </UserControl.Resources>
     <Grid>
         <ToggleButton x:Name="TogglePopupButton"
                       Content="{DynamicResource OptionsIcon}"
-                      Background="Transparent"
-                      Foreground="{DynamicResource White2Brush}"
                       HorizontalAlignment="Left"
                       Width="24"
                       Height="24"
@@ -108,14 +110,14 @@
                         <HeaderedContentControl Style="{DynamicResource OptionItemHeaderedContentControlStyle}"
                                                 Header="Run as x86">
                             <CheckBox IsChecked="{Binding PackageSettngs.IsRunAsX86}"
-                                      Content="Run as x86" >
+                                      Content="Run as x86">
                                 <CheckBox.Style>
                                     <Style TargetType="CheckBox" BasedOn="{StaticResource {x:Type CheckBox}}">
-                                        <Setter Property="Foreground" Value="{DynamicResource White1Brush}"/>
+                                        <Setter Property="Foreground" Value="{DynamicResource White1Brush}" />
                                         <Style.Triggers>
                                             <Trigger Property="IsChecked" Value="True">
-                                                <Setter Property="FontWeight" Value="Bold"/>
-                                                <Setter Property="Foreground" Value="{DynamicResource Blue1Brush}"/>
+                                                <Setter Property="FontWeight" Value="Bold" />
+                                                <Setter Property="Foreground" Value="{DynamicResource Blue1Brush}" />
                                             </Trigger>
                                         </Style.Triggers>
                                     </Style>
@@ -138,9 +140,8 @@
                                                 Header="Runtimes">
                             <ListBox ItemsSource="{Binding Runtimes}"
                                      SelectedItem="{Binding PackageSettngs.RuntimeFramework}"
-                                     
-                                     Style="{DynamicResource OptionItemListBoxStyle}">
 
+                                     Style="{DynamicResource OptionItemListBoxStyle}">
                             </ListBox>
                         </HeaderedContentControl>
                     </StackPanel>

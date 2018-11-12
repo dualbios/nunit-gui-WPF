@@ -45,22 +45,7 @@
                     </StackPanel>
                 </Button.Content>
             </Button>
-            <Button Command="{Binding OpenRecentCommand}"
-                    HorizontalAlignment="Center"
-                    IsEnabled="false"
-                    Style="{DynamicResource OpenButtonStyle}">
-                <Button.Content>
-                    <StackPanel Orientation="Vertical">
-                        <ContentControl Content="{StaticResource OpenRecentIcon}"
-                                        Width="75"
-                                        Height="65"
-                                        Margin="4" 
-                                        HorizontalAlignment="Center"/>
-                        <TextBlock Text="Open"
-                               HorizontalAlignment="Center" />
-                    </StackPanel>
-                </Button.Content>
-            </Button>
+            
         </StackPanel>
     </Grid>
 </UserControl>

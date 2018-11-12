@@ -71,6 +71,7 @@
     <Compile Include="Controls\TreeListView.cs" />
     <Compile Include="Converters\BoolToVisibilityConverter.cs" />
     <Compile Include="Converters\EnumToBoolConverter.cs" />
+    <Compile Include="Converters\InverseBoolConverter.cs" />
     <Compile Include="Converters\NullToVisibilityConverter.cs" />
     <Compile Include="Converters\PathToFilenameConverter.cs" />
     <Compile Include="Converters\ProjectStateToEnableConverter.cs" />

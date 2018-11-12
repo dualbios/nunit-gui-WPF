@@ -45,21 +45,27 @@ namespace NUnit3GUIWPF.ViewModels
 
         private IDictionary<string, Action<ProjectViewModel, TestNode, XmlNode>> reportActions = new Dictionary<string, Action<ProjectViewModel, TestNode, XmlNode>>()
         {
-            {"start-test", (vm, node, report) =>
             {
-                node.TestAction = TestState.Starting;
-                node.Output = string.Empty;
-            }},
-            {"start-suite", (vm, node, report) =>
+                "start-test", (vm, node, report) =>
+                {
+                    node.TestAction = TestState.Starting;
+                    node.Output = string.Empty;
+                }
+            },
             {
-                node.TestAction = TestState.Starting;
-                node.Output = string.Empty;
-            }},
-            {"start-run", (vm, node, report) =>
+                "start-suite", (vm, node, report) =>
+                {
+                    node.TestAction = TestState.Starting;
+                    node.Output = string.Empty;
+                }
+            },
             {
-                node.TestAction = TestState.Starting;
-                node.Output = string.Empty;
-            }},
+                "start-run", (vm, node, report) =>
+                {
+                    node.TestAction = TestState.Starting;
+                    node.Output = string.Empty;
+                }
+            },
             {
                 "test-case", (vm, node, report) =>
                 {
@@ -95,6 +101,7 @@ namespace NUnit3GUIWPF.ViewModels
 
         private string _errorMessage;
         private TimeSpan _testTimePass;
+        private bool _isStopping;
 
         private TestPackage TestPackage { get; set; } = null;
 
@@ -112,14 +119,14 @@ namespace NUnit3GUIWPF.ViewModels
                     (p2) => !p2.Value));
             StopTestCommand = ReactiveCommand.CreateFromTask(
                 StopTestAsync,
-                this.WhenAny(vm => vm.IsRunning, p => p.Value == true));
+                this.WhenAny(vm => vm.IsRunning, vm => vm.IsStopping, (p1, p2) => p1.Value == true && p2.Value == false));
 
             RunSelectedTestCommand = ReactiveCommand.CreateFromTask(
                 RunSelectedTestAsync,
                 Observable.CombineLatest(
                     this.WhenAny(vm => vm.SelectedItem, p => p.Value != null),
                     this.WhenAny(vm => vm.IsRunning, p => p.Value == false),
-                    (p1, p2)=> p1&& p2));
+                    (p1, p2) => p1 && p2));
 
             OpenFileCommand = ReactiveCommand.CreateFromObservable(
                 () => Observable.StartAsync(ct => SelectFileAndload(ct))
@@ -161,18 +168,15 @@ namespace NUnit3GUIWPF.ViewModels
 
             Observable
                 .Interval(TimeSpan.FromMilliseconds(250), DispatcherScheduler.Current)
-                .Where(_=>this.IsRunning)
+                .Where(_ => this.IsRunning)
                 .Subscribe(
-                    x =>
-                    {
-                        TestTimePass += TimeSpan.FromMilliseconds(x);
-                    });
+                    x => { TestTimePass += TimeSpan.FromMilliseconds(x); });
         }
 
         public TimeSpan TestTimePass
         {
             get => _testTimePass;
-            set => this.RaiseAndSetIfChanged(ref _testTimePass , value);
+            set => this.RaiseAndSetIfChanged(ref _testTimePass, value);
         }
 
         public ReactiveCommand<Unit, Unit> AddFileCommand { get; }
@@ -217,7 +221,15 @@ namespace NUnit3GUIWPF.ViewModels
                 {
                     TestTimePass = TimeSpan.Zero;
                 }
+
+                IsStopping = false;
             }
+        }
+
+        public bool IsStopping
+        {
+            get => _isStopping;
+            set => this.RaiseAndSetIfChanged(ref _isStopping, value);
         }
 
         public ReactiveCommand<Unit, Unit> LoadProjectCommand { get; }
@@ -394,7 +406,6 @@ namespace NUnit3GUIWPF.ViewModels
 
         private Task RunAllTestAsync(CancellationToken arg)
         {
-            
             State = ProjectState.Started;
             TestsProgress = 0;
             CompletedTestsCount = 0;
@@ -433,7 +444,7 @@ namespace NUnit3GUIWPF.ViewModels
         private Task StopTestAsync()
         {
             Runner.StopRun(false);
-            IsRunning = false;
+            IsStopping = true;
             return Task.CompletedTask;
         }
     }

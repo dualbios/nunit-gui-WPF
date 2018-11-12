@@ -109,7 +109,6 @@
                                                         Content="{DynamicResource RestoreIcon}"
                                                         Style="{DynamicResource SystemButton}"
                                                         WindowChrome.IsHitTestVisibleInChrome="true"
-                                                        Visibility="Collapsed"
                                                         x:Name="RestoreButton" />
                                                     <Button
                                                         Command="{Binding Source={x:Static SystemCommands.MaximizeWindowCommand}}"

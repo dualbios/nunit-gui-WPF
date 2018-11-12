@@ -29,6 +29,7 @@
             <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
             <converters:BoolToVisibilityConverter x:Key="ReversedBoolToVisibilityConverter"
                                                   IsReversed="True" />
+            <converters:InverseBoolConverter x:Key="InverseBoolConverter" />
             <Style TargetType="GridViewColumnHeader">
                 <Setter Property="Background"
                         Value="Transparent" />
@@ -75,14 +76,16 @@
                                 </Style>
                             </StackPanel.Resources>
                             <HeaderedContentControl Content="{Binding RanTestsCount, Mode=OneWay}"
-                                                    Style="{StaticResource FileCountHeaderedControlStyle}">
+                                                    Style="{StaticResource FileCountHeaderedControlStyle}"
+                                                    ToolTip="All tests">
                                 <HeaderedContentControl.Header>
                                     <ContentControl Style="{DynamicResource FileContentControlStyle}"
                                                     Content="{DynamicResource AllTestsIcon}" />
                                 </HeaderedContentControl.Header>
                             </HeaderedContentControl>
                             <HeaderedContentControl Content="{Binding PassedTestCount, Mode=OneWay}"
-                                                    Style="{StaticResource FileCountHeaderedControlStyle}">
+                                                    Style="{StaticResource FileCountHeaderedControlStyle}"
+                                                    ToolTip="Passed">
                                 <HeaderedContentControl.Header>
                                     <ContentControl Style="{DynamicResource FileContentControlStyle}"
                                                     Content="{DynamicResource CheckMarkIcon}" />
@@ -90,7 +93,8 @@
                             </HeaderedContentControl>
 
                             <HeaderedContentControl Content="{Binding FailedTestCount, Mode=OneWay}"
-                                                    Style="{StaticResource FileCountHeaderedControlStyle}">
+                                                    Style="{StaticResource FileCountHeaderedControlStyle}"
+                                                    ToolTip="Failed">
                                 <HeaderedContentControl.Header>
                                     <ContentControl Style="{DynamicResource FileContentControlStyle}"
                                                     Content="{DynamicResource RemoveMarkIcon}" />
@@ -98,7 +102,8 @@
                             </HeaderedContentControl>
 
                             <HeaderedContentControl Content="{Binding SkippedTestCount, Mode=OneWay}"
-                                                    Style="{StaticResource FileCountHeaderedControlStyle}">
+                                                    Style="{StaticResource FileCountHeaderedControlStyle}"
+                                                    ToolTip="Skipped">
                                 <HeaderedContentControl.Header>
                                     <ContentControl Style="{DynamicResource FileContentControlStyle}"
                                                     Content="{DynamicResource BlindIcon}" />
@@ -106,7 +111,8 @@
                             </HeaderedContentControl>
 
                             <HeaderedContentControl Content="{Binding InconclusiveTestCount, Mode=OneWay}"
-                                                    Style="{StaticResource FileCountHeaderedControlStyle}">
+                                                    Style="{StaticResource FileCountHeaderedControlStyle}"
+                                                    ToolTip="Inconclusive">
                                 <HeaderedContentControl.Header>
                                     <ContentControl Style="{DynamicResource FileContentControlStyle}"
                                                     Content="{DynamicResource QuestionMarkIcon}" />
@@ -114,7 +120,8 @@
                             </HeaderedContentControl>
 
                             <HeaderedContentControl Content="{Binding WarningTestCount, Mode=OneWay}"
-                                                    Style="{StaticResource FileCountHeaderedControlStyle}">
+                                                    Style="{StaticResource FileCountHeaderedControlStyle}"
+                                                    ToolTip="Warning">
                                 <HeaderedContentControl.Header>
                                     <ContentControl Style="{DynamicResource FileContentControlStyle}"
                                                     Content="{DynamicResource WarningIcon}" />
@@ -158,7 +165,8 @@
                         </StackPanel>
 
                         <controls:OptionsButtonControl DataContext="{Binding PackageSettingsViewModel}"
-                                                       DockPanel.Dock="Bottom" />
+                                                       DockPanel.Dock="Bottom"
+                                                       IsEnabled="{Binding DataContext.IsRunning, ElementName=ProjectControl, Converter={StaticResource InverseBoolConverter }}"/>
 
                         <StackPanel Style="{DynamicResource ButtonGroupStackPanelStyle}"
                                     DockPanel.Dock="Bottom">
@@ -466,16 +474,23 @@
             <StackPanel Orientation="Vertical"
                         HorizontalAlignment="Center"
                         VerticalAlignment="Center">
+                <StackPanel Orientation="Horizontal">
+                    <ContentControl Content="{StaticResource ErrorloadingIcon}"
+                                    Width="32"
+                                    Height="32" />
                 <TextBox Text="{Binding ErrorMessage, Mode=OneWay}"
                          IsReadOnly="True"
-                         Width="350"
-                         BorderThickness="0 0 0 1"
+                         MaxWidth="350"
+                         Margin="16 0"
+                         BorderThickness="0"
+                         VerticalAlignment="Center"
                          Foreground="{DynamicResource White1Brush}"
                          Background="{DynamicResource Blue1Brush}" />
+                    </StackPanel>
                 <Button Content="Close"
                         Width="126"
                         Height="32"
-                        Margin="16"
+                        Margin="8"
                         Command="{Binding CloseLoadingErrorCommand}" />
             </StackPanel>
         </Grid>

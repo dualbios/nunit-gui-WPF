@@ -65,18 +65,18 @@
                         <ContentPresenter Margin="4" />
                     </Border>
                     <ControlTemplate.Triggers>
-                        <Trigger Property="IsMouseOver"
-                                 Value="True">
-                            <Setter Property="Background"
+                      <Trigger Property="IsSelected"
+                                 Value="True"><Setter Property="Background"
                                     Value="{DynamicResource 5BlueColorBrush}" />
-                        </Trigger>
-                        <Trigger Property="IsSelected"
+                            
+                        </Trigger>  <Trigger Property="IsMouseOver"
                                  Value="True">
                             <Setter Property="Foreground"
                                     Value="{DynamicResource 2WhiteColorBrush}" />
                             <Setter Property="Background"
                                     Value="{DynamicResource 4GrayColorBrush}" />
                         </Trigger>
+                        
                         <Trigger Property="IsEnabled"
                                  Value="False">
                             <Setter Property="Foreground"

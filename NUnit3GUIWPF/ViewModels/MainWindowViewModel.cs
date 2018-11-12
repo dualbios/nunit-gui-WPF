@@ -28,7 +28,8 @@ namespace NUnit3GUIWPF.ViewModels
             AddProjectCommand = ReactiveCommand.Create(() => InternalAddNewProject());
 
             CloseProjectCommand = ReactiveCommand.Create<IProjectViewModel, Unit>(
-                p => CloseProject(p));
+                p => CloseProject(p),
+                Projects.WhenAny(l => l.Count, p => p.Value > 1));
 
             InternalAddNewProject();
         }
